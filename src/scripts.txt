@@ -1,0 +1,8 @@
+# To Run Postgres Database using docker
+-- navigate to root
+-- command to start : docker-compose up -d
+-- command to stop  : docker-compose down
+
+# To Run the Server
+-- navigate to root
+-- command to start in dev : npm run dev
