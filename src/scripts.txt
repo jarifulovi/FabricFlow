@@ -2,6 +2,7 @@
 -- navigate to root
 -- command to start : docker-compose up -d
 -- command to stop  : docker-compose down
+-- command to stop and reset : docker-compose down -v
 
 # To Run the Server
 -- navigate to root
