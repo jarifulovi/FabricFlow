@@ -1,7 +1,8 @@
 export interface ReceivingSlipLine {
   id: string;
-  slipId: string;      // UUID
-  variantId?: string;  // UUID
+  slipId: string;        // UUID
+  warehouseId?: string;  // UUID - optional, if null uses slip's warehouse
+  variantId?: string;    // UUID
   vendorSku?: string;
   quantity: number;
   price?: number;
@@ -20,6 +21,7 @@ export type ReceivingSlipLineRow = Omit<ReceivingSlipLine, 'createdAt' | 'update
 
 export const receivingSlipLineColumnMapping: Record<string, string> = {
   slipId: 'slip_id',
+  warehouseId: 'warehouse_id',
   variantId: 'variant_id',
   vendorSku: 'vendor_sku',
   quantity: 'quantity',

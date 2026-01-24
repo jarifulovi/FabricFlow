@@ -1,4 +1,5 @@
 export type MovementType = 'IN' | 'OUT' | 'ADJUSTMENT';
+export type ItemType = 'product_variant' | 'raw_material';
 export type MovementSource = 
   | 'receiving_slip_purchase'
   | 'receiving_slip_production'
@@ -12,8 +13,10 @@ export interface InventoryMovement {
   warehouseId: string;     // UUID
   quantity: number;
   movementType: MovementType;
+  itemType: ItemType;      // Type of item being moved
   sourceType: MovementSource;
   sourceId?: string;       // UUID - reference to source document
+  batchId?: string;        // UUID - optional batch reference for raw materials
   price?: number;
   createdAt: Date;
   updatedAt: Date;
@@ -32,8 +35,10 @@ export const inventoryMovementColumnMapping: Record<string, string> = {
   warehouseId: 'warehouse_id',
   quantity: 'quantity',
   movementType: 'movement_type',
+  itemType: 'item_type',
   sourceType: 'source_type',
   sourceId: 'source_id',
+  batchId: 'batch_id',
   price: 'price',
   createdAt: 'created_at',
   updatedAt: 'updated_at',
