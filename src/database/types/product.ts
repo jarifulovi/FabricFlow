@@ -19,6 +19,7 @@ export interface Product {
 export type CreateProductInput = Omit<Product, 'id' | 'createdAt' | 'updatedAt' | 'deletedAt' | 'isDeleted'>;
 export type UpdateProductInput = Partial<CreateProductInput>;
 export type ProductRow = Omit<Product, 'createdAt' | 'updatedAt' | 'deletedAt'> & {
+  categoryName: string;
   createdAt: string;
   updatedAt: string;
   deletedAt: string | null;

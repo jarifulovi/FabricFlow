@@ -1,9 +1,12 @@
 import { productColumnMapping } from "../../types/product";
 
 export const baseSelectProductsSQL = `
-SELECT *
-FROM products
-WHERE is_deleted = false
+SELECT 
+  p.*,
+  c.name AS category_name
+FROM products p
+LEFT JOIN categories c ON p.category_id = c.id
+WHERE p.is_deleted = false
 `;
 
 /**
@@ -25,19 +28,19 @@ export const buildSelectProductsQuery = (filters?: {
 
   if (filters) {
     if (filters.categoryId !== undefined) {
-      text += ` AND category_id = $${counter++}`;
+      text += ` AND p.category_id = $${counter++}`;
       values.push(filters.categoryId);
     }
     if (filters.status) {
-      text += ` AND status = $${counter++}`;
+      text += ` AND p.status = $${counter++}`;
       values.push(filters.status);
     }
     if (filters.tag) {
-      text += ` AND $${counter++} = ANY(tags)`;
+      text += ` AND $${counter++} = ANY(p.tags)`;
       values.push(filters.tag);
     }
     if (filters.search) {
-      text += ` AND (name ILIKE $${counter} OR sku ILIKE $${counter})`;
+      text += ` AND (p.name ILIKE $${counter} OR p.sku ILIKE $${counter})`;
       values.push(`%${filters.search}%`);
       counter++;
     }
@@ -46,9 +49,9 @@ export const buildSelectProductsQuery = (filters?: {
   if (filters?.sortBy) {
     const sortColumn = productColumnMapping[filters.sortBy] || 'created_at';
     const sortOrder = filters.sortOrder === 'asc' ? 'ASC' : 'DESC';
-    text += ` ORDER BY ${sortColumn} ${sortOrder}`;
+    text += ` ORDER BY p.${sortColumn} ${sortOrder}`;
   } else {
-    text += ` ORDER BY created_at DESC`; // default ordering
+    text += ` ORDER BY p.created_at DESC`; // default ordering
   }
 
   if (filters?.limit !== undefined) {

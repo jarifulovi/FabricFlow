@@ -12,7 +12,7 @@ export const buildBulkSoftDeleteProductQuery = (ids: string[]) => ({
   values: [ids],
 });
 
-// Bulk hard delete (optional / future)
+// Bulk hard delete (restricted / future)
 export const bulkHardDeleteProductSQL = `
 DELETE FROM products
 WHERE id = ANY($1::uuid[])

@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS products (
   description TEXT,
   brand_name VARCHAR(100),
   brand_code VARCHAR(50),
-  category_id UUID REFERENCES categories(id),        -- FK to categories
+  category_id UUID NOT NULL REFERENCES categories(id), -- FK to categories
   status product_status DEFAULT 'active' NOT NULL,   -- Lifecycle status
   unit unit_of_measure NOT NULL,                     -- Unit of measure
   is_deleted BOOLEAN DEFAULT FALSE,

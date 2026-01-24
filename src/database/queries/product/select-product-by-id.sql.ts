@@ -1,14 +1,20 @@
 export const selectProductByIdSQL = `
-SELECT *
-FROM products
-WHERE id = $1
-  AND is_deleted = false;
+SELECT 
+  p.*,
+  c.name AS category_name
+FROM products p
+LEFT JOIN categories c ON p.category_id = c.id
+WHERE p.id = $1
+  AND p.is_deleted = false;
 `;
 
 export const selectProductByIdIncludedDeletedSQL = `
-SELECT *
-FROM products
-WHERE id = $1;
+SELECT 
+  p.*,
+  c.name AS category_name
+FROM products p
+LEFT JOIN categories c ON p.category_id = c.id
+WHERE p.id = $1;
 `;
 
 /**
