@@ -10,6 +10,7 @@
 CREATE TABLE receiving_slip_lines (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   slip_id UUID REFERENCES receiving_slips(id) ON DELETE CASCADE,
+  warehouse_id UUID REFERENCES warehouses(id),  -- optional for line item level logic, if null uses slip's warehouse
   variant_id UUID REFERENCES product_variants(id),
   vendor_sku VARCHAR(100),           -- optional for purchase type
   quantity NUMERIC(15,3) NOT NULL,
@@ -40,6 +41,7 @@ CREATE INDEX idx_receiving_slip_lines_slip_id ON receiving_slip_lines(slip_id);
 -- Comments
 COMMENT ON TABLE receiving_slip_lines IS 'Details of items included in receiving slips.';
 COMMENT ON COLUMN receiving_slip_lines.slip_id IS 'Reference to the receiving slip.';
+COMMENT ON COLUMN receiving_slip_lines.warehouse_id IS 'Optional reference to the warehouse for this line item; if null, uses the slip''s warehouse.';
 COMMENT ON COLUMN receiving_slip_lines.variant_id IS 'Reference to the product variant being received.';
 COMMENT ON COLUMN receiving_slip_lines.vendor_sku IS 'Optional SKU provided by the vendor for purchase slips.';
 COMMENT ON COLUMN receiving_slip_lines.quantity IS 'Quantity of the product variant received.';

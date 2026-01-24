@@ -12,6 +12,7 @@
 
 -- ENUM types
 CREATE TYPE movement_type AS ENUM ('IN', 'OUT', 'ADJUSTMENT');
+CREATE TYPE item_type AS ENUM ('product_variant', 'raw_material');
 CREATE TYPE movement_source AS ENUM (
   'receiving_slip_purchase',
   'receiving_slip_production',
@@ -27,8 +28,10 @@ CREATE TABLE inventory_movements (
   warehouse_id UUID REFERENCES warehouses(id) NOT NULL,
   quantity NUMERIC(15,3) NOT NULL,         -- Positive = IN, Negative = OUT (optional if using movement_type)
   movement_type movement_type NOT NULL,    -- IN, OUT, ADJUSTMENT
+  item_type item_type NOT NULL,            -- Type of item being moved
   source_type movement_source NOT NULL,    -- Type of document causing movement
   source_id UUID,                          -- FK to the source document (slip, PO, sale, etc.)
+  batch_id UUID,                           -- Optional batch reference for raw materials
   price NUMERIC(12,2),                     -- Optional unit cost
   created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
@@ -59,6 +62,8 @@ COMMENT ON COLUMN inventory_movements.item_id IS 'Reference to the item being mo
 COMMENT ON COLUMN inventory_movements.warehouse_id IS 'Warehouse where the movement occurs';
 COMMENT ON COLUMN inventory_movements.quantity IS 'Quantity moved (positive for IN, negative for OUT)';
 COMMENT ON COLUMN inventory_movements.movement_type IS 'Type of movement: IN, OUT, ADJUSTMENT';
+COMMENT ON COLUMN inventory_movements.item_type IS 'Type of item being moved: product_variant, raw_material';
 COMMENT ON COLUMN inventory_movements.source_type IS 'Type of source document triggering this movement';
 COMMENT ON COLUMN inventory_movements.source_id IS 'ID of the source document';
 COMMENT ON COLUMN inventory_movements.price IS 'Optional cost per unit';
+COMMENT ON COLUMN inventory_movements.batch_id IS 'Optional batch reference for raw materials';
