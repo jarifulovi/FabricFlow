@@ -7,7 +7,7 @@ export interface ReceivingSlip {
   type: SlipType;
   status: SlipStatus;
   date: Date;
-  warehouseId?: string;  // UUID
+  warehouseId: string;  // UUID
   createdBy?: string;    // UUID
   notes?: string;
   createdAt: Date;

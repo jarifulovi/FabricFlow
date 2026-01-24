@@ -16,7 +16,7 @@ CREATE TABLE receiving_slips (
   type slip_type NOT NULL,
   status slip_status DEFAULT 'draft',
   date TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-  warehouse_id UUID REFERENCES warehouses(id),
+  warehouse_id UUID NOT NULL REFERENCES warehouses(id),
   created_by UUID,                                          -- optional for user tracking
   notes TEXT,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
@@ -42,6 +42,6 @@ COMMENT ON TABLE receiving_slips IS 'Records of receiving slips for inventory in
 COMMENT ON COLUMN receiving_slips.slip_number IS 'Unique identifier for the receiving slip.';
 COMMENT ON COLUMN receiving_slips.type IS 'Type of receiving slip (purchase, production).';
 COMMENT ON COLUMN receiving_slips.status IS 'Current status of the receiving slip.';
-COMMENT ON COLUMN receiving_slips.warehouse_id IS 'Optional link to the warehouse where items are received.';
+COMMENT ON COLUMN receiving_slips.warehouse_id IS 'Link to the warehouse where items are received.';
 COMMENT ON COLUMN receiving_slips.created_by IS 'Optional link to the user who created the slip.';
 
