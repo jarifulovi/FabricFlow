@@ -36,6 +36,7 @@ export * from './receiving-slip-line/insert-receiving-slip-line.sql';
 export * from './receiving-slip-line/patch-receiving-slip-line.sql';
 export * from './receiving-slip-line/select-receiving-slip-lines.sql';
 export * from './receiving-slip-line/select-receiving-slip-line-by-id.sql';
+export * from './receiving-slip-line/delete-receiving-slip-line.sql';
 
 export * from './inventory-movement/select-inventory-movement-by-id.sql';
 export * from './inventory-movement/select-inventory-movements.sql';

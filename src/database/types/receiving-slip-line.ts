@@ -1,9 +1,10 @@
 export interface ReceivingSlipLine {
   id: string;
-  slipId: string;        // UUID
+  slipId: string;        // UUID - required, every line must belong to a slip
+  lineNumber: number;    // Line item sequence number for ordering within the slip
   warehouseId?: string;  // UUID - optional, if null uses slip's warehouse
-  variantId?: string;    // UUID
-  vendorSku?: string;
+  variantId?: string;    // UUID - either variantId or vendorSku must be provided
+  vendorSku?: string;    // Either variantId or vendorSku must be provided
   quantity: number;
   price?: number;
   notes?: string;
@@ -21,6 +22,7 @@ export type ReceivingSlipLineRow = Omit<ReceivingSlipLine, 'createdAt' | 'update
 
 export const receivingSlipLineColumnMapping: Record<string, string> = {
   slipId: 'slip_id',
+  lineNumber: 'line_number',
   warehouseId: 'warehouse_id',
   variantId: 'variant_id',
   vendorSku: 'vendor_sku',

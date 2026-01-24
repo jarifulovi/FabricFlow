@@ -28,3 +28,4 @@ export * from './warehouse.repo';
 export * from './product.repo';
 export * from './variant.repo';
 export * from './receiving-slip.repo';
+export * from './receiving-slip-line.repo';

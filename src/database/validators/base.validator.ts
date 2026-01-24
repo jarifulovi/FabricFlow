@@ -15,6 +15,14 @@ export const dbValidator = {
   },
 
   /**
+   * Validates optional UUID (can be null/undefined, but if present must be valid)
+   */
+  isValidOptionalUUID(value: unknown): boolean {
+    if (value === null || value === undefined) return true;
+    return this.isValidUUID(value);
+  },
+
+  /**
    * Validates required field is not null/undefined
    */
   isRequired(value: unknown): boolean {
