@@ -10,17 +10,44 @@ export interface ProductVariant {
   fit?: string;
   price?: number;
   reorderLevel?: number;
-  isActive: boolean;
+  isDeleted: boolean;
   createdAt: Date;
   updatedAt: Date;
+  deletedAt?: Date;
 }
 
 // Derived types for queries
-export type CreateProductVariantInput = Omit<ProductVariant, 'id' | 'createdAt' | 'updatedAt' | 'isActive'>;
+export type CreateProductVariantInput = Omit<ProductVariant, 'id' | 'createdAt' | 'updatedAt' | 'deletedAt' | 'isDeleted'>;
 export type UpdateProductVariantInput = Partial<CreateProductVariantInput>;
-export type ProductVariantRow = Omit<ProductVariant, 'createdAt' | 'updatedAt'> & {
+export type ProductVariantRow = Omit<ProductVariant, 'createdAt' | 'updatedAt' | 'deletedAt'> & {
   createdAt: string;
   updatedAt: string;
+  deletedAt: string | null;
+};
+
+// Extended type with full product details (for single GET operations)
+export type ProductVariantWithProductRow = ProductVariantRow & {
+  product: {
+    id: string;
+    sku: string;
+    name: string;
+    description?: string;
+    brandName?: string;
+    brandCode?: string;
+    categoryId: string;
+    categoryName: string;
+    status: string;
+    unit: string;
+    isDeleted: boolean;
+    tags?: string[];
+  };
+};
+
+// Extended type with basic product info (for list GET operations)
+export type ProductVariantListRow = ProductVariantRow & {
+  productSku: string;
+  productName: string;
+  categoryName: string;
 };
 
 export const productVariantColumnMapping: Record<string, string> = {
@@ -34,7 +61,8 @@ export const productVariantColumnMapping: Record<string, string> = {
   fit: 'fit',
   price: 'price',
   reorderLevel: 'reorder_level',
-  isActive: 'is_active',
+  isDeleted: 'is_deleted',
   createdAt: 'created_at',
   updatedAt: 'updated_at',
+  deletedAt: 'deleted_at',
 };

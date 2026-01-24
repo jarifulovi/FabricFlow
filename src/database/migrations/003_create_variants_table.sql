@@ -19,9 +19,10 @@ CREATE TABLE IF NOT EXISTS product_variants (
   fit VARCHAR(20),                                           -- Slim, Regular, Loose
   price NUMERIC(12,2),                                       -- Optional variant-specific price
   reorder_level NUMERIC(15,3),                               -- Optional, used for stock alerts
-  is_active BOOLEAN DEFAULT TRUE,
+  is_deleted BOOLEAN DEFAULT FALSE,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+  deleted_at TIMESTAMP WITH TIME ZONE
 );
 
 -- Trigger function to auto-update updated_at
