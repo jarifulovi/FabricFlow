@@ -26,12 +26,8 @@ export const receivingSlipLineRepo = {
     if (!dbValidator.isValidOptionalUUID(input.warehouseId)) {
       throw new Error('Invalid warehouse ID');
     }
-    if (!dbValidator.isValidOptionalUUID(input.variantId)) {
+    if (!dbValidator.isValidUUID(input.variantId)) {
       throw new Error('Invalid variant ID');
-    }
-    // Ensure at least one of variantId or vendorSku is provided
-    if (!input.variantId && !input.vendorSku) {
-      throw new Error('Either variantId or vendorSku must be provided');
     }
     if (!dbValidator.isValidOptionalString(input.vendorSku)) {
       throw new Error('Invalid vendor SKU');

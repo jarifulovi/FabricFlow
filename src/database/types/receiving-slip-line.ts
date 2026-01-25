@@ -3,8 +3,8 @@ export interface ReceivingSlipLine {
   slipId: string;        // UUID - required, every line must belong to a slip
   lineNumber: number;    // Line item sequence number for ordering within the slip
   warehouseId?: string;  // UUID - optional, if null uses slip's warehouse
-  variantId?: string;    // UUID - either variantId or vendorSku must be provided
-  vendorSku?: string;    // Either variantId or vendorSku must be provided
+  variantId: string;     // UUID - required
+  vendorSku?: string;    // Optional SKU provided by vendor
   quantity: number;
   price?: number;
   notes?: string;

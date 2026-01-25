@@ -12,14 +12,14 @@ CREATE TABLE receiving_slip_lines (
   slip_id UUID NOT NULL REFERENCES receiving_slips(id) ON DELETE CASCADE,
   line_number INT NOT NULL,
   warehouse_id UUID REFERENCES warehouses(id),  -- optional for line item level logic, if null uses slip's warehouse
-  variant_id UUID REFERENCES product_variants(id),
+  variant_id UUID NOT NULL REFERENCES product_variants(id),
   vendor_sku VARCHAR(100),           -- optional for purchase type
   quantity NUMERIC(15,3) NOT NULL,
   price NUMERIC(12,2),               -- optional, cost per unit
   notes TEXT,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-  CONSTRAINT check_variant_or_vendor CHECK (variant_id IS NOT NULL OR vendor_sku IS NOT NULL)
+  CONSTRAINT unique_slip_line_number UNIQUE (slip_id, line_number)
 );
 
 
@@ -46,7 +46,7 @@ COMMENT ON TABLE receiving_slip_lines IS 'Details of items included in receiving
 COMMENT ON COLUMN receiving_slip_lines.slip_id IS 'Reference to the receiving slip.';
 COMMENT ON COLUMN receiving_slip_lines.line_number IS 'Line item sequence number within the slip for ordering.';
 COMMENT ON COLUMN receiving_slip_lines.warehouse_id IS 'Optional reference to the warehouse for this line item; if null, uses the slip''s warehouse.';
-COMMENT ON COLUMN receiving_slip_lines.variant_id IS 'Reference to the product variant being received.';
+COMMENT ON COLUMN receiving_slip_lines.variant_id IS 'Required reference to the product variant being received.';
 COMMENT ON COLUMN receiving_slip_lines.vendor_sku IS 'Optional SKU provided by the vendor for purchase slips.';
 COMMENT ON COLUMN receiving_slip_lines.quantity IS 'Quantity of the product variant received.';
 COMMENT ON COLUMN receiving_slip_lines.price IS 'Optional cost per unit of the product variant received.';

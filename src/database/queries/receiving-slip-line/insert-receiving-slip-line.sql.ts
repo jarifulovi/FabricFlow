@@ -13,7 +13,7 @@ export const buildInsertReceivingSlipLineQuery = (input: CreateReceivingSlipLine
     slipId,
     lineNumber,
     warehouseId = null,
-    variantId = null,
+    variantId,
     vendorSku = null,
     quantity,
     price = null,
