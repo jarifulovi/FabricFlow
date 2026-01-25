@@ -2,6 +2,7 @@ import pool, { Pool, PoolClient } from './../connection';
 
 import {
   buildInsertReceivingSlipLineQuery,
+  buildBulkInsertReceivingSlipLineQuery,
   buildPatchReceivingSlipLineQuery,
   buildDeleteReceivingSlipLinesQuery,
   buildSelectReceivingSlipLinesQuery,
@@ -42,6 +43,42 @@ export const receivingSlipLineRepo = {
     const { text, values } = buildInsertReceivingSlipLineQuery(input);
     const result = await db.query<ReceivingSlipLineRow>(text, values);
     return result.rows[0];
+  },
+
+  async bulkCreate(inputs: CreateReceivingSlipLineInput[], executor?: Pool | PoolClient): Promise<ReceivingSlipLineRow[]> {
+    const db = executor || pool;
+    if (!Array.isArray(inputs) || inputs.length === 0) {
+      throw new Error('At least one receiving slip line input is required');
+    }
+
+    // Validate all inputs
+    inputs.forEach((input, index) => {
+      if (!dbValidator.isValidUUID(input.slipId)) {
+        throw new Error(`Invalid slip ID at index ${index}`);
+      }
+      if (typeof input.lineNumber !== 'number' || input.lineNumber < 1) {
+        throw new Error(`Line number must be a positive integer at index ${index}`);
+      }
+      if (!dbValidator.isValidOptionalUUID(input.warehouseId)) {
+        throw new Error(`Invalid warehouse ID at index ${index}`);
+      }
+      if (!dbValidator.isValidUUID(input.variantId)) {
+        throw new Error(`Invalid variant ID at index ${index}`);
+      }
+      if (!dbValidator.isValidOptionalString(input.vendorSku)) {
+        throw new Error(`Invalid vendor SKU at index ${index}`);
+      }
+      if (typeof input.quantity !== 'number' || input.quantity <= 0) {
+        throw new Error(`Quantity must be a positive number at index ${index}`);
+      }
+      if (!dbValidator.isValidOptionalString(input.notes)) {
+        throw new Error(`Invalid notes at index ${index}`);
+      }
+    });
+
+    const { text, values } = buildBulkInsertReceivingSlipLineQuery(inputs);
+    const result = await db.query<ReceivingSlipLineRow>(text, values);
+    return result.rows;
   },
 
   // Update/patch is restricted for receiving slip lines, only for testing purposes

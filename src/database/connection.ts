@@ -3,6 +3,9 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
+export type Pool = pg.Pool;
+export type PoolClient = pg.PoolClient;
+
 const { Pool } = pg;
 
 const pool = new Pool({

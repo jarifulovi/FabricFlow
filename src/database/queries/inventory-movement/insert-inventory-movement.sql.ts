@@ -29,10 +29,6 @@ export const buildInsertInventoryMovementQuery = (input: CreateInventoryMovement
 
 // Bulk insert for creating multiple movements at once
 export const buildBulkInsertInventoryMovementQuery = (inputs: CreateInventoryMovementInput[]) => {
-  if (inputs.length === 0) {
-    throw new Error('At least one movement input is required for bulk insert');
-  }
-
   const values: any[] = [];
   const valuePlaceholders: string[] = [];
   let counter = 1;

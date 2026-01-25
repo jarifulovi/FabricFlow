@@ -25,3 +25,39 @@ export const buildInsertReceivingSlipLineQuery = (input: CreateReceivingSlipLine
     values: [slipId, lineNumber, warehouseId, variantId, vendorSku, quantity, price, notes],
   };
 };
+
+// Bulk insert for creating multiple receiving slip lines at once
+export const buildBulkInsertReceivingSlipLineQuery = (inputs: CreateReceivingSlipLineInput[]) => {
+  const values: any[] = [];
+  const valuePlaceholders: string[] = [];
+  let counter = 1;
+
+  inputs.forEach((input) => {
+    const {
+      slipId,
+      lineNumber,
+      warehouseId = null,
+      variantId,
+      vendorSku = null,
+      quantity,
+      price = null,
+      notes = null,
+    } = input;
+
+    valuePlaceholders.push(
+      `($${counter++}, $${counter++}, $${counter++}, $${counter++}, $${counter++}, $${counter++}, $${counter++}, $${counter++})`
+    );
+
+    values.push(slipId, lineNumber, warehouseId, variantId, vendorSku, quantity, price, notes);
+  });
+
+  const text = `
+    INSERT INTO receiving_slip_lines
+      (slip_id, line_number, warehouse_id, variant_id, vendor_sku, quantity, price, notes)
+    VALUES
+      ${valuePlaceholders.join(',\n      ')}
+    RETURNING *;
+  `;
+
+  return { text, values };
+};
