@@ -1,4 +1,4 @@
-import pool from './../connection';
+import pool, { Pool, PoolClient } from './../connection';
 
 import {
   buildInsertReceivingSlipQuery,
@@ -19,7 +19,8 @@ import { dbValidator } from '../validators/base.validator';
 
 
 export const receivingSlipRepo = {
-  async create(input: CreateReceivingSlipInput): Promise<ReceivingSlipRow> {
+  async create(input: CreateReceivingSlipInput, executor?: Pool | PoolClient): Promise<ReceivingSlipRow> {
+    const db = executor || pool;
     if (!dbValidator.isValidString(input.slipNumber)) {
       throw new Error('Invalid slip number');
     }
@@ -33,12 +34,13 @@ export const receivingSlipRepo = {
       throw new Error('Invalid notes');
     }
     const { text, values } = buildInsertReceivingSlipQuery(input);
-    const result = await pool.query<ReceivingSlipRow>(text, values);
+    const result = await db.query<ReceivingSlipRow>(text, values);
     return result.rows[0];
   },
 
   // Update is a patch is restricted for receiving slips except status, only for testing purposes
-  async update(id: string, input: UpdateReceivingSlipInput): Promise<ReceivingSlipRow> {
+  async update(id: string, input: UpdateReceivingSlipInput, executor?: Pool | PoolClient): Promise<ReceivingSlipRow> {
+    const db = executor || pool;
     if (!dbValidator.isValidUUID(id)) {
       throw new Error('Invalid receiving slip ID');
     }
@@ -58,25 +60,27 @@ export const receivingSlipRepo = {
       throw new Error('Invalid status');
     }
     const { text, values } = buildPatchReceivingSlipQuery(id, input);
-    const result = await pool.query<ReceivingSlipRow>(text, values);
+    const result = await db.query<ReceivingSlipRow>(text, values);
     return result.rows[0];
   },
 
-  async findById(id: string): Promise<ReceivingSlipRow | null> {
+  async findById(id: string, executor?: Pool | PoolClient): Promise<ReceivingSlipRow | null> {
+    const db = executor || pool;
     if (!dbValidator.isValidUUID(id)) {
       throw new Error('Invalid receiving slip ID');
     }
     const { text, values } = buildSelectReceivingSlipByIdQuery(id);
-    const result = await pool.query<ReceivingSlipRow>(text, values);
+    const result = await db.query<ReceivingSlipRow>(text, values);
     return result.rows[0] || null;
   },
 
-  async findBySlipNumber(slipNumber: string): Promise<ReceivingSlipRow | null> {
+  async findBySlipNumber(slipNumber: string, executor?: Pool | PoolClient): Promise<ReceivingSlipRow | null> {
+    const db = executor || pool;
     if (!dbValidator.isValidString(slipNumber)) {
       throw new Error('Invalid slip number');
     }
     const { text, values } = buildSelectReceivingSlipByNumberQuery(slipNumber);
-    const result = await pool.query<ReceivingSlipRow>(text, values);
+    const result = await db.query<ReceivingSlipRow>(text, values);
     return result.rows[0] || null;
   },
 
@@ -90,7 +94,8 @@ export const receivingSlipRepo = {
     sortOrder?: 'asc' | 'desc';
     limit?: number;
     offset?: number;
-  }): Promise<ReceivingSlipRow[]> {
+  }, executor?: Pool | PoolClient): Promise<ReceivingSlipRow[]> {
+    const db = executor || pool;
     if (filters?.warehouseId && !dbValidator.isValidUUID(filters.warehouseId)) {
       throw new Error('Invalid warehouse ID');
     }
@@ -98,17 +103,18 @@ export const receivingSlipRepo = {
       throw new Error('Invalid created by user ID');
     }
     const { text, values } = buildSelectReceivingSlipsQuery(filters);
-    const result = await pool.query<ReceivingSlipRow>(text, values);
+    const result = await db.query<ReceivingSlipRow>(text, values);
     return result.rows;
   },
 
   // Delete is restricted for receiving slips, only for testing purposes
-  async delete(id: string): Promise<ReceivingSlipRow> {
+  async delete(id: string, executor?: Pool | PoolClient): Promise<ReceivingSlipRow> {
+    const db = executor || pool;
     if (!dbValidator.isValidUUID(id)) {
       throw new Error('Invalid receiving slip ID');
     }
     const { text, values } = buildDeleteReceivingSlipsQuery([id]);
-    const result = await pool.query<ReceivingSlipRow>(text, values);
+    const result = await db.query<ReceivingSlipRow>(text, values);
     return result.rows[0];
   },
 };

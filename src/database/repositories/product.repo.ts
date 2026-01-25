@@ -1,4 +1,4 @@
-import pool from './../connection';
+import pool, { Pool, PoolClient } from './../connection';
 
 import {
   buildInsertProductQuery,
@@ -16,7 +16,8 @@ import { dbValidator } from '../validators/base.validator';
 
 
 export const productRepo = {
-  async create(input: CreateProductInput): Promise<ProductRow> {
+  async create(input: CreateProductInput, executor?: Pool | PoolClient): Promise<ProductRow> {
+    const db = executor || pool;
     if (!dbValidator.isValidString(input.sku)) {
       throw new Error('Invalid product SKU');
     }
@@ -36,11 +37,12 @@ export const productRepo = {
       throw new Error('Invalid brand code');
     }
     const { text, values } = buildInsertProductQuery(input);
-    const result = await pool.query<ProductRow>(text, values);
+    const result = await db.query<ProductRow>(text, values);
     return result.rows[0];
   },
 
-  async update(id: string, input: UpdateProductInput): Promise<ProductRow> {
+  async update(id: string, input: UpdateProductInput, executor?: Pool | PoolClient): Promise<ProductRow> {
+    const db = executor || pool;
     if (!dbValidator.isValidUUID(id)) {
       throw new Error('Invalid product ID');
     }
@@ -63,29 +65,31 @@ export const productRepo = {
       throw new Error('Invalid brand code');
     }
     const { text, values } = buildPatchProductQuery(id, input);
-    const result = await pool.query<ProductRow>(text, values);
+    const result = await db.query<ProductRow>(text, values);
     return result.rows[0];
   },
 
-  async findById(id: string, includeDeleted: boolean = false): Promise<ProductRow | null> {
+  async findById(id: string, includeDeleted: boolean = false, executor?: Pool | PoolClient): Promise<ProductRow | null> {
+    const db = executor || pool;
     if (!dbValidator.isValidUUID(id)) {
       throw new Error('Invalid product ID');
     }
     const { text, values } = includeDeleted 
       ? buildSelectProductByIdIncludedDeletedQuery(id)
       : buildSelectProductByIdQuery(id);
-    const result = await pool.query<ProductRow>(text, values);
+    const result = await db.query<ProductRow>(text, values);
     return result.rows[0] || null;
   },
 
-  async findBySku(sku: string, includeDeleted: boolean = false): Promise<ProductRow | null> {
+  async findBySku(sku: string, includeDeleted: boolean = false, executor?: Pool | PoolClient): Promise<ProductRow | null> {
+    const db = executor || pool;
     if (!dbValidator.isValidString(sku)) {
       throw new Error('Invalid product SKU');
     }
     const { text, values } = includeDeleted 
       ? buildSelectProductBySkuIncludedDeletedQuery(sku)
       : buildSelectProductBySkuQuery(sku);
-    const result = await pool.query<ProductRow>(text, values);
+    const result = await db.query<ProductRow>(text, values);
     return result.rows[0] || null;
   },
 
@@ -98,32 +102,35 @@ export const productRepo = {
     sortOrder?: 'asc' | 'desc';
     limit?: number;
     offset?: number;
-  }): Promise<ProductRow[]> {
+  }, executor?: Pool | PoolClient): Promise<ProductRow[]> {
+    const db = executor || pool;
     if (filters?.categoryId && !dbValidator.isValidUUID(filters.categoryId)) {
       throw new Error('Invalid category ID');
     }
     const { text, values } = buildSelectProductsQuery(filters);
-    const result = await pool.query<ProductRow>(text, values);
+    const result = await db.query<ProductRow>(text, values);
     return result.rows;
   },
 
   // Soft delete (recommended for production)
-  async softDelete(id: string): Promise<ProductRow> {
+  async softDelete(id: string, executor?: Pool | PoolClient): Promise<ProductRow> {
+    const db = executor || pool;
     if (!dbValidator.isValidUUID(id)) {
       throw new Error('Invalid product ID');
     }
     const { text, values } = buildBulkSoftDeleteProductQuery([id]);
-    const result = await pool.query<ProductRow>(text, values);
+    const result = await db.query<ProductRow>(text, values);
     return result.rows[0];
   },
 
   // Hard delete (only for testing purposes and batch clean-ups)
-  async hardDelete(id: string): Promise<ProductRow> {
+  async hardDelete(id: string, executor?: Pool | PoolClient): Promise<ProductRow> {
+    const db = executor || pool;
     if (!dbValidator.isValidUUID(id)) {
       throw new Error('Invalid product ID');
     }
     const { text, values } = buildBulkHardDeleteProductQuery([id]);
-    const result = await pool.query<ProductRow>(text, values);
+    const result = await db.query<ProductRow>(text, values);
     return result.rows[0];
   },
 };

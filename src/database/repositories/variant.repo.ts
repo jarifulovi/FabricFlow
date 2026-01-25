@@ -1,4 +1,4 @@
-import pool from './../connection';
+import pool, { Pool, PoolClient } from './../connection';
 
 import {
   buildInsertProductVariantQuery,
@@ -22,7 +22,8 @@ import { dbValidator } from '../validators/base.validator';
 
 
 export const variantRepo = {
-  async create(input: CreateProductVariantInput): Promise<ProductVariantRow> {
+  async create(input: CreateProductVariantInput, executor?: Pool | PoolClient): Promise<ProductVariantRow> {
+    const db = executor || pool;
     if (!dbValidator.isValidUUID(input.productId)) {
       throw new Error('Invalid product ID');
     }
@@ -48,11 +49,12 @@ export const variantRepo = {
       throw new Error('Invalid fit');
     }
     const { text, values } = buildInsertProductVariantQuery(input);
-    const result = await pool.query<ProductVariantRow>(text, values);
+    const result = await db.query<ProductVariantRow>(text, values);
     return result.rows[0];
   },
 
-  async update(id: string, input: UpdateProductVariantInput): Promise<ProductVariantRow> {
+  async update(id: string, input: UpdateProductVariantInput, executor?: Pool | PoolClient): Promise<ProductVariantRow> {
+    const db = executor || pool;
     if (!dbValidator.isValidUUID(id)) {
       throw new Error('Invalid variant ID');
     }
@@ -81,18 +83,19 @@ export const variantRepo = {
       throw new Error('Invalid fit');
     }
     const { text, values } = buildPatchVariantQuery(id, input);
-    const result = await pool.query<ProductVariantRow>(text, values);
+    const result = await db.query<ProductVariantRow>(text, values);
     return result.rows[0];
   },
 
-  async findById(id: string, includeDeleted: boolean = false): Promise<ProductVariantWithProductRow | null> {
+  async findById(id: string, includeDeleted: boolean = false, executor?: Pool | PoolClient): Promise<ProductVariantWithProductRow | null> {
+    const db = executor || pool;
     if (!dbValidator.isValidUUID(id)) {
       throw new Error('Invalid variant ID');
     }
     const { text, values } = includeDeleted 
       ? buildSelectVariantByIdIncludedDeletedQuery(id)
       : buildSelectVariantByIdQuery(id);
-    const result = await pool.query<any>(text, values);
+    const result = await db.query<any>(text, values);
     const row = result.rows[0];
     
     if (!row) return null;
@@ -131,14 +134,15 @@ export const variantRepo = {
     };
   },
 
-  async findBySku(sku: string, includeDeleted: boolean = false): Promise<ProductVariantWithProductRow | null> {
+  async findBySku(sku: string, includeDeleted: boolean = false, executor?: Pool | PoolClient): Promise<ProductVariantWithProductRow | null> {
+    const db = executor || pool;
     if (!dbValidator.isValidString(sku)) {
       throw new Error('Invalid variant SKU');
     }
     const { text, values } = includeDeleted 
       ? buildSelectVariantBySkuIncludedDeletedQuery(sku)
       : buildSelectVariantBySkuQuery(sku);
-    const result = await pool.query<any>(text, values);
+    const result = await db.query<any>(text, values);
     const row = result.rows[0];
     
     if (!row) return null;
@@ -189,12 +193,13 @@ export const variantRepo = {
     sortOrder?: 'asc' | 'desc';
     limit?: number;
     offset?: number;
-  }): Promise<ProductVariantListRow[]> {
+  }, executor?: Pool | PoolClient): Promise<ProductVariantListRow[]> {
+    const db = executor || pool;
     if (filters?.productId && !dbValidator.isValidUUID(filters.productId)) {
       throw new Error('Invalid product ID');
     }
     const { text, values } = buildSelectVariantsQuery(filters);
-    const result = await pool.query<any>(text, values);
+    const result = await db.query<any>(text, values);
     
     // Transform flat rows to include product info
     return result.rows.map(row => ({
@@ -220,22 +225,24 @@ export const variantRepo = {
   },
 
   // Soft delete (recommended for production)
-  async softDelete(id: string): Promise<ProductVariantRow> {
+  async softDelete(id: string, executor?: Pool | PoolClient): Promise<ProductVariantRow> {
+    const db = executor || pool;
     if (!dbValidator.isValidUUID(id)) {
       throw new Error('Invalid variant ID');
     }
     const { text, values } = buildBulkSoftDeleteVariantQuery([id]);
-    const result = await pool.query<ProductVariantRow>(text, values);
+    const result = await db.query<ProductVariantRow>(text, values);
     return result.rows[0];
   },
 
   // Hard delete (restricted, only for testing purposes and batch clean-ups)
-  async hardDelete(id: string): Promise<ProductVariantRow> {
+  async hardDelete(id: string, executor?: Pool | PoolClient): Promise<ProductVariantRow> {
+    const db = executor || pool;
     if (!dbValidator.isValidUUID(id)) {
       throw new Error('Invalid variant ID');
     }
     const { text, values } = buildBulkHardDeleteVariantQuery([id]);
-    const result = await pool.query<ProductVariantRow>(text, values);
+    const result = await db.query<ProductVariantRow>(text, values);
     return result.rows[0];
   },
 };

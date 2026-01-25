@@ -1,4 +1,4 @@
-import pool from './../connection';
+import pool, { Pool, PoolClient } from './../connection';
 
 import {
   buildInsertCategoryQuery,
@@ -12,7 +12,8 @@ import { dbValidator } from '../validators/base.validator';
 
 
 export const categoryRepo = {
-  async create(input: CreateCategoryInput): Promise<CategoryRow> {
+  async create(input: CreateCategoryInput, executor?: Pool | PoolClient): Promise<CategoryRow> {
+    const db = executor || pool;
     if (!dbValidator.isValidString(input.name)) {
       throw new Error('Invalid category name');
     }
@@ -20,11 +21,12 @@ export const categoryRepo = {
       throw new Error('Invalid category description');
     }
     const { text, values } = buildInsertCategoryQuery(input);
-    const result = await pool.query<CategoryRow>(text, values);
+    const result = await db.query<CategoryRow>(text, values);
     return result.rows[0];
   },
 
-  async update(id: string, input: UpdateCategoryInput): Promise<CategoryRow> {
+  async update(id: string, input: UpdateCategoryInput, executor?: Pool | PoolClient): Promise<CategoryRow> {
+    const db = executor || pool;
     if (!dbValidator.isValidUUID(id)) {
       throw new Error('Invalid category ID');
     }
@@ -35,16 +37,17 @@ export const categoryRepo = {
       throw new Error('Invalid category description');
     }
     const { text, values } = buildPatchCategoryQuery(id, input);
-    const result = await pool.query<CategoryRow>(text, values);
+    const result = await db.query<CategoryRow>(text, values);
     return result.rows[0];
   },
 
-  async findById(id: string): Promise<CategoryRow | null> {
+  async findById(id: string, executor?: Pool | PoolClient): Promise<CategoryRow | null> {
+    const db = executor || pool;
     if (!dbValidator.isValidUUID(id)) {
       throw new Error('Invalid category ID');
     }
     const { text, values } = buildSelectCategoryByIdQuery(id);
-    const result = await pool.query<CategoryRow>(text, values);
+    const result = await db.query<CategoryRow>(text, values);
     return result.rows[0] || null;
   },
 
@@ -54,19 +57,21 @@ export const categoryRepo = {
     sortOrder?: 'asc' | 'desc';
     limit?: number;
     offset?: number;
-  }): Promise<CategoryRow[]> {
+  }, executor?: Pool | PoolClient): Promise<CategoryRow[]> {
+    const db = executor || pool;
     const { text, values } = buildSelectCategoriesQuery(filters);
-    const result = await pool.query<CategoryRow>(text, values);
+    const result = await db.query<CategoryRow>(text, values);
     return result.rows;
   },
 
   // Delete is restricted for categories, only for testing purposes
-  async delete(id: string): Promise<CategoryRow> {
+  async delete(id: string, executor?: Pool | PoolClient): Promise<CategoryRow> {
+    const db = executor || pool;
     if (!dbValidator.isValidUUID(id)) {
       throw new Error('Invalid category ID');
     }
     const { text, values } = buildDeleteCategoriesQuery([id]);
-    const result = await pool.query<CategoryRow>(text, values);
+    const result = await db.query<CategoryRow>(text, values);
     return result.rows[0];
   },
 };

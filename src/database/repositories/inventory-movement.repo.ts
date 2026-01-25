@@ -1,4 +1,4 @@
-import pool from './../connection';
+import pool, { Pool, PoolClient } from './../connection';
 
 import {
   buildInsertInventoryMovementQuery,
@@ -18,7 +18,8 @@ import {
 import { dbValidator } from '../validators/base.validator';
 
 export const inventoryMovementRepo = {
-  async create(input: CreateInventoryMovementInput): Promise<InventoryMovementRow> {
+  async create(input: CreateInventoryMovementInput, executor?: Pool | PoolClient): Promise<InventoryMovementRow> {
+    const db = executor || pool;
     if (!dbValidator.isValidUUID(input.itemId)) {
       throw new Error('Invalid item ID');
     }
@@ -51,11 +52,12 @@ export const inventoryMovementRepo = {
     }
 
     const { text, values } = buildInsertInventoryMovementQuery(input);
-    const result = await pool.query<InventoryMovementRow>(text, values);
+    const result = await db.query<InventoryMovementRow>(text, values);
     return result.rows[0];
   },
 
-  async bulkCreate(inputs: CreateInventoryMovementInput[]): Promise<InventoryMovementRow[]> {
+  async bulkCreate(inputs: CreateInventoryMovementInput[], executor?: Pool | PoolClient): Promise<InventoryMovementRow[]> {
+    const db = executor || pool;
     // Validate all inputs
     inputs.forEach((input, index) => {
       if (!dbValidator.isValidUUID(input.itemId)) {
@@ -91,20 +93,22 @@ export const inventoryMovementRepo = {
     });
 
     const { text, values } = buildBulkInsertInventoryMovementQuery(inputs);
-    const result = await pool.query<InventoryMovementRow>(text, values);
+    const result = await db.query<InventoryMovementRow>(text, values);
     return result.rows;
   },
 
-  async findById(id: string): Promise<InventoryMovementRow | null> {
+  async findById(id: string, executor?: Pool | PoolClient): Promise<InventoryMovementRow | null> {
+    const db = executor || pool;
     if (!dbValidator.isValidUUID(id)) {
       throw new Error('Invalid inventory movement ID');
     }
     const { text, values } = buildSelectInventoryMovementByIdQuery(id);
-    const result = await pool.query<InventoryMovementRow>(text, values);
+    const result = await db.query<InventoryMovementRow>(text, values);
     return result.rows[0] || null;
   },
 
-  async findBySource(sourceType: MovementSource, sourceId: string): Promise<InventoryMovementRow[]> {
+  async findBySource(sourceType: MovementSource, sourceId: string, executor?: Pool | PoolClient): Promise<InventoryMovementRow[]> {
+    const db = executor || pool;
     if (!dbValidator.isValidEnum(sourceType, [
       'receiving_slip_purchase',
       'receiving_slip_production',
@@ -118,7 +122,7 @@ export const inventoryMovementRepo = {
       throw new Error('Invalid source ID');
     }
     const { text, values } = buildSelectInventoryMovementsBySourceQuery(sourceType, sourceId);
-    const result = await pool.query<InventoryMovementRow>(text, values);
+    const result = await db.query<InventoryMovementRow>(text, values);
     return result.rows;
   },
 
@@ -134,7 +138,8 @@ export const inventoryMovementRepo = {
     sortOrder?: 'asc' | 'desc';
     limit?: number;
     offset?: number;
-  }): Promise<InventoryMovementRow[]> {
+  }, executor?: Pool | PoolClient): Promise<InventoryMovementRow[]> {
+    const db = executor || pool;
     if (filters?.itemId && !dbValidator.isValidUUID(filters.itemId)) {
       throw new Error('Invalid item ID');
     }
@@ -164,17 +169,18 @@ export const inventoryMovementRepo = {
     }
 
     const { text, values } = buildSelectInventoryMovementsQuery(filters);
-    const result = await pool.query<InventoryMovementRow>(text, values);
+    const result = await db.query<InventoryMovementRow>(text, values);
     return result.rows;
   },
 
   // Delete is restricted for inventory movements, only for testing purposes
-  async delete(id: string): Promise<InventoryMovementRow> {
+  async delete(id: string, executor?: Pool | PoolClient): Promise<InventoryMovementRow> {
+    const db = executor || pool;
     if (!dbValidator.isValidUUID(id)) {
       throw new Error('Invalid inventory movement ID');
     }
     const { text, values } = buildDeleteInventoryMovementsQuery([id]);
-    const result = await pool.query<InventoryMovementRow>(text, values);
+    const result = await db.query<InventoryMovementRow>(text, values);
     return result.rows[0];
   },
 };

@@ -1,4 +1,4 @@
-import pool from './../connection';
+import pool, { Pool, PoolClient } from './../connection';
 
 import {
   buildInsertReceivingSlipLineQuery,
@@ -16,7 +16,8 @@ import { dbValidator } from '../validators/base.validator';
 
 
 export const receivingSlipLineRepo = {
-  async create(input: CreateReceivingSlipLineInput): Promise<ReceivingSlipLineRow> {
+  async create(input: CreateReceivingSlipLineInput, executor?: Pool | PoolClient): Promise<ReceivingSlipLineRow> {
+    const db = executor || pool;
     if (!dbValidator.isValidUUID(input.slipId)) {
       throw new Error('Invalid slip ID');
     }
@@ -39,12 +40,13 @@ export const receivingSlipLineRepo = {
       throw new Error('Invalid notes');
     }
     const { text, values } = buildInsertReceivingSlipLineQuery(input);
-    const result = await pool.query<ReceivingSlipLineRow>(text, values);
+    const result = await db.query<ReceivingSlipLineRow>(text, values);
     return result.rows[0];
   },
 
   // Update/patch is restricted for receiving slip lines, only for testing purposes
-  async update(id: string, input: UpdateReceivingSlipLineInput): Promise<ReceivingSlipLineRow> {
+  async update(id: string, input: UpdateReceivingSlipLineInput, executor?: Pool | PoolClient): Promise<ReceivingSlipLineRow> {
+    const db = executor || pool;
     if (!dbValidator.isValidUUID(id)) {
       throw new Error('Invalid receiving slip line ID');
     }
@@ -70,16 +72,17 @@ export const receivingSlipLineRepo = {
       throw new Error('Invalid notes');
     }
     const { text, values } = buildPatchReceivingSlipLineQuery(id, input);
-    const result = await pool.query<ReceivingSlipLineRow>(text, values);
+    const result = await db.query<ReceivingSlipLineRow>(text, values);
     return result.rows[0];
   },
 
-  async findById(id: string): Promise<ReceivingSlipLineRow | null> {
+  async findById(id: string, executor?: Pool | PoolClient): Promise<ReceivingSlipLineRow | null> {
+    const db = executor || pool;
     if (!dbValidator.isValidUUID(id)) {
       throw new Error('Invalid receiving slip line ID');
     }
     const { text, values } = buildSelectReceivingSlipLineByIdQuery(id);
-    const result = await pool.query<ReceivingSlipLineRow>(text, values);
+    const result = await db.query<ReceivingSlipLineRow>(text, values);
     return result.rows[0] || null;
   },
 
@@ -91,7 +94,8 @@ export const receivingSlipLineRepo = {
     sortOrder?: 'asc' | 'desc';
     limit?: number;
     offset?: number;
-  }): Promise<ReceivingSlipLineRow[]> {
+  }, executor?: Pool | PoolClient): Promise<ReceivingSlipLineRow[]> {
+    const db = executor || pool;
     if (filters?.slipId && !dbValidator.isValidUUID(filters.slipId)) {
       throw new Error('Invalid slip ID');
     }
@@ -102,17 +106,18 @@ export const receivingSlipLineRepo = {
       throw new Error('Invalid variant ID');
     }
     const { text, values } = buildSelectReceivingSlipLinesQuery(filters);
-    const result = await pool.query<ReceivingSlipLineRow>(text, values);
+    const result = await db.query<ReceivingSlipLineRow>(text, values);
     return result.rows;
   },
 
   // Delete is restricted for receiving slip lines, only for testing purposes
-  async delete(id: string): Promise<ReceivingSlipLineRow> {
+  async delete(id: string, executor?: Pool | PoolClient): Promise<ReceivingSlipLineRow> {
+    const db = executor || pool;
     if (!dbValidator.isValidUUID(id)) {
       throw new Error('Invalid receiving slip line ID');
     }
     const { text, values } = buildDeleteReceivingSlipLinesQuery([id]);
-    const result = await pool.query<ReceivingSlipLineRow>(text, values);
+    const result = await db.query<ReceivingSlipLineRow>(text, values);
     return result.rows[0];
   },
 };

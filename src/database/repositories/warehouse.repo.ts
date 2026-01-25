@@ -1,4 +1,4 @@
-import pool from './../connection';
+import pool, { Pool, PoolClient } from './../connection';
 
 import {
   buildInsertWarehouseQuery,
@@ -12,7 +12,8 @@ import { dbValidator } from '../validators/base.validator';
 
 
 export const warehouseRepo = {
-  async create(input: CreateWarehouseInput): Promise<WarehouseRow> {
+  async create(input: CreateWarehouseInput, executor?: Pool | PoolClient): Promise<WarehouseRow> {
+    const db = executor || pool;
     if (!dbValidator.isValidString(input.name)) {
       throw new Error('Invalid warehouse name');
     }
@@ -20,11 +21,12 @@ export const warehouseRepo = {
       throw new Error('Invalid warehouse location');
     }
     const { text, values } = buildInsertWarehouseQuery(input);
-    const result = await pool.query<WarehouseRow>(text, values);
+    const result = await db.query<WarehouseRow>(text, values);
     return result.rows[0];
   },
 
-  async update(id: string, input: UpdateWarehouseInput): Promise<WarehouseRow> {
+  async update(id: string, input: UpdateWarehouseInput, executor?: Pool | PoolClient): Promise<WarehouseRow> {
+    const db = executor || pool;
     if (!dbValidator.isValidUUID(id)) {
       throw new Error('Invalid warehouse ID');
     }
@@ -38,16 +40,17 @@ export const warehouseRepo = {
       throw new Error('Invalid isActive value');
     }
     const { text, values } = buildPatchWarehouseQuery(id, input);
-    const result = await pool.query<WarehouseRow>(text, values);
+    const result = await db.query<WarehouseRow>(text, values);
     return result.rows[0];
   },
 
-  async findById(id: string): Promise<WarehouseRow | null> {
+  async findById(id: string, executor?: Pool | PoolClient): Promise<WarehouseRow | null> {
+    const db = executor || pool;
     if (!dbValidator.isValidUUID(id)) {
       throw new Error('Invalid warehouse ID');
     }
     const { text, values } = buildSelectWarehouseByIdQuery(id);
-    const result = await pool.query<WarehouseRow>(text, values);
+    const result = await db.query<WarehouseRow>(text, values);
     return result.rows[0] || null;
   },
 
@@ -58,19 +61,21 @@ export const warehouseRepo = {
     sortOrder?: 'asc' | 'desc';
     limit?: number;
     offset?: number;
-  }): Promise<WarehouseRow[]> {
+  }, executor?: Pool | PoolClient): Promise<WarehouseRow[]> {
+    const db = executor || pool;
     const { text, values } = buildSelectWarehousesQuery(filters);
-    const result = await pool.query<WarehouseRow>(text, values);
+    const result = await db.query<WarehouseRow>(text, values);
     return result.rows;
   },
 
   // Delete is restricted for warehouses, only for testing purposes
-  async delete(id: string): Promise<WarehouseRow> {
+  async delete(id: string, executor?: Pool | PoolClient): Promise<WarehouseRow> {
+    const db = executor || pool;
     if (!dbValidator.isValidUUID(id)) {
       throw new Error('Invalid warehouse ID');
     }
     const { text, values } = buildDeleteWarehousesQuery([id]);
-    const result = await pool.query<WarehouseRow>(text, values);
+    const result = await db.query<WarehouseRow>(text, values);
     return result.rows[0];
   },
 };
