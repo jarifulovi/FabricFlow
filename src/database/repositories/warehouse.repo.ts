@@ -34,6 +34,9 @@ export const warehouseRepo = {
     if (!dbValidator.isValidOptionalString(input.location)) {
       throw new Error('Invalid warehouse location');
     }
+    if (input.isActive !== undefined && !dbValidator.isBoolean(input.isActive)) {
+      throw new Error('Invalid isActive value');
+    }
     const { text, values } = buildPatchWarehouseQuery(id, input);
     const result = await pool.query<WarehouseRow>(text, values);
     return result.rows[0];

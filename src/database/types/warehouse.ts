@@ -9,7 +9,7 @@ export interface Warehouse {
 
 // Derived types for queries
 export type CreateWarehouseInput = Omit<Warehouse, 'id' | 'createdAt' | 'updatedAt' | 'isActive'>;
-export type UpdateWarehouseInput = Partial<CreateWarehouseInput>;
+export type UpdateWarehouseInput = Partial<CreateWarehouseInput> & { isActive?: boolean };
 export type WarehouseRow = Omit<Warehouse, 'createdAt' | 'updatedAt'> & {
   createdAt: string;
   updatedAt: string;

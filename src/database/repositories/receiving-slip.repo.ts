@@ -37,7 +37,7 @@ export const receivingSlipRepo = {
     return result.rows[0];
   },
 
-  // Update is a patch is restricted for receiving slips, only for testing purposes
+  // Update is a patch is restricted for receiving slips except status, only for testing purposes
   async update(id: string, input: UpdateReceivingSlipInput): Promise<ReceivingSlipRow> {
     if (!dbValidator.isValidUUID(id)) {
       throw new Error('Invalid receiving slip ID');
@@ -53,6 +53,9 @@ export const receivingSlipRepo = {
     }
     if (!dbValidator.isValidOptionalString(input.notes)) {
       throw new Error('Invalid notes');
+    }
+    if (input.status !== undefined && !dbValidator.isValidEnum(input.status, ['draft', 'confirmed', 'cancelled'])) {
+      throw new Error('Invalid status');
     }
     const { text, values } = buildPatchReceivingSlipQuery(id, input);
     const result = await pool.query<ReceivingSlipRow>(text, values);

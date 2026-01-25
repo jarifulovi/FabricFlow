@@ -16,7 +16,7 @@ export interface ReceivingSlip {
 
 // Derived types for queries
 export type CreateReceivingSlipInput = Omit<ReceivingSlip, 'id' | 'createdAt' | 'updatedAt' | 'status'>;
-export type UpdateReceivingSlipInput = Partial<CreateReceivingSlipInput>;
+export type UpdateReceivingSlipInput = Partial<CreateReceivingSlipInput> & { status?: SlipStatus };
 export type ReceivingSlipRow = Omit<ReceivingSlip, 'createdAt' | 'updatedAt' | 'date'> & {
   createdAt: string;
   updatedAt: string;
