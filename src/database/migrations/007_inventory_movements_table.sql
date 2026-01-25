@@ -25,12 +25,12 @@ CREATE TYPE movement_source AS ENUM (
 CREATE TABLE inventory_movements (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   item_id UUID NOT NULL,                   -- Generic reference to product variant or raw material
-  warehouse_id UUID REFERENCES warehouses(id) NOT NULL,
+  warehouse_id UUID NOT NULL REFERENCES warehouses(id),
   quantity NUMERIC(15,3) NOT NULL,         -- Positive = IN, Negative = OUT (optional if using movement_type)
   movement_type movement_type NOT NULL,    -- IN, OUT, ADJUSTMENT
   item_type item_type NOT NULL,            -- Type of item being moved
   source_type movement_source NOT NULL,    -- Type of document causing movement
-  source_id UUID,                          -- FK to the source document (slip, PO, sale, etc.)
+  source_id UUID NOT NULL,                 -- FK to the source document (slip, PO, sale, etc.)
   batch_id UUID,                           -- Optional batch reference for raw materials
   price NUMERIC(12,2),                     -- Optional unit cost
   created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,

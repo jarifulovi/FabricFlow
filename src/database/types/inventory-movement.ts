@@ -15,7 +15,7 @@ export interface InventoryMovement {
   movementType: MovementType;
   itemType: ItemType;      // Type of item being moved
   sourceType: MovementSource;
-  sourceId?: string;       // UUID - reference to source document
+  sourceId: string;        // UUID - required reference to source document
   batchId?: string;        // UUID - optional batch reference for raw materials
   price?: number;
   createdAt: Date;

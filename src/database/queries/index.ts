@@ -40,4 +40,6 @@ export * from './receiving-slip-line/delete-receiving-slip-line.sql';
 
 export * from './inventory-movement/select-inventory-movement-by-id.sql';
 export * from './inventory-movement/select-inventory-movements.sql';
+export * from './inventory-movement/select-inventory-movements-by-source.sql';
 export * from './inventory-movement/insert-inventory-movement.sql';
+export * from './inventory-movement/delete-inventory-movement.sql';
