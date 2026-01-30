@@ -17,7 +17,7 @@ export const warehouseRepo = {
     if (!dbValidator.isValidString(input.name)) {
       throw new Error('Invalid warehouse name');
     }
-    if (!dbValidator.isValidOptionalString(input.location)) {
+    if (!dbValidator.isValidString(input.location, 500, true)) {
       throw new Error('Invalid warehouse location');
     }
     const { text, values } = buildInsertWarehouseQuery(input);
@@ -30,10 +30,10 @@ export const warehouseRepo = {
     if (!dbValidator.isValidUUID(id)) {
       throw new Error('Invalid warehouse ID');
     }
-    if (!dbValidator.isValidOptionalString(input.name)) {
+    if (!dbValidator.isValidString(input.name, 500, true)) {
       throw new Error('Invalid warehouse name');
     }
-    if (!dbValidator.isValidOptionalString(input.location)) {
+    if (!dbValidator.isValidString(input.location, 500, true)) {
       throw new Error('Invalid warehouse location');
     }
     if (input.isActive !== undefined && !dbValidator.isBoolean(input.isActive)) {

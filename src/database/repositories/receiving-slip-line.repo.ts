@@ -25,19 +25,19 @@ export const receivingSlipLineRepo = {
     if (typeof input.lineNumber !== 'number' || input.lineNumber < 1) {
       throw new Error('Line number must be a positive integer');
     }
-    if (!dbValidator.isValidOptionalUUID(input.warehouseId)) {
+    if (!dbValidator.isValidUUID(input.warehouseId, true)) {
       throw new Error('Invalid warehouse ID');
     }
     if (!dbValidator.isValidUUID(input.variantId)) {
       throw new Error('Invalid variant ID');
     }
-    if (!dbValidator.isValidOptionalString(input.vendorSku)) {
+    if (!dbValidator.isValidString(input.vendorSku, 500, true)) {
       throw new Error('Invalid vendor SKU');
     }
     if (typeof input.quantity !== 'number' || input.quantity <= 0) {
       throw new Error('Quantity must be a positive number');
     }
-    if (!dbValidator.isValidOptionalString(input.notes)) {
+    if (!dbValidator.isValidString(input.notes, 500, true)) {
       throw new Error('Invalid notes');
     }
     const { text, values } = buildInsertReceivingSlipLineQuery(input);
@@ -59,19 +59,19 @@ export const receivingSlipLineRepo = {
       if (typeof input.lineNumber !== 'number' || input.lineNumber < 1) {
         throw new Error(`Line number must be a positive integer at index ${index}`);
       }
-      if (!dbValidator.isValidOptionalUUID(input.warehouseId)) {
+      if (!dbValidator.isValidUUID(input.warehouseId, true)) {
         throw new Error(`Invalid warehouse ID at index ${index}`);
       }
       if (!dbValidator.isValidUUID(input.variantId)) {
         throw new Error(`Invalid variant ID at index ${index}`);
       }
-      if (!dbValidator.isValidOptionalString(input.vendorSku)) {
+      if (!dbValidator.isValidString(input.vendorSku, 500, true)) {
         throw new Error(`Invalid vendor SKU at index ${index}`);
       }
       if (typeof input.quantity !== 'number' || input.quantity <= 0) {
         throw new Error(`Quantity must be a positive number at index ${index}`);
       }
-      if (!dbValidator.isValidOptionalString(input.notes)) {
+      if (!dbValidator.isValidString(input.notes, 500, true)) {
         throw new Error(`Invalid notes at index ${index}`);
       }
     });
@@ -87,25 +87,25 @@ export const receivingSlipLineRepo = {
     if (!dbValidator.isValidUUID(id)) {
       throw new Error('Invalid receiving slip line ID');
     }
-    if (!dbValidator.isValidOptionalUUID(input.slipId)) {
+    if (!dbValidator.isValidUUID(input.slipId, true)) {
       throw new Error('Invalid slip ID');
     }
     if (input.lineNumber !== undefined && (typeof input.lineNumber !== 'number' || input.lineNumber < 1)) {
       throw new Error('Line number must be a positive integer');
     }
-    if (!dbValidator.isValidOptionalUUID(input.warehouseId)) {
+    if (!dbValidator.isValidUUID(input.warehouseId, true)) {
       throw new Error('Invalid warehouse ID');
     }
-    if (!dbValidator.isValidOptionalUUID(input.variantId)) {
+    if (!dbValidator.isValidUUID(input.variantId, true)) {
       throw new Error('Invalid variant ID');
     }
-    if (!dbValidator.isValidOptionalString(input.vendorSku)) {
+    if (!dbValidator.isValidString(input.vendorSku, 500, true)) {
       throw new Error('Invalid vendor SKU');
     }
     if (input.quantity !== undefined && (typeof input.quantity !== 'number' || input.quantity <= 0)) {
       throw new Error('Quantity must be a positive number');
     }
-    if (!dbValidator.isValidOptionalString(input.notes)) {
+    if (!dbValidator.isValidString(input.notes, 500, true)) {
       throw new Error('Invalid notes');
     }
     const { text, values } = buildPatchReceivingSlipLineQuery(id, input);

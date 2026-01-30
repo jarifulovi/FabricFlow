@@ -9,18 +9,14 @@ const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12
 export const dbValidator = {
   /**
    * Validates a UUID string format
+   * @param optional - If true, allows null/undefined values
    */
-  isValidUUID(value: unknown): boolean {
+  isValidUUID(value: unknown, optional: boolean = false): boolean {
+    if (optional && (value === null || value === undefined)) return true;
     return typeof value === 'string' && UUID_REGEX.test(value);
   },
 
-  /**
-   * Validates optional UUID (can be null/undefined, but if present must be valid)
-   */
-  isValidOptionalUUID(value: unknown): boolean {
-    if (value === null || value === undefined) return true;
-    return this.isValidUUID(value);
-  },
+
 
   /**
    * Validates required field is not null/undefined
@@ -31,26 +27,24 @@ export const dbValidator = {
 
   /**
    * Validates string is not empty and doesn't exceed max length
+   * @param optional - If true, allows null/undefined values
    */
-  isValidString(value: unknown, maxLength: number = 500): boolean {
+  isValidString(value: unknown, maxLength: number = 500, optional: boolean = false): boolean {
+    if (optional && (value === null || value === undefined)) return true;
     if (typeof value !== 'string') return false;
     const trimmed = value.trim();
     return trimmed.length > 0 && trimmed.length <= maxLength;
   },
 
-  /**
-   * Validates optional string (can be null/undefined, but if present must be valid)
-   */
-  isValidOptionalString(value: unknown, maxLength: number = 500): boolean {
-    if (value === null || value === undefined) return true;
-    return this.isValidString(value, maxLength);
-  },
+
 
   /**
    * Validates a number is within precision and scale constraints
    * e.g., NUMERIC(12,2) means max 12 digits total, 2 after decimal
+   * @param optional - If true, allows null/undefined values
    */
-  isValidNumeric(value: unknown, precision: number, scale: number = 0): boolean {
+  isValidNumeric(value: unknown, precision: number, scale: number = 0, optional: boolean = false): boolean {
+    if (optional && (value === null || value === undefined)) return true;
     if (typeof value !== 'number' || isNaN(value) || !isFinite(value)) return false;
     
     const strValue = value.toFixed(scale);
@@ -62,36 +56,46 @@ export const dbValidator = {
 
   /**
    * Validates positive number (for quantities, prices, etc.)
+   * @param optional - If true, allows null/undefined values
    */
-  isPositiveNumber(value: unknown): boolean {
+  isPositiveNumber(value: unknown, optional: boolean = false): boolean {
+    if (optional && (value === null || value === undefined)) return true;
     return typeof value === 'number' && value > 0 && isFinite(value);
   },
 
   /**
    * Validates non-negative number (can be zero)
+   * @param optional - If true, allows null/undefined values
    */
-  isNonNegativeNumber(value: unknown): boolean {
+  isNonNegativeNumber(value: unknown, optional: boolean = false): boolean {
+    if (optional && (value === null || value === undefined)) return true;
     return typeof value === 'number' && value >= 0 && isFinite(value);
   },
 
   /**
    * Validates boolean value
+   * @param optional - If true, allows null/undefined values
    */
-  isBoolean(value: unknown): boolean {
+  isBoolean(value: unknown, optional: boolean = false): boolean {
+    if (optional && (value === null || value === undefined)) return true;
     return typeof value === 'boolean';
   },
 
   /**
    * Validates value is one of the allowed enum values
+   * @param optional - If true, allows null/undefined values
    */
-  isValidEnum<T extends string>(value: unknown, allowedValues: readonly T[]): value is T {
+  isValidEnum<T extends string>(value: unknown, allowedValues: readonly T[], optional: boolean = false): value is T {
+    if (optional && (value === null || value === undefined)) return true;
     return typeof value === 'string' && (allowedValues as readonly string[]).includes(value);
   },
 
   /**
    * Validates array of strings (for TEXT[] columns)
+   * @param optional - If true, allows null/undefined values
    */
-  isValidStringArray(value: unknown, maxLength: number = 500): boolean {
+  isValidStringArray(value: unknown, maxLength: number = 500, optional: boolean = false): boolean {
+    if (optional && (value === null || value === undefined)) return true;
     if (!Array.isArray(value)) return false;
     return value.every(item => this.isValidString(item, maxLength));
   },
@@ -99,8 +103,10 @@ export const dbValidator = {
   /**
    * Validates ISO 8601 date string or Date object
    * PostgreSQL returns timestamps as ISO strings in pg driver
+   * @param optional - If true, allows null/undefined values
    */
-  isValidDate(value: unknown): boolean {
+  isValidDate(value: unknown, optional: boolean = false): boolean {
+    if (optional && (value === null || value === undefined)) return true;
     if (value instanceof Date) {
       return !isNaN(value.getTime());
     }
@@ -113,8 +119,10 @@ export const dbValidator = {
 
   /**
    * Validates email format (basic check for VARCHAR fields storing emails)
+   * @param optional - If true, allows null/undefined values
    */
-  isValidEmail(value: unknown): boolean {
+  isValidEmail(value: unknown, optional: boolean = false): boolean {
+    if (optional && (value === null || value === undefined)) return true;
     if (typeof value !== 'string') return false;
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(value) && value.length <= 255;

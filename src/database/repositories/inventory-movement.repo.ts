@@ -47,7 +47,7 @@ export const inventoryMovementRepo = {
     if (!dbValidator.isValidUUID(input.sourceId)) {
       throw new Error('Invalid source ID');
     }
-    if (!dbValidator.isValidOptionalUUID(input.batchId)) {
+    if (!dbValidator.isValidUUID(input.batchId, true)) {
       throw new Error('Invalid batch ID');
     }
 
@@ -87,7 +87,7 @@ export const inventoryMovementRepo = {
       if (!dbValidator.isValidUUID(input.sourceId)) {
         throw new Error(`Invalid source ID at index ${index}`);
       }
-      if (!dbValidator.isValidOptionalUUID(input.batchId)) {
+      if (!dbValidator.isValidUUID(input.batchId, true)) {
         throw new Error(`Invalid batch ID at index ${index}`);
       }
     });

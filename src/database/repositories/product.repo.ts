@@ -27,13 +27,13 @@ export const productRepo = {
     if (!dbValidator.isValidUUID(input.categoryId)) {
       throw new Error('Invalid category ID');
     }
-    if (!dbValidator.isValidOptionalString(input.description)) {
+    if (!dbValidator.isValidString(input.description, 500, true)) {
       throw new Error('Invalid product description');
     }
-    if (!dbValidator.isValidOptionalString(input.brandName)) {
+    if (!dbValidator.isValidString(input.brandName, 500, true)) {
       throw new Error('Invalid brand name');
     }
-    if (!dbValidator.isValidOptionalString(input.brandCode)) {
+    if (!dbValidator.isValidString(input.brandCode, 500, true)) {
       throw new Error('Invalid brand code');
     }
     const { text, values } = buildInsertProductQuery(input);
@@ -55,13 +55,13 @@ export const productRepo = {
     if (input.categoryId !== undefined && !dbValidator.isValidUUID(input.categoryId)) {
       throw new Error('Invalid category ID');
     }
-    if (!dbValidator.isValidOptionalString(input.description)) {
+    if (!dbValidator.isValidString(input.description, 500, true)) {
       throw new Error('Invalid product description');
     }
-    if (!dbValidator.isValidOptionalString(input.brandName)) {
+    if (!dbValidator.isValidString(input.brandName, 500, true)) {
       throw new Error('Invalid brand name');
     }
-    if (!dbValidator.isValidOptionalString(input.brandCode)) {
+    if (!dbValidator.isValidString(input.brandCode, 500, true)) {
       throw new Error('Invalid brand code');
     }
     const { text, values } = buildPatchProductQuery(id, input);

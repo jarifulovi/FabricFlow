@@ -30,22 +30,22 @@ export const variantRepo = {
     if (!dbValidator.isValidString(input.sku)) {
       throw new Error('Invalid variant SKU');
     }
-    if (!dbValidator.isValidOptionalString(input.vendorSku)) {
+    if (!dbValidator.isValidString(input.vendorSku, 500, true)) {
       throw new Error('Invalid vendor SKU');
     }
-    if (!dbValidator.isValidOptionalString(input.color)) {
+    if (!dbValidator.isValidString(input.color, 500, true)) {
       throw new Error('Invalid color');
     }
-    if (!dbValidator.isValidOptionalString(input.size)) {
+    if (!dbValidator.isValidString(input.size, 500, true)) {
       throw new Error('Invalid size');
     }
-    if (!dbValidator.isValidOptionalString(input.gender)) {
+    if (!dbValidator.isValidString(input.gender, 500, true)) {
       throw new Error('Invalid gender');
     }
-    if (!dbValidator.isValidOptionalString(input.season)) {
+    if (!dbValidator.isValidString(input.season, 500, true)) {
       throw new Error('Invalid season');
     }
-    if (!dbValidator.isValidOptionalString(input.fit)) {
+    if (!dbValidator.isValidString(input.fit, 500, true)) {
       throw new Error('Invalid fit');
     }
     const { text, values } = buildInsertProductVariantQuery(input);
@@ -64,22 +64,22 @@ export const variantRepo = {
     if (input.sku !== undefined && !dbValidator.isValidString(input.sku)) {
       throw new Error('Invalid variant SKU');
     }
-    if (!dbValidator.isValidOptionalString(input.vendorSku)) {
+    if (!dbValidator.isValidString(input.vendorSku, 500, true)) {
       throw new Error('Invalid vendor SKU');
     }
-    if (!dbValidator.isValidOptionalString(input.color)) {
+    if (!dbValidator.isValidString(input.color, 500, true)) {
       throw new Error('Invalid color');
     }
-    if (!dbValidator.isValidOptionalString(input.size)) {
+    if (!dbValidator.isValidString(input.size, 500, true)) {
       throw new Error('Invalid size');
     }
-    if (!dbValidator.isValidOptionalString(input.gender)) {
+    if (!dbValidator.isValidString(input.gender, 500, true)) {
       throw new Error('Invalid gender');
     }
-    if (!dbValidator.isValidOptionalString(input.season)) {
+    if (!dbValidator.isValidString(input.season, 500, true)) {
       throw new Error('Invalid season');
     }
-    if (!dbValidator.isValidOptionalString(input.fit)) {
+    if (!dbValidator.isValidString(input.fit, 500, true)) {
       throw new Error('Invalid fit');
     }
     const { text, values } = buildPatchVariantQuery(id, input);

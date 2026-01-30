@@ -17,7 +17,7 @@ export const categoryRepo = {
     if (!dbValidator.isValidString(input.name)) {
       throw new Error('Invalid category name');
     }
-    if (!dbValidator.isValidOptionalString(input.description)) {
+    if (!dbValidator.isValidString(input.description, 500, true)) {
       throw new Error('Invalid category description');
     }
     const { text, values } = buildInsertCategoryQuery(input);
@@ -30,10 +30,10 @@ export const categoryRepo = {
     if (!dbValidator.isValidUUID(id)) {
       throw new Error('Invalid category ID');
     }
-    if (!dbValidator.isValidOptionalString(input.name)) {
+    if (!dbValidator.isValidString(input.name, 500, true)) {
       throw new Error('Invalid category name');
     }
-    if (!dbValidator.isValidOptionalString(input.description)) {
+    if (!dbValidator.isValidString(input.description, 500, true)) {
       throw new Error('Invalid category description');
     }
     const { text, values } = buildPatchCategoryQuery(id, input);
@@ -59,6 +59,21 @@ export const categoryRepo = {
     offset?: number;
   }, executor?: Pool | PoolClient): Promise<CategoryRow[]> {
     const db = executor || pool;
+    if (!dbValidator.isValidString(filters?.search, 500, true)) {
+      throw new Error('Invalid search term');
+    }
+    if (!dbValidator.isValidEnum(filters?.sortBy, ['name', 'createdAt'], true)) {
+      throw new Error('Invalid sortBy value');
+    }
+    if (!dbValidator.isValidEnum(filters?.sortOrder, ['asc', 'desc'], true)) {
+      throw new Error('Invalid sortOrder value');
+    }
+    if (!dbValidator.isPositiveNumber(filters?.limit, true)) {
+      throw new Error('Invalid limit value');
+    }
+    if (!dbValidator.isNonNegativeNumber(filters?.offset, true)) {
+      throw new Error('Invalid offset value');
+    }
     const { text, values } = buildSelectCategoriesQuery(filters);
     const result = await db.query<CategoryRow>(text, values);
     return result.rows;

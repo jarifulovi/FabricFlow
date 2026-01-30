@@ -30,7 +30,7 @@ export const receivingSlipRepo = {
     if (input.createdBy !== undefined && !dbValidator.isValidUUID(input.createdBy)) {
       throw new Error('Invalid created by user ID');
     }
-    if (!dbValidator.isValidOptionalString(input.notes)) {
+    if (!dbValidator.isValidString(input.notes, 500, true)) {
       throw new Error('Invalid notes');
     }
     const { text, values } = buildInsertReceivingSlipQuery(input);
@@ -53,7 +53,7 @@ export const receivingSlipRepo = {
     if (input.createdBy !== undefined && !dbValidator.isValidUUID(input.createdBy)) {
       throw new Error('Invalid created by user ID');
     }
-    if (!dbValidator.isValidOptionalString(input.notes)) {
+    if (!dbValidator.isValidString(input.notes, 500, true)) {
       throw new Error('Invalid notes');
     }
     if (input.status !== undefined && !dbValidator.isValidEnum(input.status, ['draft', 'confirmed', 'cancelled'])) {
