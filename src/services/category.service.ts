@@ -1,4 +1,4 @@
-import { categoryRepo } from '../database/repositories/index';
+import { categoryRepo } from '../database/repositories';
 import {
   CreateCategoryInput,
   UpdateCategoryInput,
