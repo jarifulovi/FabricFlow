@@ -1,4 +1,4 @@
-import { productRepo, variantRepo } from '../database/repositories/index';
+import { categoryRepo, productRepo, variantRepo } from '../database/repositories/index';
 import {
   CreateProductInput,
   UpdateProductInput,
@@ -12,6 +12,11 @@ export const productService = {
     if (existingBySku) {
       throw new Error('Product with the same SKU already exists');
     }
+    // Check if category exists
+    const existingCategory = await categoryRepo.findById(input.categoryId);
+    if (!existingCategory) {
+      throw new Error('Category not found');
+    }
 
     return await productRepo.create(input);
   },
@@ -22,6 +27,14 @@ export const productService = {
     if (!existing) {
       throw new Error('Product not found');
     }
+    // Check if category exists
+    if (input.categoryId) {
+      const existingCategory = await categoryRepo.findById(input.categoryId);
+      if (!existingCategory) {
+        throw new Error('Category not found from service');
+      }
+    }
+
 
     return await productRepo.update(id, input);
   },
@@ -46,6 +59,7 @@ export const productService = {
     categoryId?: string;
     search?: string;
     status?: 'active' | 'inactive' | 'discontinued';
+    tag?: string; // Add tag parameter
     includeDeleted?: boolean;
     sortBy?: 'name' | 'createdAt';
     sortOrder?: 'asc' | 'desc';

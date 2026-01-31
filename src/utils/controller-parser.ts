@@ -45,6 +45,7 @@ export function parsePaginationParams(query: { page?: unknown; pageSize?: unknow
   const pageSize = parseQueryPositiveNumber(query.pageSize);
   
   // If either page or pageSize is provided, both must be valid
+  // Issue: place it to controller validator when implemented
   if ((query.page !== undefined || query.pageSize !== undefined) && 
       (page === undefined || pageSize === undefined)) {
     throw new Error('Both page and pageSize must be valid positive numbers when pagination is used');

@@ -1,5 +1,5 @@
 import express from 'express';
-import { categoryRoutes } from './routes';
+import { categoryRoutes, productRoutes } from './routes';
 import { errorHandler, notFoundHandler } from './middlewares';
 
 const app = express();
@@ -9,6 +9,7 @@ app.use(express.json());
 
 // API Routes
 app.use('/api/categories', categoryRoutes);
+app.use('/api/products', productRoutes);
 
 // 404 handler for unmatched routes (must be after all routes)
 app.use(notFoundHandler);
