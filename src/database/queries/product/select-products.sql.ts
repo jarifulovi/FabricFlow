@@ -6,7 +6,6 @@ SELECT
   c.name AS category_name
 FROM products p
 LEFT JOIN categories c ON p.category_id = c.id
-WHERE p.is_deleted = false
 `;
 
 /**
@@ -17,6 +16,7 @@ export const buildSelectProductsQuery = (filters?: {
   status?: 'active' | 'inactive' | 'discontinued';
   tag?: string; // search by single tag
   search?: string; // search by name or SKU
+  includeDeleted?: boolean; // include soft-deleted products
   sortBy?: 'name' | 'createdAt' | 'updatedAt';
   sortOrder?: 'asc' | 'desc';
   limit?: number;
@@ -25,6 +25,13 @@ export const buildSelectProductsQuery = (filters?: {
   let text = baseSelectProductsSQL;
   const values: (string | number)[] = [];
   let counter = 1;
+
+  // Add WHERE clause for deleted status - defaults to false for safety
+  if (filters?.includeDeleted === true) {
+    text += 'WHERE 1=1'; // include all products
+  } else {
+    text += 'WHERE p.is_deleted = false'; // exclude deleted products by default
+  }
 
   if (filters) {
     if (filters.categoryId !== undefined) {

@@ -46,17 +46,23 @@ export const productRepo = {
     if (!dbValidator.isValidUUID(id)) {
       throw new Error('Invalid product ID');
     }
-    if (input.sku !== undefined && !dbValidator.isValidString(input.sku)) {
+    if (!dbValidator.isValidString(input.sku, 500, true)) {
       throw new Error('Invalid product SKU');
     }
-    if (input.name !== undefined && !dbValidator.isValidString(input.name)) {
+    if (!dbValidator.isValidString(input.name, 500, true)) {
       throw new Error('Invalid product name');
     }
-    if (input.categoryId !== undefined && !dbValidator.isValidUUID(input.categoryId)) {
+    if (!dbValidator.isValidUUID(input.categoryId, true)) {
       throw new Error('Invalid category ID');
     }
     if (!dbValidator.isValidString(input.description, 500, true)) {
       throw new Error('Invalid product description');
+    }
+    if (!dbValidator.isValidEnum(input.status, ['active', 'inactive', 'discontinued'], true)) {
+      throw new Error('Invalid product status');
+    }
+    if (!dbValidator.isValidEnum(input.unit, ['piece', 'meter', 'yard', 'kilogram', 'roll', 'bundle'], true)) {
+      throw new Error('Invalid product unit');
     }
     if (!dbValidator.isValidString(input.brandName, 500, true)) {
       throw new Error('Invalid brand name');
@@ -98,14 +104,30 @@ export const productRepo = {
     status?: 'active' | 'inactive' | 'discontinued';
     tag?: string;
     search?: string;
+    includeDeleted?: boolean;
     sortBy?: 'name' | 'createdAt' | 'updatedAt';
     sortOrder?: 'asc' | 'desc';
     limit?: number;
     offset?: number;
   }, executor?: Pool | PoolClient): Promise<ProductRow[]> {
     const db = executor || pool;
-    if (filters?.categoryId && !dbValidator.isValidUUID(filters.categoryId)) {
+    if (!dbValidator.isValidUUID(filters?.categoryId, true)) {
       throw new Error('Invalid category ID');
+    }
+    if (!dbValidator.isValidEnum(filters?.status, ['active', 'inactive', 'discontinued'], true)) {
+      throw new Error('Invalid product status');
+    }
+    if (!dbValidator.isValidString(filters?.tag, 500, true)) {
+      throw new Error('Invalid product tag');
+    }
+    if (!dbValidator.isValidString(filters?.search, 500, true)) {
+      throw new Error('Invalid search string');
+    }
+    if (!dbValidator.isValidEnum(filters?.sortBy, ['name', 'createdAt', 'updatedAt'], true)) {
+      throw new Error('Invalid sortBy value');
+    }
+    if (!dbValidator.isValidEnum(filters?.sortOrder, ['asc', 'desc'], true)) {
+      throw new Error('Invalid sortOrder value');
     }
     const { text, values } = buildSelectProductsQuery(filters);
     const result = await db.query<ProductRow>(text, values);

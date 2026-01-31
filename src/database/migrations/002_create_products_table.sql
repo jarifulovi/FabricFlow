@@ -13,7 +13,7 @@ CREATE TYPE unit_of_measure AS ENUM ('meter', 'yard', 'kilogram', 'piece', 'roll
 
 CREATE TABLE IF NOT EXISTS products (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  sku VARCHAR(100) UNIQUE NOT NULL,                  -- Stock Keeping Unit
+  sku VARCHAR(100) NOT NULL,                         -- Stock Keeping Unit (uniqueness handled by partial index)
   name VARCHAR(255) NOT NULL,                        -- Product name
   description TEXT,
   brand_name VARCHAR(100),
@@ -45,11 +45,12 @@ CREATE TRIGGER trigger_products_updated_at
 -- Indexes
 CREATE INDEX idx_products_category ON products(category_id);
 CREATE INDEX idx_products_is_deleted ON products(is_deleted) WHERE is_deleted = false;
+CREATE UNIQUE INDEX idx_products_sku_unique ON products(sku) WHERE is_deleted = false;
 
 -- Table comment
 COMMENT ON TABLE products IS 'Stores garment product definitions. Variants, pricing, and stock are handled in other tables.';
 -- Column comments
-COMMENT ON COLUMN products.sku IS 'Unique product-level SKU (not variant-specific).';
+COMMENT ON COLUMN products.sku IS 'Product-level SKU, unique among non-deleted products only.';
 COMMENT ON COLUMN products.category_id IS 'Product category such as Shirt, Pant, Jacket.';
 COMMENT ON COLUMN products.status IS 'Product availability state (active, inactive, discontinued).';
 COMMENT ON COLUMN products.unit IS 'Base unit used for this product, shared by all variants.';
