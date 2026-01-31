@@ -41,11 +41,16 @@ export const categoryService = {
     page?: number;
     pageSize?: number;
   }): Promise<CategoryRow[]> {
-    const { page, pageSize, ...rest } = filters || {};
+    const { page, pageSize, name, ...rest } = filters || {};
     const limit = pageSize;
     const offset = page && pageSize ? (page - 1) * pageSize : undefined;
     
-    return await categoryRepo.findAll({ ...rest, limit, offset });
+    return await categoryRepo.findAll({ 
+      ...rest, 
+      ...(name && { search: name }), // Map 'name' to 'search' for repository
+      limit, 
+      offset 
+    });
   },
 
   async findAllDefault(params?: { page?: number; pageSize?: number }): Promise<CategoryRow[]> {

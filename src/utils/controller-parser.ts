@@ -44,11 +44,21 @@ export function parsePaginationParams(query: { page?: unknown; pageSize?: unknow
   const page = parseQueryPositiveNumber(query.page);
   const pageSize = parseQueryPositiveNumber(query.pageSize);
   
+  // If either page or pageSize is provided, both must be valid
+  if ((query.page !== undefined || query.pageSize !== undefined) && 
+      (page === undefined || pageSize === undefined)) {
+    throw new Error('Both page and pageSize must be valid positive numbers when pagination is used');
+  }
+  
+  // Use defaults if nothing is provided
+  const finalPage = page ?? 1;
+  const finalPageSize = pageSize ?? 10;
+  
   return {
-    page,
-    pageSize,
-    limit: pageSize,
-    offset: page && pageSize ? (page - 1) * pageSize : undefined
+    page: finalPage,
+    pageSize: finalPageSize,
+    limit: finalPageSize,
+    offset: (finalPage - 1) * finalPageSize
   };
 }
 
