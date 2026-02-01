@@ -8,6 +8,8 @@ import {
   buildSelectCategoriesQuery,
   buildSelectCategoryByIdQuery,
   buildSelectCategoryByIdIncludedDeletedQuery,
+  buildCountCategoriesQuery,
+  buildExistsCategoryQuery,
 } from './../queries/index';
 import { CategoryRow, CreateCategoryInput, UpdateCategoryInput } from './../types/category';
 import { dbValidator } from '../validators/base.validator';
@@ -104,5 +106,37 @@ export const categoryRepo = {
     const { text, values } = buildBulkHardDeleteCategoriesQuery([id]);
     const result = await db.query<CategoryRow>(text, values);
     return result.rows[0];
+  },
+
+  // Count categories with filters
+  async count(filters?: {
+    search?: string;
+    includeDeleted?: boolean;
+  }, executor?: Pool | PoolClient): Promise<number> {
+    const db = executor || pool;
+    if (!dbValidator.isValidString(filters?.search, 500, true)) {
+      throw new Error('Invalid search term');
+    }
+    const { text, values } = buildCountCategoriesQuery(filters);
+    const result = await db.query<{ count: string }>(text, values);
+    return parseInt(result.rows[0].count, 10);
+  },
+
+  // Check if category exists with filters
+  async exists(filters?: {
+    id?: string;
+    search?: string;
+    includeDeleted?: boolean;
+  }, executor?: Pool | PoolClient): Promise<boolean> {
+    const db = executor || pool;
+    if (!dbValidator.isValidUUID(filters?.id, true)) {
+      throw new Error('Invalid category ID');
+    }
+    if (!dbValidator.isValidString(filters?.search, 500, true)) {
+      throw new Error('Invalid search term');
+    }
+    const { text, values } = buildExistsCategoryQuery(filters);
+    const result = await db.query<{ exists: boolean }>(text, values);
+    return result.rows[0].exists;
   },
 };

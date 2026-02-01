@@ -10,6 +10,8 @@ import {
   buildSelectProductByIdIncludedDeletedQuery,
   buildSelectProductBySkuQuery,
   buildSelectProductBySkuIncludedDeletedQuery,
+  buildCountProductsQuery,
+  buildExistsProductQuery,
 } from './../queries/index';
 import { ProductRow, CreateProductInput, UpdateProductInput } from './../types/product';
 import { dbValidator } from '../validators/base.validator';
@@ -154,5 +156,61 @@ export const productRepo = {
     const { text, values } = buildBulkHardDeleteProductQuery([id]);
     const result = await db.query<ProductRow>(text, values);
     return result.rows[0];
+  },
+
+  // Count products with filters
+  async count(filters?: {
+    categoryId?: string;
+    status?: 'active' | 'inactive' | 'discontinued';
+    tag?: string;
+    search?: string;
+    includeDeleted?: boolean;
+  }, executor?: Pool | PoolClient): Promise<number> {
+    const db = executor || pool;
+    if (!dbValidator.isValidUUID(filters?.categoryId, true)) {
+      throw new Error('Invalid category ID');
+    }
+    if (!dbValidator.isValidEnum(filters?.status, ['active', 'inactive', 'discontinued'], true)) {
+      throw new Error('Invalid product status');
+    }
+    if (!dbValidator.isValidString(filters?.tag, 500, true)) {
+      throw new Error('Invalid product tag');
+    }
+    if (!dbValidator.isValidString(filters?.search, 500, true)) {
+      throw new Error('Invalid search string');
+    }
+    const { text, values } = buildCountProductsQuery(filters);
+    const result = await db.query<{ count: string }>(text, values);
+    return parseInt(result.rows[0].count, 10);
+  },
+
+  // Check if product exists with filters
+  async exists(filters?: {
+    id?: string;
+    categoryId?: string;
+    status?: 'active' | 'inactive' | 'discontinued';
+    tag?: string;
+    search?: string;
+    includeDeleted?: boolean;
+  }, executor?: Pool | PoolClient): Promise<boolean> {
+    const db = executor || pool;
+    if (!dbValidator.isValidUUID(filters?.id, true)) {
+      throw new Error('Invalid product ID');
+    }
+    if (!dbValidator.isValidUUID(filters?.categoryId, true)) {
+      throw new Error('Invalid category ID');
+    }
+    if (!dbValidator.isValidEnum(filters?.status, ['active', 'inactive', 'discontinued'], true)) {
+      throw new Error('Invalid product status');
+    }
+    if (!dbValidator.isValidString(filters?.tag, 500, true)) {
+      throw new Error('Invalid product tag');
+    }
+    if (!dbValidator.isValidString(filters?.search, 500, true)) {
+      throw new Error('Invalid search string');
+    }
+    const { text, values } = buildExistsProductQuery(filters);
+    const result = await db.query<{ exists: boolean }>(text, values);
+    return result.rows[0].exists;
   },
 };

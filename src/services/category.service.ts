@@ -1,4 +1,4 @@
-import { categoryRepo } from '../database/repositories';
+import { categoryRepo, productRepo } from '../database/repositories';
 import {
   CreateCategoryInput,
   UpdateCategoryInput,
@@ -8,8 +8,8 @@ import {
 export const categoryService = {
   async create(input: CreateCategoryInput): Promise<CategoryRow> {
     // Check if category with same name exists (excluding deleted categories)
-    const existing = await categoryRepo.findAll({ search: input.name, includeDeleted: false });
-    if (existing.length > 0) {
+    const existing = await categoryRepo.exists({ search: input.name, includeDeleted: false });
+    if (existing) {
       throw new Error('Category with the same name already exists');
     }
 
@@ -18,7 +18,7 @@ export const categoryService = {
 
   async update(id: string, input: UpdateCategoryInput): Promise<CategoryRow> {
     // Verify category exists (excluding deleted categories)
-    const existing = await categoryRepo.findById(id, false);
+    const existing = await categoryRepo.exists({id, includeDeleted: false});
     if (!existing) {
       throw new Error('Category not found');
     }
@@ -70,14 +70,16 @@ export const categoryService = {
 
   async softDelete(id: string): Promise<CategoryRow> {
     // Verify category exists (excluding already deleted categories)
-    const existing = await categoryRepo.findById(id, false);
+    const existing = await categoryRepo.exists({id, includeDeleted: false});
     if (!existing) {
       throw new Error('Category not found');
     }
 
     // Business rule: Check if category has active products before deleting
-    // This could be implemented in future if needed
-    // For now, allow soft delete
+    const existingProductsCount = await productRepo.count({ categoryId: id, includeDeleted: false });
+    if (existingProductsCount > 0) {
+      throw new Error('Cannot delete category with active products');
+    }
 
     return await categoryRepo.softDelete(id);
   },
@@ -85,7 +87,7 @@ export const categoryService = {
   // Hard delete (only for testing purposes and batch clean-ups)
   async hardDelete(id: string): Promise<CategoryRow> {
     // Verify category exists (including deleted categories for hard delete)
-    const existing = await categoryRepo.findById(id, true);
+    const existing = await categoryRepo.exists({id, includeDeleted: true});
     if (!existing) {
       throw new Error('Category not found');
     }
