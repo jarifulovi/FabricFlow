@@ -7,8 +7,8 @@ import {
 
 export const categoryService = {
   async create(input: CreateCategoryInput): Promise<CategoryRow> {
-    // Check if category with same name exists
-    const existing = await categoryRepo.findAll({ search: input.name });
+    // Check if category with same name exists (excluding deleted categories)
+    const existing = await categoryRepo.findAll({ search: input.name, includeDeleted: false });
     if (existing.length > 0) {
       throw new Error('Category with the same name already exists');
     }
@@ -17,8 +17,8 @@ export const categoryService = {
   },
 
   async update(id: string, input: UpdateCategoryInput): Promise<CategoryRow> {
-    // Verify category exists
-    const existing = await categoryRepo.findById(id);
+    // Verify category exists (excluding deleted categories)
+    const existing = await categoryRepo.findById(id, false);
     if (!existing) {
       throw new Error('Category not found');
     }
@@ -27,7 +27,7 @@ export const categoryService = {
   },
 
   async findById(id: string): Promise<CategoryRow> {
-    const category = await categoryRepo.findById(id);
+    const category = await categoryRepo.findById(id, false); // Explicitly exclude deleted
     if (!category) {
       throw new Error('Category not found');
     }
@@ -36,18 +36,20 @@ export const categoryService = {
 
   async findAll(filters?: {
     name?: string;
+    includeDeleted?: boolean;
     sortBy?: 'name' | 'createdAt';
     sortOrder?: 'asc' | 'desc';
     page?: number;
     pageSize?: number;
   }): Promise<CategoryRow[]> {
-    const { page, pageSize, name, ...rest } = filters || {};
+    const { page, pageSize, name, includeDeleted = false, ...rest } = filters || {};
     const limit = pageSize;
     const offset = page && pageSize ? (page - 1) * pageSize : undefined;
     
     return await categoryRepo.findAll({ 
       ...rest, 
       ...(name && { search: name }), // Map 'name' to 'search' for repository
+      includeDeleted, // Explicitly pass the defaulted value
       limit, 
       offset 
     });
@@ -58,6 +60,7 @@ export const categoryService = {
     const limit = pageSize;
     const offset = page && pageSize ? (page - 1) * pageSize : undefined;
     return await categoryRepo.findAll({
+      includeDeleted: false, // Explicitly exclude deleted categories
       sortBy: 'name',
       sortOrder: 'asc',
       limit,
@@ -65,18 +68,28 @@ export const categoryService = {
     });
   },
 
-  // Restricted for now
-  async delete(id: string): Promise<CategoryRow> {
-    // Verify category exists
-    const existing = await categoryRepo.findById(id);
+  async softDelete(id: string): Promise<CategoryRow> {
+    // Verify category exists (excluding already deleted categories)
+    const existing = await categoryRepo.findById(id, false);
     if (!existing) {
       throw new Error('Category not found');
     }
 
-    // Business rule: Check if category has products+variants+line items of these+movements before deleting
-    // This could be implemented in future if possible
-    // Only for testing purposes now
+    // Business rule: Check if category has active products before deleting
+    // This could be implemented in future if needed
+    // For now, allow soft delete
 
-    return await categoryRepo.delete(id);
+    return await categoryRepo.softDelete(id);
+  },
+
+  // Hard delete (only for testing purposes and batch clean-ups)
+  async hardDelete(id: string): Promise<CategoryRow> {
+    // Verify category exists (including deleted categories for hard delete)
+    const existing = await categoryRepo.findById(id, true);
+    if (!existing) {
+      throw new Error('Category not found');
+    }
+
+    return await categoryRepo.hardDelete(id);
   },
 };

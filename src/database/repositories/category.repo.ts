@@ -3,9 +3,11 @@ import pool, { Pool, PoolClient } from './../connection';
 import {
   buildInsertCategoryQuery,
   buildPatchCategoryQuery,
-  buildDeleteCategoriesQuery,
+  buildBulkSoftDeleteCategoriesQuery,
+  buildBulkHardDeleteCategoriesQuery,
   buildSelectCategoriesQuery,
   buildSelectCategoryByIdQuery,
+  buildSelectCategoryByIdIncludedDeletedQuery,
 } from './../queries/index';
 import { CategoryRow, CreateCategoryInput, UpdateCategoryInput } from './../types/category';
 import { dbValidator } from '../validators/base.validator';
@@ -41,18 +43,21 @@ export const categoryRepo = {
     return result.rows[0];
   },
 
-  async findById(id: string, executor?: Pool | PoolClient): Promise<CategoryRow | null> {
+  async findById(id: string, includeDeleted: boolean = false, executor?: Pool | PoolClient): Promise<CategoryRow | null> {
     const db = executor || pool;
     if (!dbValidator.isValidUUID(id)) {
       throw new Error('Invalid category ID');
     }
-    const { text, values } = buildSelectCategoryByIdQuery(id);
+    const { text, values } = includeDeleted 
+      ? buildSelectCategoryByIdIncludedDeletedQuery(id)
+      : buildSelectCategoryByIdQuery(id);
     const result = await db.query<CategoryRow>(text, values);
     return result.rows[0] || null;
   },
 
   async findAll(filters?: {
     search?: string;
+    includeDeleted?: boolean; // include soft-deleted categories
     sortBy?: 'name' | 'createdAt';
     sortOrder?: 'asc' | 'desc';
     limit?: number;
@@ -79,13 +84,24 @@ export const categoryRepo = {
     return result.rows;
   },
 
-  // Delete is restricted for categories, only for testing purposes
-  async delete(id: string, executor?: Pool | PoolClient): Promise<CategoryRow> {
+  // Soft delete (recommended for production)
+  async softDelete(id: string, executor?: Pool | PoolClient): Promise<CategoryRow> {
     const db = executor || pool;
     if (!dbValidator.isValidUUID(id)) {
       throw new Error('Invalid category ID');
     }
-    const { text, values } = buildDeleteCategoriesQuery([id]);
+    const { text, values } = buildBulkSoftDeleteCategoriesQuery([id]);
+    const result = await db.query<CategoryRow>(text, values);
+    return result.rows[0];
+  },
+
+  // Hard delete (only for testing purposes and batch clean-ups)
+  async hardDelete(id: string, executor?: Pool | PoolClient): Promise<CategoryRow> {
+    const db = executor || pool;
+    if (!dbValidator.isValidUUID(id)) {
+      throw new Error('Invalid category ID');
+    }
+    const { text, values } = buildBulkHardDeleteCategoriesQuery([id]);
     const result = await db.query<CategoryRow>(text, values);
     return result.rows[0];
   },

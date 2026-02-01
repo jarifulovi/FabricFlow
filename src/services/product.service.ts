@@ -13,7 +13,7 @@ export const productService = {
       throw new Error('Product with the same SKU already exists');
     }
     // Check if category exists
-    const existingCategory = await categoryRepo.findById(input.categoryId);
+    const existingCategory = await categoryRepo.findById(input.categoryId, false);
     if (!existingCategory) {
       throw new Error('Category not found');
     }
@@ -29,7 +29,7 @@ export const productService = {
     }
     // Check if category exists
     if (input.categoryId) {
-      const existingCategory = await categoryRepo.findById(input.categoryId);
+      const existingCategory = await categoryRepo.findById(input.categoryId, false);
       if (!existingCategory) {
         throw new Error('Category not found from service');
       }

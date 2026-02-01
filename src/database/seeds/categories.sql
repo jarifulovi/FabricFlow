@@ -14,5 +14,4 @@ INSERT INTO categories (name, description) VALUES
     ('Traditional Wear', 'Ethnic and traditional clothing'),
     ('Denim', 'Jeans and denim-based clothing'),
     ('Knitwear', 'Sweaters, cardigans, and knitted garments'),
-    ('Sleepwear', 'Pajamas, nightwear, and loungewear')
-ON CONFLICT (name) DO NOTHING;
+    ('Sleepwear', 'Pajamas, nightwear, and loungewear');

@@ -10,7 +10,7 @@
 CREATE TABLE IF NOT EXISTS product_variants (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   product_id UUID REFERENCES products(id) ON DELETE CASCADE, -- Link to master product
-  sku VARCHAR(100) UNIQUE NOT NULL,                          -- Variant-specific SKU
+  sku VARCHAR(100) NOT NULL,                                 -- Variant-specific SKU
   vendor_sku VARCHAR(100),                                   -- Optional vendor SKU
   color VARCHAR(50),
   size VARCHAR(20),
@@ -41,10 +41,12 @@ CREATE TRIGGER trigger_product_variants_updated_at
 
 -- Indexes for faster lookups
 CREATE INDEX idx_product_variants_product_id ON product_variants(product_id);
+CREATE INDEX idx_product_variants_is_deleted ON product_variants(is_deleted) WHERE is_deleted = false;
+CREATE UNIQUE INDEX idx_product_variants_sku_unique ON product_variants(sku) WHERE is_deleted = false;
 
 -- Comments
 COMMENT ON TABLE product_variants IS 'Specific variants of products, used for inventory and sales tracking';
-COMMENT ON COLUMN product_variants.sku IS 'Unique SKU for the variant';
+COMMENT ON COLUMN product_variants.sku IS 'Variant-level SKU, unique among non-deleted variants only.';
 COMMENT ON COLUMN product_variants.product_id IS 'Foreign key to the master product';
 COMMENT ON COLUMN product_variants.price IS 'Optional variant-specific selling price';
 COMMENT ON COLUMN product_variants.reorder_level IS 'Quantity threshold to trigger reorder alerts';
