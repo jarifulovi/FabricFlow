@@ -1,5 +1,6 @@
 export const buildExistsProductQuery = (filters?: {
   id?: string;
+  sku?: string;
   categoryId?: string;
   status?: 'active' | 'inactive' | 'discontinued';
   tag?: string;
@@ -21,6 +22,10 @@ export const buildExistsProductQuery = (filters?: {
     if (filters.id) {
       text += ` AND p.id = $${counter++}`;
       values.push(filters.id);
+    }
+    if (filters.sku) {
+      text += ` AND p.sku = $${counter++}`;
+      values.push(filters.sku);
     }
     if (filters.categoryId !== undefined) {
       text += ` AND p.category_id = $${counter++}`;

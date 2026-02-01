@@ -8,12 +8,12 @@ import {
 export const productService = {
   async create(input: CreateProductInput): Promise<ProductRow> {
     // Business validation: Check if SKU already exists (excluding deleted products)
-    const existingBySku = await productRepo.findBySku(input.sku, false);
+    const existingBySku = await productRepo.exists({ sku: input.sku, includeDeleted: false });
     if (existingBySku) {
       throw new Error('Product with the same SKU already exists');
     }
     // Check if category exists
-    const existingCategory = await categoryRepo.findById(input.categoryId, false);
+    const existingCategory = await categoryRepo.exists({ id: input.categoryId, includeDeleted: false });
     if (!existingCategory) {
       throw new Error('Category not found');
     }
@@ -23,13 +23,13 @@ export const productService = {
 
   async update(id: string, input: UpdateProductInput): Promise<ProductRow> {
     // Verify product exists (excluding deleted products)
-    const existing = await productRepo.findById(id, false);
+    const existing = await productRepo.exists({ id, includeDeleted: false });
     if (!existing) {
       throw new Error('Product not found');
     }
     // Check if category exists
     if (input.categoryId) {
-      const existingCategory = await categoryRepo.findById(input.categoryId, false);
+      const existingCategory = await categoryRepo.exists({ id: input.categoryId, includeDeleted: false });
       if (!existingCategory) {
         throw new Error('Category not found from service');
       }
@@ -95,13 +95,13 @@ export const productService = {
 
   async softDelete(id: string): Promise<ProductRow> {
     // Verify product exists (excluding already deleted products)
-    const existing = await productRepo.findById(id, false);
+    const existing = await productRepo.exists({ id, includeDeleted: false });
     if (!existing) {
       throw new Error('Product not found');
     }
 
     // Business rule: Check if product has variants before deleting
-    const variants = await variantRepo.findAll({ productId: id });
+    const variants = await variantRepo.findAll({ productId: id }); // add exists after implementation
     if (variants.length > 0) {
       throw new Error('Cannot delete product that has variants. Delete variants first.');
     }

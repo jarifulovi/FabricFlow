@@ -12,3 +12,4 @@
 
 export * from './create-receiving-slip';
 export * from './confirm-receiving-slip';
+export * from './delete-category';

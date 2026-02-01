@@ -4,6 +4,7 @@ import {
   UpdateCategoryInput,
   CategoryRow,
 } from '../database/types/category';
+import { deleteCategoryTransaction } from '../database/transactions';
 
 export const categoryService = {
   async create(input: CreateCategoryInput): Promise<CategoryRow> {
@@ -75,13 +76,7 @@ export const categoryService = {
       throw new Error('Category not found');
     }
 
-    // Business rule: Check if category has active products before deleting
-    const existingProductsCount = await productRepo.count({ categoryId: id, includeDeleted: false });
-    if (existingProductsCount > 0) {
-      throw new Error('Cannot delete category with active products');
-    }
-
-    return await categoryRepo.softDelete(id);
+    return await deleteCategoryTransaction(id, false);
   },
 
   // Hard delete (only for testing purposes and batch clean-ups)
@@ -92,6 +87,6 @@ export const categoryService = {
       throw new Error('Category not found');
     }
 
-    return await categoryRepo.hardDelete(id);
+    return await deleteCategoryTransaction(id, true);
   },
 };

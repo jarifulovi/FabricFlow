@@ -187,6 +187,7 @@ export const productRepo = {
   // Check if product exists with filters
   async exists(filters?: {
     id?: string;
+    sku?: string;
     categoryId?: string;
     status?: 'active' | 'inactive' | 'discontinued';
     tag?: string;
@@ -196,6 +197,9 @@ export const productRepo = {
     const db = executor || pool;
     if (!dbValidator.isValidUUID(filters?.id, true)) {
       throw new Error('Invalid product ID');
+    }
+    if (!dbValidator.isValidString(filters?.sku, 500, true)) {
+      throw new Error('Invalid product SKU');
     }
     if (!dbValidator.isValidUUID(filters?.categoryId, true)) {
       throw new Error('Invalid category ID');
