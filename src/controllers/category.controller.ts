@@ -87,25 +87,16 @@ export const categoryController = {
         })
       }
     });
-  })
+  }),
 
-  // DELETE /categories/:id (will be placed in test routes only)
-  // async delete(req: Request, res: Response): Promise<void> {
-  //   try {
-  //     const { id } = req.params;
-  //     const categoryId = Array.isArray(id) ? id[0] : id;
-  //     const result = await categoryService.delete(categoryId);
-  //     res.status(200).json({
-  //       success: true,
-  //       data: result,
-  //       message: 'Category deleted successfully'
-  //     });
-  //   } catch (error) {
-  //     const statusCode = error instanceof Error && error.message === 'Category not found' ? 404 : 400;
-  //     res.status(statusCode).json({
-  //       success: false,
-  //       message: error instanceof Error ? error.message : 'Failed to delete category'
-  //     });
-  //   }
-  // }
+  // DELETE /categories/:id - Soft delete category
+  softDelete: asyncHandler(async (req: Request, res: Response): Promise<void> => {
+    const categoryId = extractParamString(req.params.id);
+    const result = await categoryServicePublic.softDelete(categoryId);
+    res.status(200).json({
+      success: true,
+      data: result,
+      message: 'Category deleted successfully'
+    });
+  })
 };

@@ -11,6 +11,7 @@ export const categoryServicePublic = {
   findById: categoryService.findById,
   create: categoryService.create,
   update: categoryService.update,
+  softDelete: categoryService.softDelete,
 };
 
 export const productServicePublic = {

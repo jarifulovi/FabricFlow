@@ -18,4 +18,7 @@ router.get('/:id', categoryController.findById);
 // GET /categories - Get all categories with filters
 router.get('/', categoryController.findAll);
 
+// DELETE /categories/:id - Soft delete category
+router.delete('/:id', categoryController.softDelete);
+
 export { router as categoryRoutes };
