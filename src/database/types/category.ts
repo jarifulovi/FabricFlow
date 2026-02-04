@@ -1,22 +1,44 @@
-export interface Category {
-  id: string;
-  name: string;
-  description?: string;
-  isDeleted: boolean;
-  createdAt: Date;
-  updatedAt: Date;
-  deletedAt?: Date;
-}
+import { z } from 'zod/v4';
 
-// Derived types for queries
-export type CreateCategoryInput = Omit<Category, 'id' | 'createdAt' | 'updatedAt' | 'deletedAt' | 'isDeleted'>;
-export type UpdateCategoryInput = Partial<CreateCategoryInput>;
-export type CategoryRow = Omit<Category, 'createdAt' | 'updatedAt' | 'deletedAt'> & {
-  createdAt: string;
-  updatedAt: string;
-  deletedAt: string | null;
-};
+// Zod Schema - Single source of truth
+export const categorySchema = z.object({
+  id: z.uuid(),
+  name: z.string().min(1).max(500),
+  description: z.string().max(500).optional(),
+  isDeleted: z.boolean().default(false),
+  createdAt: z.date(),
+  updatedAt: z.date(),
+  deletedAt: z.date().optional(),
+});
 
+
+export const createCategorySchema = categorySchema.omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+  deletedAt: true,
+  isDeleted: true,
+});
+
+export const updateCategorySchema = createCategorySchema.partial();
+
+export const categoryRowSchema = categorySchema.omit({
+  createdAt: true,
+  updatedAt: true,
+  deletedAt: true,
+}).extend({
+  createdAt: z.string(),
+  updatedAt: z.string(),
+  deletedAt: z.string().nullable(),
+});
+
+// TypeScript types inferred from schemas
+export type Category = z.infer<typeof categorySchema>;
+export type CreateCategoryInput = z.infer<typeof createCategorySchema>;
+export type UpdateCategoryInput = z.infer<typeof updateCategorySchema>;
+export type CategoryRow = z.infer<typeof categoryRowSchema>;
+
+// Column mapping for database queries
 export const categoryColumnMapping: Record<string, string> = {
   name: 'name',
   description: 'description',

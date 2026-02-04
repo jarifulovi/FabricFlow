@@ -1,29 +1,49 @@
-export interface ProductVariant {
-  id: string;
-  productId: string;  // UUID
-  sku: string;
-  vendorSku?: string;
-  color?: string;
-  size?: string;
-  gender?: string;
-  season?: string;
-  fit?: string;
-  price?: number;
-  reorderLevel?: number;
-  isDeleted: boolean;
-  createdAt: Date;
-  updatedAt: Date;
-  deletedAt?: Date;
-}
+import { z } from 'zod/v4';
 
-// Derived types for queries
-export type CreateProductVariantInput = Omit<ProductVariant, 'id' | 'createdAt' | 'updatedAt' | 'deletedAt' | 'isDeleted'>;
-export type UpdateProductVariantInput = Partial<CreateProductVariantInput>;
-export type ProductVariantRow = Omit<ProductVariant, 'createdAt' | 'updatedAt' | 'deletedAt'> & {
-  createdAt: string;
-  updatedAt: string;
-  deletedAt: string | null;
-};
+// Zod Schema - Single source of truth
+export const productVariantSchema = z.object({
+  id: z.uuid(),
+  productId: z.uuid(),
+  sku: z.string().min(1).max(500),
+  vendorSku: z.string().max(500).optional(),
+  color: z.string().max(500).optional(),
+  size: z.string().max(500).optional(),
+  gender: z.string().max(500).optional(),
+  season: z.string().max(500).optional(),
+  fit: z.string().max(500).optional(),
+  price: z.number().nonnegative().optional(),
+  reorderLevel: z.number().int().nonnegative().optional(),
+  isDeleted: z.boolean().default(false),
+  createdAt: z.date(),
+  updatedAt: z.date(),
+  deletedAt: z.date().optional(),
+});
+
+export const createProductVariantSchema = productVariantSchema.omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+  deletedAt: true,
+  isDeleted: true,
+});
+
+export const updateProductVariantSchema = createProductVariantSchema.partial();
+
+export const productVariantRowSchema = productVariantSchema.omit({
+  createdAt: true,
+  updatedAt: true,
+  deletedAt: true,
+}).extend({
+  createdAt: z.string(),
+  updatedAt: z.string(),
+  deletedAt: z.string().nullable(),
+});
+
+// TypeScript types inferred from schemas
+export type ProductVariant = z.infer<typeof productVariantSchema>;
+export type CreateProductVariantInput = z.infer<typeof createProductVariantSchema>;
+export type UpdateProductVariantInput = z.infer<typeof updateProductVariantSchema>;
+export type ProductVariantRow = z.infer<typeof productVariantRowSchema>;
 
 // Extended type with full product details (for single GET operations)
 export type ProductVariantWithProductRow = ProductVariantRow & {

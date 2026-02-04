@@ -1,35 +1,57 @@
-export type MovementType = 'IN' | 'OUT' | 'ADJUSTMENT';
-export type ItemType = 'product_variant' | 'raw_material';
-export type MovementSource = 
-  | 'receiving_slip_purchase'
-  | 'receiving_slip_production'
-  | 'purchase_order'
-  | 'sale_order'
-  | 'manual_adjustment';
+import { z } from 'zod/v4';
 
-export interface InventoryMovement {
-  id: string;
-  itemId: string;          // UUID - reference to product variant or raw material
-  warehouseId: string;     // UUID
-  quantity: number;
-  movementType: MovementType;
-  itemType: ItemType;      // Type of item being moved
-  sourceType: MovementSource;
-  sourceId: string;        // UUID - required reference to source document
-  batchId?: string;        // UUID - optional batch reference for raw materials
-  price?: number;
-  createdAt: Date;
-  updatedAt: Date;
-}
+// Zod Schema - Single source of truth
+export const movementTypeSchema = z.enum(['IN', 'OUT', 'ADJUSTMENT']);
+export const itemTypeSchema = z.enum(['product_variant', 'raw_material']);
+export const movementSourceSchema = z.enum([
+  'receiving_slip_purchase',
+  'receiving_slip_production',
+  'purchase_order',
+  'sale_order',
+  'manual_adjustment',
+]);
 
-// Derived types for queries
-export type CreateInventoryMovementInput = Omit<InventoryMovement, 'id' | 'createdAt' | 'updatedAt'>;
-export type UpdateInventoryMovementInput = Partial<CreateInventoryMovementInput>;
-export type InventoryMovementRow = Omit<InventoryMovement, 'createdAt' | 'updatedAt'> & {
-  createdAt: string;
-  updatedAt: string;
-};
+export const inventoryMovementSchema = z.object({
+  id: z.uuid(),
+  itemId: z.uuid(),
+  warehouseId: z.uuid(),
+  quantity: z.number(),
+  movementType: movementTypeSchema,
+  itemType: itemTypeSchema,
+  sourceType: movementSourceSchema,
+  sourceId: z.uuid(),
+  batchId: z.uuid().optional(),
+  price: z.number().nonnegative().optional(),
+  createdAt: z.date(),
+  updatedAt: z.date(),
+});
 
+export const createInventoryMovementSchema = inventoryMovementSchema.omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const updateInventoryMovementSchema = createInventoryMovementSchema.partial();
+
+export const inventoryMovementRowSchema = inventoryMovementSchema.omit({
+  createdAt: true,
+  updatedAt: true,
+}).extend({
+  createdAt: z.string(),
+  updatedAt: z.string(),
+});
+
+// TypeScript types inferred from schemas
+export type MovementType = z.infer<typeof movementTypeSchema>;
+export type ItemType = z.infer<typeof itemTypeSchema>;
+export type MovementSource = z.infer<typeof movementSourceSchema>;
+export type InventoryMovement = z.infer<typeof inventoryMovementSchema>;
+export type CreateInventoryMovementInput = z.infer<typeof createInventoryMovementSchema>;
+export type UpdateInventoryMovementInput = z.infer<typeof updateInventoryMovementSchema>;
+export type InventoryMovementRow = z.infer<typeof inventoryMovementRowSchema>;
+
+// Column mapping for database queries
 export const inventoryMovementColumnMapping: Record<string, string> = {
   itemId: 'item_id',
   warehouseId: 'warehouse_id',

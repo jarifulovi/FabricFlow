@@ -1,25 +1,43 @@
-export interface ReceivingSlipLine {
-  id: string;
-  slipId: string;        // UUID - required, every line must belong to a slip
-  lineNumber: number;    // Line item sequence number for ordering within the slip
-  warehouseId?: string;  // UUID - optional, if null uses slip's warehouse
-  variantId: string;     // UUID - required
-  vendorSku?: string;    // Optional SKU provided by vendor
-  quantity: number;
-  price?: number;
-  notes?: string;
-  createdAt: Date;
-  updatedAt: Date;
-}
+import { z } from 'zod/v4';
 
-// Derived types for queries
-export type CreateReceivingSlipLineInput = Omit<ReceivingSlipLine, 'id' | 'createdAt' | 'updatedAt'>;
-export type UpdateReceivingSlipLineInput = Partial<CreateReceivingSlipLineInput>;
-export type ReceivingSlipLineRow = Omit<ReceivingSlipLine, 'createdAt' | 'updatedAt'> & {
-  createdAt: string;
-  updatedAt: string;
-};
+// Zod Schema - Single source of truth
+export const receivingSlipLineSchema = z.object({
+  id: z.uuid(),
+  slipId: z.uuid(),
+  lineNumber: z.number().int().positive(),
+  warehouseId: z.uuid().optional(),
+  variantId: z.uuid(),
+  vendorSku: z.string().max(500).optional(),
+  quantity: z.number().positive(),
+  price: z.number().nonnegative().optional(),
+  notes: z.string().max(1000).optional(),
+  createdAt: z.date(),
+  updatedAt: z.date(),
+});
 
+export const createReceivingSlipLineSchema = receivingSlipLineSchema.omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const updateReceivingSlipLineSchema = createReceivingSlipLineSchema.partial();
+
+export const receivingSlipLineRowSchema = receivingSlipLineSchema.omit({
+  createdAt: true,
+  updatedAt: true,
+}).extend({
+  createdAt: z.string(),
+  updatedAt: z.string(),
+});
+
+// TypeScript types inferred from schemas
+export type ReceivingSlipLine = z.infer<typeof receivingSlipLineSchema>;
+export type CreateReceivingSlipLineInput = z.infer<typeof createReceivingSlipLineSchema>;
+export type UpdateReceivingSlipLineInput = z.infer<typeof updateReceivingSlipLineSchema>;
+export type ReceivingSlipLineRow = z.infer<typeof receivingSlipLineRowSchema>;
+
+// Column mapping for database queries
 export const receivingSlipLineColumnMapping: Record<string, string> = {
   slipId: 'slip_id',
   lineNumber: 'line_number',
