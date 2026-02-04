@@ -10,6 +10,8 @@ import {
   buildSelectVariantByIdIncludedDeletedQuery,
   buildSelectVariantBySkuQuery,
   buildSelectVariantBySkuIncludedDeletedQuery,
+  buildCountVariantsQuery,
+  buildExistsVariantQuery,
 } from './../queries/index';
 import { 
   ProductVariantRow, 
@@ -189,6 +191,7 @@ export const variantRepo = {
     season?: string;
     fit?: string;
     search?: string;
+    includeDeleted?: boolean;
     sortBy?: 'sku' | 'price' | 'createdAt';
     sortOrder?: 'asc' | 'desc';
     limit?: number;
@@ -197,6 +200,15 @@ export const variantRepo = {
     const db = executor || pool;
     if (filters?.productId && !dbValidator.isValidUUID(filters.productId)) {
       throw new Error('Invalid product ID');
+    }
+    if (!dbValidator.isValidString(filters?.search, 500, true)) {
+      throw new Error('Invalid search string');
+    }
+    if (!dbValidator.isValidEnum(filters?.sortBy, ['sku', 'price', 'createdAt'], true)) {
+      throw new Error('Invalid sortBy value');
+    }
+    if (!dbValidator.isValidEnum(filters?.sortOrder, ['asc', 'desc'], true)) {
+      throw new Error('Invalid sortOrder value');
     }
     const { text, values } = buildSelectVariantsQuery(filters);
     const result = await db.query<any>(text, values);
@@ -244,5 +256,59 @@ export const variantRepo = {
     const { text, values } = buildBulkHardDeleteVariantQuery([id]);
     const result = await db.query<ProductVariantRow>(text, values);
     return result.rows[0];
+  },
+
+  // Count variants with filters
+  async count(filters?: {
+    productId?: string;
+    color?: string;
+    size?: string;
+    gender?: string;
+    season?: string;
+    fit?: string;
+    search?: string;
+    includeDeleted?: boolean;
+  }, executor?: Pool | PoolClient): Promise<number> {
+    const db = executor || pool;
+    if (filters?.productId && !dbValidator.isValidUUID(filters.productId)) {
+      throw new Error('Invalid product ID');
+    }
+    if (!dbValidator.isValidString(filters?.search, 500, true)) {
+      throw new Error('Invalid search string');
+    }
+    const { text, values } = buildCountVariantsQuery(filters);
+    const result = await db.query<{ count: string }>(text, values);
+    return parseInt(result.rows[0].count, 10);
+  },
+
+  // Check if variant exists with filters
+  async exists(filters?: {
+    id?: string;
+    sku?: string;
+    productId?: string;
+    color?: string;
+    size?: string;
+    gender?: string;
+    season?: string;
+    fit?: string;
+    search?: string;
+    includeDeleted?: boolean;
+  }, executor?: Pool | PoolClient): Promise<boolean> {
+    const db = executor || pool;
+    if (!dbValidator.isValidUUID(filters?.id, true)) {
+      throw new Error('Invalid variant ID');
+    }
+    if (!dbValidator.isValidString(filters?.sku, 500, true)) {
+      throw new Error('Invalid variant SKU');
+    }
+    if (!dbValidator.isValidUUID(filters?.productId, true)) {
+      throw new Error('Invalid product ID');
+    }
+    if (!dbValidator.isValidString(filters?.search, 500, true)) {
+      throw new Error('Invalid search string');
+    }
+    const { text, values } = buildExistsVariantQuery(filters);
+    const result = await db.query<{ exists: boolean }>(text, values);
+    return result.rows[0].exists;
   },
 };

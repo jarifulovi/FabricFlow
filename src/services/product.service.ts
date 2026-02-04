@@ -100,9 +100,9 @@ export const productService = {
       throw new Error('Product not found');
     }
 
-    // Business rule: Check if product has variants before deleting
-    const variants = await variantRepo.findAll({ productId: id }); // add exists after implementation
-    if (variants.length > 0) {
+    // Check if product has variants before deleting
+    const variantCount = await variantRepo.count({ productId: id, includeDeleted: false });
+    if (variantCount > 0) {
       throw new Error('Cannot delete product that has variants. Delete variants first.');
     }
 
