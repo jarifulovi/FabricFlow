@@ -5,14 +5,14 @@ export const slipTypeSchema = z.enum(['purchase', 'production']);
 export const slipStatusSchema = z.enum(['draft', 'confirmed', 'cancelled']);
 
 export const receivingSlipSchema = z.object({
-  id: z.uuid(),
-  slipNumber: z.string().min(1),
+  id: z.uuid({ message: 'Invalid slip ID' }),
+  slipNumber: z.string({ message: 'Slip number is required' }).min(1, 'Slip number cannot be empty'),
   type: slipTypeSchema,
   status: slipStatusSchema,
-  date: z.date(),
-  warehouseId: z.uuid(),
-  createdBy: z.uuid().optional(),
-  notes: z.string().max(1000).optional(),
+  date: z.date({ message: 'Invalid date' }),
+  warehouseId: z.uuid({ message: 'Invalid warehouse ID' }),
+  createdBy: z.uuid({ message: 'Invalid user ID' }).optional().nullable(),
+  notes: z.string().max(1000, 'Notes are too long').optional().nullable(),
   createdAt: z.date(),
   updatedAt: z.date(),
 });

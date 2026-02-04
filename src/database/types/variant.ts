@@ -2,21 +2,21 @@ import { z } from 'zod/v4';
 
 // Zod Schema - Single source of truth
 export const productVariantSchema = z.object({
-  id: z.uuid(),
-  productId: z.uuid(),
-  sku: z.string().min(1).max(500),
-  vendorSku: z.string().max(500).optional(),
-  color: z.string().max(500).optional(),
-  size: z.string().max(500).optional(),
-  gender: z.string().max(500).optional(),
-  season: z.string().max(500).optional(),
-  fit: z.string().max(500).optional(),
-  price: z.number().nonnegative().optional(),
-  reorderLevel: z.number().int().nonnegative().optional(),
+  id: z.uuid({ message: 'Invalid variant ID' }),
+  productId: z.uuid({ message: 'Invalid product ID' }),
+  sku: z.string({ message: 'SKU is required' }).min(1, 'SKU cannot be empty').max(500, 'SKU is too long'),
+  vendorSku: z.string().max(500, 'Vendor SKU is too long').optional().nullable(),
+  color: z.string().max(500, 'Color is too long').optional().nullable(),
+  size: z.string().max(500, 'Size is too long').optional().nullable(),
+  gender: z.string().max(500, 'Gender is too long').optional().nullable(),
+  season: z.string().max(500, 'Season is too long').optional().nullable(),
+  fit: z.string().max(500, 'Fit is too long').optional().nullable(),
+  price: z.number({ message: 'Price must be a number' }).nonnegative('Price cannot be negative').optional().nullable(),
+  reorderLevel: z.number({ message: 'Reorder level must be a number' }).int('Reorder level must be an integer').nonnegative('Reorder level cannot be negative').optional().nullable(),
   isDeleted: z.boolean().default(false),
   createdAt: z.date(),
   updatedAt: z.date(),
-  deletedAt: z.date().optional(),
+  deletedAt: z.date().optional().nullable(),
 });
 
 export const createProductVariantSchema = productVariantSchema.omit({

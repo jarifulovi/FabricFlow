@@ -2,14 +2,14 @@ import { z } from 'zod/v4';
 
 // Zod Schema - Single source of truth
 export const warehouseSchema = z.object({
-  id: z.uuid(),
-  name: z.string().min(1).max(500),
-  location: z.string().max(500).optional(),
+  id: z.uuid({ message: 'Invalid warehouse ID' }),
+  name: z.string({ message: 'Warehouse name is required' }).min(1, 'Warehouse name cannot be empty').max(500, 'Warehouse name is too long'),
+  location: z.string().max(500, 'Location is too long').optional().nullable(),
   isActive: z.boolean().default(true),
   isDeleted: z.boolean().default(false),
   createdAt: z.date(),
   updatedAt: z.date(),
-  deletedAt: z.date().optional(),
+  deletedAt: z.date().optional().nullable(),
 });
 
 export const createWarehouseSchema = warehouseSchema.omit({
@@ -32,7 +32,7 @@ export const warehouseRowSchema = warehouseSchema.omit({
 }).extend({
   createdAt: z.string(),
   updatedAt: z.string(),
-  deletedAt: z.string().optional(),
+  deletedAt: z.string().nullable(),
 });
 
 // TypeScript types inferred from schemas

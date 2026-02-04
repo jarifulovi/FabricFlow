@@ -2,13 +2,13 @@ import { z } from 'zod/v4';
 
 // Zod Schema - Single source of truth
 export const categorySchema = z.object({
-  id: z.uuid(),
-  name: z.string().min(1).max(500),
-  description: z.string().max(500).optional(),
+  id: z.uuid({ message: 'Invalid category ID' }),
+  name: z.string({ message: 'Category name is required' }).min(1, 'Category name cannot be empty').max(500, 'Category name is too long'),
+  description: z.string().max(500, 'Description is too long').optional().nullable(),
   isDeleted: z.boolean().default(false),
   createdAt: z.date(),
   updatedAt: z.date(),
-  deletedAt: z.date().optional(),
+  deletedAt: z.date().optional().nullable(),
 });
 
 

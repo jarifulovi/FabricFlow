@@ -12,16 +12,16 @@ export const movementSourceSchema = z.enum([
 ]);
 
 export const inventoryMovementSchema = z.object({
-  id: z.uuid(),
-  itemId: z.uuid(),
-  warehouseId: z.uuid(),
-  quantity: z.number(),
+  id: z.uuid({ message: 'Invalid movement ID' }),
+  itemId: z.uuid({ message: 'Invalid item ID' }),
+  warehouseId: z.uuid({ message: 'Invalid warehouse ID' }),
+  quantity: z.number({ message: 'Quantity must be a number' }),
   movementType: movementTypeSchema,
   itemType: itemTypeSchema,
   sourceType: movementSourceSchema,
-  sourceId: z.uuid(),
-  batchId: z.uuid().optional(),
-  price: z.number().nonnegative().optional(),
+  sourceId: z.uuid({ message: 'Invalid source ID' }),
+  batchId: z.uuid({ message: 'Invalid batch ID' }).optional().nullable(),
+  price: z.number({ message: 'Price must be a number' }).nonnegative('Price cannot be negative').optional().nullable(),
   createdAt: z.date(),
   updatedAt: z.date(),
 });

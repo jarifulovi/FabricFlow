@@ -5,20 +5,20 @@ export const productStatusSchema = z.enum(['active', 'inactive', 'discontinued']
 export const productUnitSchema = z.enum(['piece', 'meter', 'yard', 'kilogram', 'roll', 'bundle']);
 
 export const productSchema = z.object({
-  id: z.uuid(),
-  sku: z.string().min(1).max(500),
-  name: z.string().min(1).max(500),
-  description: z.string().max(500).optional(),
-  brandName: z.string().max(500).optional(),
-  brandCode: z.string().max(500).optional(),
-  categoryId: z.uuid(),
+  id: z.uuid({ message: 'Invalid product ID' }),
+  sku: z.string({ message: 'SKU is required' }).min(1, 'SKU cannot be empty').max(500, 'SKU is too long'),
+  name: z.string({ message: 'Product name is required' }).min(1, 'Product name cannot be empty').max(500, 'Product name is too long'),
+  description: z.string().max(500, 'Description is too long').optional().nullable(),
+  brandName: z.string().max(500, 'Brand name is too long').optional().nullable(),
+  brandCode: z.string().max(500, 'Brand code is too long').optional().nullable(),
+  categoryId: z.uuid({ message: 'Invalid category ID' }),
   status: productStatusSchema,
   unit: productUnitSchema,
   isDeleted: z.boolean().default(false),
-  tags: z.array(z.string()).optional(),
+  tags: z.array(z.string()).optional().nullable(),
   createdAt: z.date(),
   updatedAt: z.date(),
-  deletedAt: z.date().optional(),
+  deletedAt: z.date().optional().nullable(),
 });
 
 export const createProductSchema = productSchema.omit({
