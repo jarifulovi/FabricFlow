@@ -6,6 +6,7 @@ FROM warehouses
 export const buildSelectWarehousesQuery = (filters?: {
   isActive?: boolean;
   search?: string; // search by name or location
+  includeDeleted?: boolean; // include soft-deleted warehouses
   sortBy?: 'name' | 'createdAt';
   sortOrder?: 'asc' | 'desc';
   limit?: number;
@@ -14,17 +15,21 @@ export const buildSelectWarehousesQuery = (filters?: {
   let text = baseWarehousesSQL;
   const values: (string | boolean)[] = [];
   let counter = 1;
-  let whereAdded = false;
+
+  // Add WHERE clause for deleted status - defaults to false for safety
+  if (filters?.includeDeleted === true) {
+    text += 'WHERE 1=1'; // include all warehouses
+  } else {
+    text += 'WHERE is_deleted = false'; // exclude deleted warehouses by default
+  }
 
   if (filters?.isActive !== undefined) {
-    text += ` WHERE is_active = $${counter++}`;
+    text += ` AND is_active = $${counter++}`;
     values.push(filters.isActive);
-    whereAdded = true;
   }
 
   if (filters?.search) {
-    text += whereAdded ? ' AND' : ' WHERE';
-    text += ` (name ILIKE $${counter} OR location ILIKE $${counter})`;
+    text += ` AND (name ILIKE $${counter} OR location ILIKE $${counter})`;
     values.push(`%${filters.search}%`);
     counter++;
   }

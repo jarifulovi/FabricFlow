@@ -142,6 +142,8 @@ export const productRepo = {
     if (!dbValidator.isValidUUID(id)) {
       throw new Error('Invalid product ID');
     }
+    // TODO: Check if active variants exists
+    // TODO: Place it in transactions
     const { text, values } = buildBulkSoftDeleteProductQuery([id]);
     const result = await db.query<ProductRow>(text, values);
     return result.rows[0];

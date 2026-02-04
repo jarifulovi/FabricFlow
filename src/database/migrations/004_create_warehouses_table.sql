@@ -9,11 +9,13 @@
 
 CREATE TABLE warehouses (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  name VARCHAR(100) UNIQUE NOT NULL,
+  name VARCHAR(100) NOT NULL,
   location TEXT,
   is_active BOOLEAN DEFAULT TRUE,
+  is_deleted BOOLEAN DEFAULT FALSE,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+  deleted_at TIMESTAMP WITH TIME ZONE
 );
 
 -- Trigger function to auto-update updated_at
@@ -30,6 +32,9 @@ CREATE TRIGGER trigger_warehouses_updated_at
   FOR EACH ROW
   EXECUTE FUNCTION update_warehouses_updated_at();
 
+-- Indexes
+CREATE INDEX idx_warehouses_is_deleted ON warehouses(is_deleted) WHERE is_deleted = false;
+CREATE UNIQUE INDEX idx_warehouses_name_unique ON warehouses(name) WHERE is_deleted = false;
 
 -- Comments
 COMMENT ON TABLE warehouses IS 'Table to store warehouse information.';

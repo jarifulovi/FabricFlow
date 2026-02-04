@@ -3,9 +3,13 @@ import pool, { Pool, PoolClient } from './../connection';
 import {
   buildInsertWarehouseQuery,
   buildPatchWarehouseQuery,
-  buildDeleteWarehousesQuery,
+  buildBulkSoftDeleteWarehousesQuery,
+  buildBulkHardDeleteWarehousesQuery,
   buildSelectWarehousesQuery,
   buildSelectWarehouseByIdQuery,
+  buildSelectWarehouseByIdIncludedDeletedQuery,
+  buildCountWarehousesQuery,
+  buildExistsWarehouseQuery,
 } from './../queries/index';
 import { WarehouseRow, CreateWarehouseInput, UpdateWarehouseInput } from './../types/warehouse';
 import { dbValidator } from '../validators/base.validator';
@@ -44,12 +48,14 @@ export const warehouseRepo = {
     return result.rows[0];
   },
 
-  async findById(id: string, executor?: Pool | PoolClient): Promise<WarehouseRow | null> {
+  async findById(id: string, includeDeleted: boolean = false, executor?: Pool | PoolClient): Promise<WarehouseRow | null> {
     const db = executor || pool;
     if (!dbValidator.isValidUUID(id)) {
       throw new Error('Invalid warehouse ID');
     }
-    const { text, values } = buildSelectWarehouseByIdQuery(id);
+    const { text, values } = includeDeleted 
+      ? buildSelectWarehouseByIdIncludedDeletedQuery(id)
+      : buildSelectWarehouseByIdQuery(id);
     const result = await db.query<WarehouseRow>(text, values);
     return result.rows[0] || null;
   },
@@ -57,25 +63,80 @@ export const warehouseRepo = {
   async findAll(filters?: {
     isActive?: boolean;
     search?: string;
+    includeDeleted?: boolean;
     sortBy?: 'name' | 'createdAt';
     sortOrder?: 'asc' | 'desc';
     limit?: number;
     offset?: number;
   }, executor?: Pool | PoolClient): Promise<WarehouseRow[]> {
     const db = executor || pool;
+    if (!dbValidator.isValidString(filters?.search, 500, true)) {
+      throw new Error('Invalid search string');
+    }
+    if (!dbValidator.isValidEnum(filters?.sortBy, ['name', 'createdAt'], true)) {
+      throw new Error('Invalid sortBy value');
+    }
+    if (!dbValidator.isValidEnum(filters?.sortOrder, ['asc', 'desc'], true)) {
+      throw new Error('Invalid sortOrder value');
+    }
     const { text, values } = buildSelectWarehousesQuery(filters);
     const result = await db.query<WarehouseRow>(text, values);
     return result.rows;
   },
 
-  // Delete is restricted for warehouses, only for testing purposes
-  async delete(id: string, executor?: Pool | PoolClient): Promise<WarehouseRow> {
+  // Soft delete (recommended for production)
+  async softDelete(id: string, executor?: Pool | PoolClient): Promise<WarehouseRow> {
     const db = executor || pool;
     if (!dbValidator.isValidUUID(id)) {
       throw new Error('Invalid warehouse ID');
     }
-    const { text, values } = buildDeleteWarehousesQuery([id]);
+    const { text, values } = buildBulkSoftDeleteWarehousesQuery([id]);
     const result = await db.query<WarehouseRow>(text, values);
     return result.rows[0];
+  },
+
+  // Hard delete (only for testing purposes and batch clean-ups)
+  async hardDelete(id: string, executor?: Pool | PoolClient): Promise<WarehouseRow> {
+    const db = executor || pool;
+    if (!dbValidator.isValidUUID(id)) {
+      throw new Error('Invalid warehouse ID');
+    }
+    const { text, values } = buildBulkHardDeleteWarehousesQuery([id]);
+    const result = await db.query<WarehouseRow>(text, values);
+    return result.rows[0];
+  },
+
+  // Count warehouses with filters
+  async count(filters?: {
+    isActive?: boolean;
+    search?: string;
+    includeDeleted?: boolean;
+  }, executor?: Pool | PoolClient): Promise<number> {
+    const db = executor || pool;
+    if (!dbValidator.isValidString(filters?.search, 500, true)) {
+      throw new Error('Invalid search string');
+    }
+    const { text, values } = buildCountWarehousesQuery(filters);
+    const result = await db.query<{ count: string }>(text, values);
+    return parseInt(result.rows[0].count, 10);
+  },
+
+  // Check if warehouse exists with filters
+  async exists(filters?: {
+    id?: string;
+    isActive?: boolean;
+    search?: string;
+    includeDeleted?: boolean;
+  }, executor?: Pool | PoolClient): Promise<boolean> {
+    const db = executor || pool;
+    if (!dbValidator.isValidUUID(filters?.id, true)) {
+      throw new Error('Invalid warehouse ID');
+    }
+    if (!dbValidator.isValidString(filters?.search, 500, true)) {
+      throw new Error('Invalid search string');
+    }
+    const { text, values } = buildExistsWarehouseQuery(filters);
+    const result = await db.query<{ exists: boolean }>(text, values);
+    return result.rows[0].exists;
   },
 };

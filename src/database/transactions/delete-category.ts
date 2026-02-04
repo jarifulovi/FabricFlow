@@ -12,13 +12,13 @@ export const deleteCategoryTransaction = async (
   try {
     await client.query('BEGIN');
 
-    // Check if category has active products (this needs to be in transaction)
+    // Check if category has products
     const existingProductsCount = await productRepo.count(
       { categoryId, includeDeleted: false },
       client
     );
     if (existingProductsCount > 0) {
-      throw new Error('Cannot delete category with active products');
+      throw new Error('Cannot delete category with having products');
     }
 
     // Perform the delete operation
