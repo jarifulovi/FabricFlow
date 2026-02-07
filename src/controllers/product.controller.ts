@@ -1,40 +1,21 @@
 import { Request, Response } from 'express';
 import { productServicePublic } from '../services';
 import { asyncHandler } from '../utils/async-handler';
-import { extractParamString, parsePaginationParams, extractQueryString, parseQueryBoolean } from '../utils/controller-parser';
+import { createProductSchema, updateProductSchema } from '../database/types/product';
+import { productParamsSchema, productSkuParamsSchema, productApiQuerySchema } from '../types/product.types';
 
 export const productController = {
   // GET /products
   getProducts: asyncHandler(async (req: Request, res: Response) => {
-    const { page, pageSize } = parsePaginationParams(req.query);
-    const categoryId = extractQueryString(req.query.categoryId);
-    const search = extractQueryString(req.query.search);
-    const status = extractQueryString(req.query.status) as 'active' | 'inactive' | 'discontinued' | undefined;
-    const tag = extractQueryString(req.query.tag); // Add tag extraction
-    const includeDeleted = parseQueryBoolean(req.query.includeDeleted);
-    const sortBy = extractQueryString(req.query.sortBy) as 'name' | 'createdAt' | undefined;
-    const sortOrder = extractQueryString(req.query.sortOrder) as 'asc' | 'desc' | undefined;
-
-    const filters = {
-      ...(categoryId && { categoryId }),
-      ...(search && { search }),
-      ...(status && { status }),
-      ...(tag && { tag }), // Add tag to filters
-      ...(includeDeleted !== undefined && { includeDeleted }),
-      ...(sortBy && { sortBy }),
-      ...(sortOrder && { sortOrder }),
-      ...(page && { page }),
-      ...(pageSize && { pageSize })
-    };
-
+    const filters = productApiQuerySchema.parse(req.query);
     const products = await productServicePublic.findAll(filters);
     res.json({
       success: true,
       data: products,
       pagination: {
-        ...(page && pageSize && {
-          currentPage: page,
-          pageSize: pageSize
+        ...(filters.page && filters.pageSize && {
+          currentPage: filters.page,
+          pageSize: filters.pageSize
         })
       }
     });
@@ -42,21 +23,15 @@ export const productController = {
 
   // GET /products/default
   getProductsDefault: asyncHandler(async (req: Request, res: Response) => {
-    const { page, pageSize } = parsePaginationParams(req.query);
-    
-    const params = {
-      ...(page && { page }),
-      ...(pageSize && { pageSize })
-    };
-
-    const products = await productServicePublic.findAllDefault(params);
+    const filters = productApiQuerySchema.pick({ page: true, pageSize: true }).parse(req.query);
+    const products = await productServicePublic.findAllDefault(filters);
     res.json({
       success: true,
       data: products,
       pagination: {
-        ...(page && pageSize && {
-          currentPage: page,
-          pageSize: pageSize
+        ...(filters.page && filters.pageSize && {
+          currentPage: filters.page,
+          pageSize: filters.pageSize
         })
       }
     });
@@ -64,8 +39,8 @@ export const productController = {
 
   // GET /products/:id
   getProductById: asyncHandler(async (req: Request, res: Response) => {
-    const productId = extractParamString(req.params.id);
-    const product = await productServicePublic.findById(productId);
+    const { id } = productParamsSchema.parse(req.params);
+    const product = await productServicePublic.findById(id);
     
     res.json({
       success: true,
@@ -75,8 +50,8 @@ export const productController = {
 
   // GET /products/sku/:sku
   getProductBySku: asyncHandler(async (req: Request, res: Response) => {
-    const productSku = extractParamString(req.params.sku);
-    const product = await productServicePublic.findBySku(productSku);
+    const { sku } = productSkuParamsSchema.parse(req.params);
+    const product = await productServicePublic.findBySku(sku);
     
     res.json({
       success: true,
@@ -86,7 +61,7 @@ export const productController = {
 
   // POST /products
   createProduct: asyncHandler(async (req: Request, res: Response) => {
-    const productData = req.body;
+    const productData = createProductSchema.parse(req.body);
     const newProduct = await productServicePublic.create(productData);
     res.status(201).json({
       success: true,
@@ -97,9 +72,9 @@ export const productController = {
 
   // PUT /products/:id
   updateProduct: asyncHandler(async (req: Request, res: Response) => {
-    const productId = extractParamString(req.params.id);
-    const updateData = req.body;
-    const updatedProduct = await productServicePublic.update(productId, updateData);
+    const { id } = productParamsSchema.parse(req.params);
+    const updateData = updateProductSchema.parse(req.body);
+    const updatedProduct = await productServicePublic.update(id, updateData);
     res.json({
       success: true,
       data: updatedProduct,
@@ -109,8 +84,8 @@ export const productController = {
 
   // DELETE /products/:id
   deleteProduct: asyncHandler(async (req: Request, res: Response) => {
-    const productId = extractParamString(req.params.id);
-    const deletedProduct = await productServicePublic.softDelete(productId);
+    const { id } = productParamsSchema.parse(req.params);
+    const deletedProduct = await productServicePublic.softDelete(id);
     
     res.json({
       success: true,

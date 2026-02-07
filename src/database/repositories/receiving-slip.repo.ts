@@ -13,7 +13,8 @@ import {
   CreateReceivingSlipInput, 
   UpdateReceivingSlipInput,
   SlipType,
-  SlipStatus 
+  SlipStatus,
+  ReceivingSlipFindAllFilters
 } from './../types/receiving-slip';
 import { dbValidator } from '../validators/base.validator';
 
@@ -84,17 +85,7 @@ export const receivingSlipRepo = {
     return result.rows[0] || null;
   },
 
-  async findAll(filters?: {
-    type?: SlipType;
-    status?: SlipStatus;
-    warehouseId?: string;
-    createdBy?: string;
-    search?: string;
-    sortBy?: 'slipNumber' | 'date' | 'createdAt';
-    sortOrder?: 'asc' | 'desc';
-    limit?: number;
-    offset?: number;
-  }, executor?: Pool | PoolClient): Promise<ReceivingSlipRow[]> {
+  async findAll(filters?: ReceivingSlipFindAllFilters, executor?: Pool | PoolClient): Promise<ReceivingSlipRow[]> {
     const db = executor || pool;
     if (filters?.warehouseId && !dbValidator.isValidUUID(filters.warehouseId)) {
       throw new Error('Invalid warehouse ID');

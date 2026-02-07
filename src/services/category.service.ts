@@ -3,7 +3,10 @@ import {
   CreateCategoryInput,
   UpdateCategoryInput,
   CategoryRow,
+  CategoryFindAllFilters,
+  CategoryExistsFilters
 } from '../database/types/category';
+import { CategoryApiQuery } from '../types/category.types';
 import { deleteCategoryTransaction } from '../database/transactions';
 
 export const categoryService = {
@@ -35,38 +38,34 @@ export const categoryService = {
     return category;
   },
 
-  async findAll(filters?: {
-    name?: string;
-    includeDeleted?: boolean;
-    sortBy?: 'name' | 'createdAt';
-    sortOrder?: 'asc' | 'desc';
-    page?: number;
-    pageSize?: number;
-  }): Promise<CategoryRow[]> {
+  async findAll(filters?: CategoryApiQuery): Promise<CategoryRow[]> {
     const { page, pageSize, name, includeDeleted = false, ...rest } = filters || {};
-    const limit = pageSize;
-    const offset = page && pageSize ? (page - 1) * pageSize : undefined;
     
-    return await categoryRepo.findAll({ 
-      ...rest, 
+    // Convert API params to database filters
+    const dbFilters: CategoryFindAllFilters = {
+      ...rest,
       ...(name && { search: name }), // Map 'name' to 'search' for repository
-      includeDeleted, // Explicitly pass the defaulted value
-      limit, 
-      offset 
-    });
+      includeDeleted,
+      limit: pageSize,
+      offset: page && pageSize ? (page - 1) * pageSize : undefined
+    };
+    
+    return await categoryRepo.findAll(dbFilters);
   },
 
-  async findAllDefault(params?: { page?: number; pageSize?: number }): Promise<CategoryRow[]> {
+  async findAllDefault(params?: Pick<CategoryApiQuery, 'page' | 'pageSize'>): Promise<CategoryRow[]> {
     const { page, pageSize } = params || {};
-    const limit = pageSize;
-    const offset = page && pageSize ? (page - 1) * pageSize : undefined;
-    return await categoryRepo.findAll({
-      includeDeleted: false, // Explicitly exclude deleted categories
+    
+    // Convert to database filters
+    const dbFilters: CategoryFindAllFilters = {
+      includeDeleted: false,
       sortBy: 'name',
       sortOrder: 'asc',
-      limit,
-      offset,
-    });
+      limit: pageSize,
+      offset: page && pageSize ? (page - 1) * pageSize : undefined
+    };
+    
+    return await categoryRepo.findAll(dbFilters);
   },
 
   async softDelete(id: string): Promise<CategoryRow> {

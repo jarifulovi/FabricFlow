@@ -1,14 +1,14 @@
 import { Request, Response } from 'express';
 import { categoryServicePublic } from '../services';
-import { CreateCategoryInput, UpdateCategoryInput } from '../database/types/category';
-import { extractParamString, parsePaginationParams, extractQueryString } from '../utils/controller-parser';
+import { createCategorySchema, updateCategorySchema } from '../database/types/category';
+import { categoryParamsSchema, categoryApiQuerySchema } from '../types/category.types';
 import { asyncHandler } from '../utils/async-handler';
 
 
 export const categoryController = {
   // POST /categories
   create: asyncHandler(async (req: Request, res: Response): Promise<void> => {
-    const input: CreateCategoryInput = req.body;
+    const input = createCategorySchema.parse(req.body);
     const result = await categoryServicePublic.create(input);
     res.status(201).json({
       success: true,
@@ -19,9 +19,9 @@ export const categoryController = {
 
   // PATCH /categories/:id
   update: asyncHandler(async (req: Request, res: Response): Promise<void> => {
-    const categoryId = extractParamString(req.params.id);
-    const input: UpdateCategoryInput = req.body;
-    const result = await categoryServicePublic.update(categoryId, input);
+    const { id } = categoryParamsSchema.parse(req.params);
+    const input = updateCategorySchema.parse(req.body);
+    const result = await categoryServicePublic.update(id, input);
     res.status(200).json({
       success: true,
       data: result,
@@ -31,8 +31,8 @@ export const categoryController = {
 
   // GET /categories/:id
   findById: asyncHandler(async (req: Request, res: Response): Promise<void> => {
-    const categoryId = extractParamString(req.params.id);
-    const result = await categoryServicePublic.findById(categoryId);
+    const { id } = categoryParamsSchema.parse(req.params);
+    const result = await categoryServicePublic.findById(id);
     res.status(200).json({
       success: true,
       data: result
@@ -41,27 +41,15 @@ export const categoryController = {
 
   // GET /categories
   findAll: asyncHandler(async (req: Request, res: Response): Promise<void> => {
-    const { page, pageSize } = parsePaginationParams(req.query);
-    const name = extractQueryString(req.query.name);
-    const sortBy = extractQueryString(req.query.sortBy) as 'name' | 'createdAt' | undefined;
-    const sortOrder = extractQueryString(req.query.sortOrder) as 'asc' | 'desc' | undefined;
-    
-    const filters = {
-      ...(name && { name }),
-      ...(sortBy && { sortBy }),
-      ...(sortOrder && { sortOrder }),
-      ...(page && { page }),
-      ...(pageSize && { pageSize })
-    };
-
+    const filters = categoryApiQuerySchema.parse(req.query);
     const result = await categoryServicePublic.findAll(filters);
     res.status(200).json({
       success: true,
       data: result,
       pagination: {
-        ...(page && pageSize && {
-          currentPage: page,
-          pageSize: pageSize
+        ...(filters.page && filters.pageSize && {
+          currentPage: filters.page,
+          pageSize: filters.pageSize
         })
       }
     });
@@ -69,21 +57,15 @@ export const categoryController = {
 
   // GET /categories/default
   findAllDefault: asyncHandler(async (req: Request, res: Response): Promise<void> => {
-    const { page, pageSize } = parsePaginationParams(req.query);
-    
-    const params = {
-      ...(page && { page }),
-      ...(pageSize && { pageSize })
-    };
-
-    const result = await categoryServicePublic.findAllDefault(params);
+    const filters = categoryApiQuerySchema.pick({ page: true, pageSize: true }).parse(req.query);
+    const result = await categoryServicePublic.findAllDefault(filters);
     res.status(200).json({
       success: true,
       data: result,
       pagination: {
-        ...(page && pageSize && {
-          currentPage: page,
-          pageSize: pageSize
+        ...(filters.page && filters.pageSize && {
+          currentPage: filters.page,
+          pageSize: filters.pageSize
         })
       }
     });
@@ -91,8 +73,8 @@ export const categoryController = {
 
   // DELETE /categories/:id - Soft delete category
   softDelete: asyncHandler(async (req: Request, res: Response): Promise<void> => {
-    const categoryId = extractParamString(req.params.id);
-    const result = await categoryServicePublic.softDelete(categoryId);
+    const { id } = categoryParamsSchema.parse(req.params);
+    const result = await categoryServicePublic.softDelete(id);
     res.status(200).json({
       success: true,
       data: result,

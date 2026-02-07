@@ -3,12 +3,14 @@ import {
   CreateWarehouseInput,
   UpdateWarehouseInput,
   WarehouseRow,
+  WarehouseFindAllFilters,
 } from '../database/types/warehouse';
+import { WarehouseApiQuery } from '../types/warehouse.types';
 
 export const warehouseService = {
   async create(input: CreateWarehouseInput): Promise<WarehouseRow> {
     // Check if warehouse exists
-    const existing = await warehouseRepo.exists({ search: input.name, includeDeleted: false });
+    const existing = await warehouseRepo.exists({ name: input.name, includeDeleted: false });
     if (existing) {
       throw new Error('Warehouse with the same name already exists');
     }
@@ -33,29 +35,29 @@ export const warehouseService = {
     return warehouse;
   },
 
-  async findAll(filters?: {
-    search?: string; // name or location
-    isActive?: boolean;
-    includeDeleted?: boolean;
-    sortBy?: 'name' | 'createdAt';
-    sortOrder?: 'asc' | 'desc';
-    page?: number;
-    pageSize?: number;
-  }): Promise<WarehouseRow[]> {
+  async findAll(filters?: WarehouseApiQuery): Promise<WarehouseRow[]> {
     const { page, pageSize, includeDeleted = false, ...rest } = filters || {};
-    const limit = pageSize;
-    const offset = page && pageSize ? (page - 1) * pageSize : undefined;
     
-    return await warehouseRepo.findAll({ ...rest, includeDeleted, limit, offset });
+    // Convert API params to database filters
+    const dbFilters: WarehouseFindAllFilters = {
+      ...rest,
+      includeDeleted,
+      limit: pageSize,
+      offset: page && pageSize ? (page - 1) * pageSize : undefined
+    };
+    
+    return await warehouseRepo.findAll(dbFilters);
   },
 
   async findAllDefault(): Promise<WarehouseRow[]> {
-    return await warehouseRepo.findAll({
+    const dbFilters: WarehouseFindAllFilters = {
       isActive: true,
       includeDeleted: false,
       sortBy: 'name',
-      sortOrder: 'asc',
-    });
+      sortOrder: 'asc'
+    };
+    
+    return await warehouseRepo.findAll(dbFilters);
   },
 
   // Restricted for now

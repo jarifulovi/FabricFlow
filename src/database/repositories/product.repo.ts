@@ -13,7 +13,7 @@ import {
   buildCountProductsQuery,
   buildExistsProductQuery,
 } from './../queries/index';
-import { ProductRow, CreateProductInput, UpdateProductInput } from './../types/product';
+import { ProductRow, CreateProductInput, UpdateProductInput, ProductStatus, ProductFindAllFilters, ProductCountFilters, ProductExistsFilters } from './../types/product';
 import { dbValidator } from '../validators/base.validator';
 
 
@@ -101,17 +101,7 @@ export const productRepo = {
     return result.rows[0] || null;
   },
 
-  async findAll(filters?: {
-    categoryId?: string;
-    status?: 'active' | 'inactive' | 'discontinued';
-    tag?: string;
-    search?: string;
-    includeDeleted?: boolean;
-    sortBy?: 'name' | 'createdAt' | 'updatedAt';
-    sortOrder?: 'asc' | 'desc';
-    limit?: number;
-    offset?: number;
-  }, executor?: Pool | PoolClient): Promise<ProductRow[]> {
+  async findAll(filters?: ProductFindAllFilters, executor?: Pool | PoolClient): Promise<ProductRow[]> {
     const db = executor || pool;
     if (!dbValidator.isValidUUID(filters?.categoryId, true)) {
       throw new Error('Invalid category ID');
@@ -161,13 +151,7 @@ export const productRepo = {
   },
 
   // Count products with filters
-  async count(filters?: {
-    categoryId?: string;
-    status?: 'active' | 'inactive' | 'discontinued';
-    tag?: string;
-    search?: string;
-    includeDeleted?: boolean;
-  }, executor?: Pool | PoolClient): Promise<number> {
+  async count(filters?: ProductCountFilters, executor?: Pool | PoolClient): Promise<number> {
     const db = executor || pool;
     if (!dbValidator.isValidUUID(filters?.categoryId, true)) {
       throw new Error('Invalid category ID');
@@ -187,15 +171,7 @@ export const productRepo = {
   },
 
   // Check if product exists with filters
-  async exists(filters?: {
-    id?: string;
-    sku?: string;
-    categoryId?: string;
-    status?: 'active' | 'inactive' | 'discontinued';
-    tag?: string;
-    search?: string;
-    includeDeleted?: boolean;
-  }, executor?: Pool | PoolClient): Promise<boolean> {
+  async exists(filters?: ProductExistsFilters, executor?: Pool | PoolClient): Promise<boolean> {
     const db = executor || pool;
     if (!dbValidator.isValidUUID(filters?.id, true)) {
       throw new Error('Invalid product ID');

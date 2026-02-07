@@ -11,7 +11,14 @@ import {
   buildCountCategoriesQuery,
   buildExistsCategoryQuery,
 } from './../queries/index';
-import { CategoryRow, CreateCategoryInput, UpdateCategoryInput } from './../types/category';
+import { 
+  CategoryRow, 
+  CreateCategoryInput, 
+  UpdateCategoryInput,
+  CategoryFindAllFilters,
+  CategoryCountFilters,
+  CategoryExistsFilters
+} from './../types/category';
 import { dbValidator } from '../validators/base.validator';
 
 
@@ -57,14 +64,7 @@ export const categoryRepo = {
     return result.rows[0] || null;
   },
 
-  async findAll(filters?: {
-    search?: string;
-    includeDeleted?: boolean; // include soft-deleted categories
-    sortBy?: 'name' | 'createdAt';
-    sortOrder?: 'asc' | 'desc';
-    limit?: number;
-    offset?: number;
-  }, executor?: Pool | PoolClient): Promise<CategoryRow[]> {
+  async findAll(filters?: CategoryFindAllFilters, executor?: Pool | PoolClient): Promise<CategoryRow[]> {
     const db = executor || pool;
     if (!dbValidator.isValidString(filters?.search, 500, true)) {
       throw new Error('Invalid search term');
@@ -109,10 +109,7 @@ export const categoryRepo = {
   },
 
   // Count categories with filters
-  async count(filters?: {
-    search?: string;
-    includeDeleted?: boolean;
-  }, executor?: Pool | PoolClient): Promise<number> {
+  async count(filters?: CategoryCountFilters, executor?: Pool | PoolClient): Promise<number> {
     const db = executor || pool;
     if (!dbValidator.isValidString(filters?.search, 500, true)) {
       throw new Error('Invalid search term');
@@ -123,11 +120,7 @@ export const categoryRepo = {
   },
 
   // Check if category exists with filters
-  async exists(filters?: {
-    id?: string;
-    search?: string;
-    includeDeleted?: boolean;
-  }, executor?: Pool | PoolClient): Promise<boolean> {
+  async exists(filters?: CategoryExistsFilters, executor?: Pool | PoolClient): Promise<boolean> {
     const db = executor || pool;
     if (!dbValidator.isValidUUID(filters?.id, true)) {
       throw new Error('Invalid category ID');

@@ -14,6 +14,7 @@ import {
   MovementType,
   MovementSource,
   ItemType,
+  InventoryMovementFindAllFilters
 } from './../types/inventory-movement';
 import { dbValidator } from '../validators/base.validator';
 
@@ -126,19 +127,7 @@ export const inventoryMovementRepo = {
     return result.rows;
   },
 
-  async findAll(filters?: {
-    itemId?: string;
-    warehouseId?: string;
-    movementType?: MovementType;
-    itemType?: ItemType;
-    sourceType?: MovementSource;
-    sourceId?: string;
-    batchId?: string;
-    sortBy?: 'createdAt';
-    sortOrder?: 'asc' | 'desc';
-    limit?: number;
-    offset?: number;
-  }, executor?: Pool | PoolClient): Promise<InventoryMovementRow[]> {
+  async findAll(filters?: InventoryMovementFindAllFilters, executor?: Pool | PoolClient): Promise<InventoryMovementRow[]> {
     const db = executor || pool;
     if (filters?.itemId && !dbValidator.isValidUUID(filters.itemId)) {
       throw new Error('Invalid item ID');

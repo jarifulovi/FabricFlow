@@ -3,7 +3,10 @@ import {
   CreateProductInput,
   UpdateProductInput,
   ProductRow,
+  ProductStatus,
+  ProductFindAllFilters,
 } from '../database/types/product';
+import { ProductApiQuery } from '../types/product.types';
 
 export const productService = {
   async create(input: CreateProductInput): Promise<ProductRow> {
@@ -55,42 +58,34 @@ export const productService = {
     return product;
   },
 
-  async findAll(filters?: {
-    categoryId?: string;
-    search?: string;
-    status?: 'active' | 'inactive' | 'discontinued';
-    tag?: string; // Add tag parameter
-    includeDeleted?: boolean;
-    sortBy?: 'name' | 'createdAt';
-    sortOrder?: 'asc' | 'desc';
-    page?: number;
-    pageSize?: number;
-  }): Promise<ProductRow[]> {
-    const { page, pageSize, search, includeDeleted = false, ...rest } = filters || {};
-    const limit = pageSize;
-    const offset = page && pageSize ? (page - 1) * pageSize : undefined;
+  async findAll(filters?: ProductApiQuery): Promise<ProductRow[]> {
+    const { page, pageSize, includeDeleted = false, ...rest } = filters || {};
     
-    return await productRepo.findAll({ 
-      ...rest, 
-      ...(search && { search }), // Map search parameter
-      includeDeleted, // Explicitly pass the defaulted value
-      limit, 
-      offset 
-    });
+    // Convert API params to database filters
+    const dbFilters: ProductFindAllFilters = {
+      ...rest,
+      includeDeleted,
+      limit: pageSize,
+      offset: page && pageSize ? (page - 1) * pageSize : undefined
+    };
+    
+    return await productRepo.findAll(dbFilters);
   },
 
-  async findAllDefault(params?: { page?: number; pageSize?: number }): Promise<ProductRow[]> {
+  async findAllDefault(params?: Pick<ProductApiQuery, 'page' | 'pageSize'>): Promise<ProductRow[]> {
     const { page, pageSize } = params || {};
-    const limit = pageSize;
-    const offset = page && pageSize ? (page - 1) * pageSize : undefined;
-    return await productRepo.findAll({
+    
+    // Convert to database filters
+    const dbFilters: ProductFindAllFilters = {
       status: 'active',
-      includeDeleted: false, // Explicitly exclude deleted products
+      includeDeleted: false,
       sortBy: 'name',
       sortOrder: 'asc',
-      limit,
-      offset,
-    });
+      limit: pageSize,
+      offset: page && pageSize ? (page - 1) * pageSize : undefined
+    };
+    
+    return await productRepo.findAll(dbFilters);
   },
 
   async softDelete(id: string): Promise<ProductRow> {

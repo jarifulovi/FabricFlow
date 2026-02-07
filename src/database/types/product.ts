@@ -50,6 +50,47 @@ export type CreateProductInput = z.infer<typeof createProductSchema>;
 export type UpdateProductInput = z.infer<typeof updateProductSchema>;
 export type ProductRow = z.infer<typeof productRowSchema>;
 
+// ===== DATABASE FILTER TYPES (Per Operation) =====
+// Database-level filtering - reused by QB and Repo
+
+// FindAll operation filters
+export const productFindAllFiltersSchema = z.object({
+  categoryId: z.uuid().optional(),
+  search: z.string().min(1).optional(),
+  status: productStatusSchema.optional(),
+  tag: z.string().min(1).optional(),
+  includeDeleted: z.boolean().optional(),
+  sortBy: z.enum(['name', 'createdAt']).optional(),
+  sortOrder: z.enum(['asc', 'desc']).optional(),
+  limit: z.number().int().positive().optional(),
+  offset: z.number().int().nonnegative().optional()
+});
+
+// Count operation filters
+export const productCountFiltersSchema = z.object({
+  categoryId: z.uuid().optional(),
+  search: z.string().min(1).optional(),
+  status: productStatusSchema.optional(),
+  tag: z.string().min(1).optional(),
+  includeDeleted: z.boolean().optional()
+});
+
+// Exists operation filters
+export const productExistsFiltersSchema = z.object({
+  id: z.uuid().optional(),
+  sku: z.string().min(1).optional(),
+  categoryId: z.uuid().optional(),
+  status: productStatusSchema.optional(),
+  tag: z.string().min(1).optional(),
+  search: z.string().min(1).optional(),
+  includeDeleted: z.boolean().optional()
+});
+
+// Database filter types
+export type ProductFindAllFilters = z.infer<typeof productFindAllFiltersSchema>;
+export type ProductCountFilters = z.infer<typeof productCountFiltersSchema>;
+export type ProductExistsFilters = z.infer<typeof productExistsFiltersSchema>;
+
 // Column mapping for database queries
 export const productColumnMapping: Record<string, string> = {
   sku: 'sku',

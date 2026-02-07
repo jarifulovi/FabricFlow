@@ -11,7 +11,7 @@ import {
   buildCountWarehousesQuery,
   buildExistsWarehouseQuery,
 } from './../queries/index';
-import { WarehouseRow, CreateWarehouseInput, UpdateWarehouseInput } from './../types/warehouse';
+import { WarehouseRow, CreateWarehouseInput, UpdateWarehouseInput, WarehouseFindAllFilters, WarehouseCountFilters, WarehouseExistsFilters } from './../types/warehouse';
 import { dbValidator } from '../validators/base.validator';
 
 
@@ -60,15 +60,7 @@ export const warehouseRepo = {
     return result.rows[0] || null;
   },
 
-  async findAll(filters?: {
-    isActive?: boolean;
-    search?: string;
-    includeDeleted?: boolean;
-    sortBy?: 'name' | 'createdAt';
-    sortOrder?: 'asc' | 'desc';
-    limit?: number;
-    offset?: number;
-  }, executor?: Pool | PoolClient): Promise<WarehouseRow[]> {
+  async findAll(filters?: WarehouseFindAllFilters, executor?: Pool | PoolClient): Promise<WarehouseRow[]> {
     const db = executor || pool;
     if (!dbValidator.isValidString(filters?.search, 500, true)) {
       throw new Error('Invalid search string');
@@ -107,11 +99,7 @@ export const warehouseRepo = {
   },
 
   // Count warehouses with filters
-  async count(filters?: {
-    isActive?: boolean;
-    search?: string;
-    includeDeleted?: boolean;
-  }, executor?: Pool | PoolClient): Promise<number> {
+  async count(filters?: WarehouseCountFilters, executor?: Pool | PoolClient): Promise<number> {
     const db = executor || pool;
     if (!dbValidator.isValidString(filters?.search, 500, true)) {
       throw new Error('Invalid search string');
@@ -122,12 +110,7 @@ export const warehouseRepo = {
   },
 
   // Check if warehouse exists with filters
-  async exists(filters?: {
-    id?: string;
-    isActive?: boolean;
-    search?: string;
-    includeDeleted?: boolean;
-  }, executor?: Pool | PoolClient): Promise<boolean> {
+  async exists(filters?: WarehouseExistsFilters, executor?: Pool | PoolClient): Promise<boolean> {
     const db = executor || pool;
     if (!dbValidator.isValidUUID(filters?.id, true)) {
       throw new Error('Invalid warehouse ID');

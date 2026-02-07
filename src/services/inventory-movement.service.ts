@@ -5,17 +5,14 @@ import {
   MovementSource,
   MovementType,
   ItemType,
+  InventoryMovementFindAllFilters,
 } from '../database/types/inventory-movement';
+import { InventoryMovementApiQuery } from '../types/inventory-movement.types';
 
 export const inventoryMovementService = {
   async create(input: CreateInventoryMovementInput): Promise<InventoryMovementRow> {
-    // Business validation
-    if (!input.itemId) {
-      throw new Error('Item ID is required');
-    }
-    if (input.quantity <= 0) {
-      throw new Error('Quantity must be greater than zero');
-    }
+    // Check if movement exists
+    
 
     return await inventoryMovementRepo.create(input);
   },
@@ -32,28 +29,25 @@ export const inventoryMovementService = {
     return await inventoryMovementRepo.findBySource(sourceType, sourceId);
   },
 
-  async findAll(filters?: {
-    itemId?: string;
-    warehouseId?: string;
-    movementType?: MovementType;
-    itemType?: ItemType;
-    sourceType?: MovementSource;
-    sortBy?: 'createdAt';
-    sortOrder?: 'asc' | 'desc';
-    page?: number;
-    pageSize?: number;
-  }): Promise<InventoryMovementRow[]> {
+  async findAll(filters?: InventoryMovementApiQuery): Promise<InventoryMovementRow[]> {
     const { page, pageSize, ...rest } = filters || {};
-    const limit = pageSize;
-    const offset = page && pageSize ? (page - 1) * pageSize : undefined;
     
-    return await inventoryMovementRepo.findAll({ ...rest, limit, offset });
+    // Convert API params to database filters
+    const dbFilters: InventoryMovementFindAllFilters = {
+      ...rest,
+      limit: pageSize,
+      offset: page && pageSize ? (page - 1) * pageSize : undefined
+    };
+    
+    return await inventoryMovementRepo.findAll(dbFilters);
   },
 
   async findAllDefault(): Promise<InventoryMovementRow[]> {
-    return await inventoryMovementRepo.findAll({
+    const dbFilters: InventoryMovementFindAllFilters = {
       sortBy: 'createdAt',
-      sortOrder: 'desc',
-    });
+      sortOrder: 'desc'
+    };
+    
+    return await inventoryMovementRepo.findAll(dbFilters);
   },
 };

@@ -41,6 +41,40 @@ export type CreateWarehouseInput = z.infer<typeof createWarehouseSchema>;
 export type UpdateWarehouseInput = z.infer<typeof updateWarehouseSchema>;
 export type WarehouseRow = z.infer<typeof warehouseRowSchema>;
 
+// ===== DATABASE FILTER TYPES (Per Operation) =====
+// Database-level filtering - reused by QB and Repo
+
+// FindAll operation filters
+export const warehouseFindAllFiltersSchema = z.object({
+  isActive: z.boolean().optional(),
+  search: z.string().min(1).optional(),
+  includeDeleted: z.boolean().optional(),
+  sortBy: z.enum(['name', 'createdAt']).optional(),
+  sortOrder: z.enum(['asc', 'desc']).optional(),
+  limit: z.number().int().positive().optional(),
+  offset: z.number().int().nonnegative().optional()
+});
+
+// Count operation filters
+export const warehouseCountFiltersSchema = z.object({
+  isActive: z.boolean().optional(),
+  search: z.string().min(1).optional(),
+  includeDeleted: z.boolean().optional()
+});
+
+// Exists operation filters
+export const warehouseExistsFiltersSchema = z.object({
+  id: z.uuid().optional(),
+  name: z.string().min(1).optional(),
+  search: z.string().min(1).optional(),
+  includeDeleted: z.boolean().optional()
+});
+
+// Database filter types
+export type WarehouseFindAllFilters = z.infer<typeof warehouseFindAllFiltersSchema>;
+export type WarehouseCountFilters = z.infer<typeof warehouseCountFiltersSchema>;
+export type WarehouseExistsFilters = z.infer<typeof warehouseExistsFiltersSchema>;
+
 // Column mapping for database queries
 export const warehouseColumnMapping: Record<string, string> = {
   name: 'name',

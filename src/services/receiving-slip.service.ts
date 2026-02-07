@@ -7,17 +7,16 @@ import {
 import {
   UpdateReceivingSlipInput,
   ReceivingSlipRow,
+  SlipStatus,
+  SlipType,
+  ReceivingSlipFindAllFilters,
 } from '../database/types/receiving-slip';
+import { ReceivingSlipApiQuery } from '../types/receiving-slip.types';
 
 export const receivingSlipService = {
   async create(input: CreateReceivingSlipWithLinesInput): Promise<ReceivingSlipRow> {
-    // Business validation
-    if (!input.slip.slipNumber || input.slip.slipNumber.trim().length === 0) {
-      throw new Error('Slip number is required');
-    }
-    if (!input.lineItems || input.lineItems.length === 0) {
-      throw new Error('At least one line item is required');
-    }
+    // Check if already exists
+
 
     return await createReceivingSlipTransaction(input);
   },
@@ -62,26 +61,25 @@ export const receivingSlipService = {
     return slip;
   },
 
-  async findAll(filters?: {
-    type?: 'purchase' | 'production';
-    status?: 'draft' | 'confirmed' | 'cancelled';
-    warehouseId?: string;
-    sortBy?: 'slipNumber' | 'date' | 'createdAt';
-    sortOrder?: 'asc' | 'desc';
-    page?: number;
-    pageSize?: number;
-  }): Promise<ReceivingSlipRow[]> {
+  async findAll(filters?: ReceivingSlipApiQuery): Promise<ReceivingSlipRow[]> {
     const { page, pageSize, ...rest } = filters || {};
-    const limit = pageSize;
-    const offset = page && pageSize ? (page - 1) * pageSize : undefined;
     
-    return await receivingSlipRepo.findAll({ ...rest, limit, offset });
+    // Convert API params to database filters
+    const dbFilters: ReceivingSlipFindAllFilters = {
+      ...rest,
+      limit: pageSize,
+      offset: page && pageSize ? (page - 1) * pageSize : undefined
+    };
+    
+    return await receivingSlipRepo.findAll(dbFilters);
   },
 
   async findAllDefault(): Promise<ReceivingSlipRow[]> {
-    return await receivingSlipRepo.findAll({
+    const dbFilters: ReceivingSlipFindAllFilters = {
       sortBy: 'date',
-      sortOrder: 'desc',
-    });
+      sortOrder: 'desc'
+    };
+    
+    return await receivingSlipRepo.findAll(dbFilters);
   },
 };

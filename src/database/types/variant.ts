@@ -70,6 +70,56 @@ export type ProductVariantListRow = ProductVariantRow & {
   categoryName: string;
 };
 
+// ===== DATABASE FILTER TYPES (Per Operation) =====
+// Database-level filtering - reused by QB and Repo
+
+// FindAll operation filters
+export const variantFindAllFiltersSchema = z.object({
+  productId: z.uuid().optional(),
+  color: z.string().min(1).optional(),
+  size: z.string().min(1).optional(),
+  gender: z.string().min(1).optional(),
+  season: z.string().min(1).optional(),
+  fit: z.string().min(1).optional(),
+  search: z.string().min(1).optional(),
+  includeDeleted: z.boolean().optional(),
+  sortBy: z.enum(['sku', 'createdAt']).optional(),
+  sortOrder: z.enum(['asc', 'desc']).optional(),
+  limit: z.number().int().positive().optional(),
+  offset: z.number().int().nonnegative().optional()
+});
+
+// Count operation filters
+export const variantCountFiltersSchema = z.object({
+  productId: z.uuid().optional(),
+  color: z.string().min(1).optional(),
+  size: z.string().min(1).optional(),
+  gender: z.string().min(1).optional(),
+  season: z.string().min(1).optional(),
+  fit: z.string().min(1).optional(),
+  search: z.string().min(1).optional(),
+  includeDeleted: z.boolean().optional()
+});
+
+// Exists operation filters
+export const variantExistsFiltersSchema = z.object({
+  id: z.uuid().optional(),
+  sku: z.string().min(1).optional(),
+  productId: z.uuid().optional(),
+  color: z.string().min(1).optional(),
+  size: z.string().min(1).optional(),
+  gender: z.string().min(1).optional(),
+  season: z.string().min(1).optional(),
+  fit: z.string().min(1).optional(),
+  search: z.string().min(1).optional(),
+  includeDeleted: z.boolean().optional()
+});
+
+// Database filter types
+export type VariantFindAllFilters = z.infer<typeof variantFindAllFiltersSchema>;
+export type VariantCountFilters = z.infer<typeof variantCountFiltersSchema>;
+export type VariantExistsFilters = z.infer<typeof variantExistsFiltersSchema>;
+
 export const productVariantColumnMapping: Record<string, string> = {
   productId: 'product_id',
   sku: 'sku',

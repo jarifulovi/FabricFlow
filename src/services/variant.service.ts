@@ -5,7 +5,9 @@ import {
   ProductVariantRow,
   ProductVariantWithProductRow,
   ProductVariantListRow,
+  VariantFindAllFilters,
 } from '../database/types/variant';
+import { VariantApiQuery } from '../types/variant.types';
 
 export const variantService = {
   async create(input: CreateProductVariantInput): Promise<ProductVariantRow> {
@@ -44,27 +46,28 @@ export const variantService = {
     return variant;
   },
 
-  async findAll(filters?: {
-    productId?: string;
-    includeDeleted?: boolean;
-    sortBy?: 'sku' | 'createdAt';
-    sortOrder?: 'asc' | 'desc';
-    page?: number;
-    pageSize?: number;
-  }): Promise<ProductVariantListRow[]> {
+  async findAll(filters?: VariantApiQuery): Promise<ProductVariantListRow[]> {
     const { page, pageSize, includeDeleted = false, ...rest } = filters || {};
-    const limit = pageSize;
-    const offset = page && pageSize ? (page - 1) * pageSize : undefined;
     
-    return await variantRepo.findAll({ ...rest, includeDeleted, limit, offset });
+    // Convert API params to database filters
+    const dbFilters: VariantFindAllFilters = {
+      ...rest,
+      includeDeleted,
+      limit: pageSize,
+      offset: page && pageSize ? (page - 1) * pageSize : undefined
+    };
+    
+    return await variantRepo.findAll(dbFilters);
   },
 
   async findAllDefault(): Promise<ProductVariantListRow[]> {
-    return await variantRepo.findAll({
-      includeDeleted: false, // Explicitly exclude deleted variants
+    const dbFilters: VariantFindAllFilters = {
+      includeDeleted: false,
       sortBy: 'sku',
-      sortOrder: 'asc',
-    });
+      sortOrder: 'asc'
+    };
+    
+    return await variantRepo.findAll(dbFilters);
   },
 
   async softDelete(id: string): Promise<ProductVariantRow> {

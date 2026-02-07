@@ -38,6 +38,37 @@ export type CreateCategoryInput = z.infer<typeof createCategorySchema>;
 export type UpdateCategoryInput = z.infer<typeof updateCategorySchema>;
 export type CategoryRow = z.infer<typeof categoryRowSchema>;
 
+// ===== DATABASE FILTER TYPES (Per Operation) =====
+// Database-level filtering - reused by QB and Repo
+
+// FindAll operation filters
+export const categoryFindAllFiltersSchema = z.object({
+  search: z.string().max(500).optional(),
+  includeDeleted: z.boolean().optional(),
+  sortBy: z.enum(['name', 'createdAt']).optional(),
+  sortOrder: z.enum(['asc', 'desc']).optional(),
+  limit: z.number().int().positive().optional(),
+  offset: z.number().int().nonnegative().optional()
+});
+
+// Count operation filters
+export const categoryCountFiltersSchema = z.object({
+  search: z.string().max(500).optional(),
+  includeDeleted: z.boolean().optional()
+});
+
+// Exists operation filters
+export const categoryExistsFiltersSchema = z.object({
+  id: z.uuid().optional(),
+  search: z.string().max(500).optional(),
+  includeDeleted: z.boolean().optional()
+});
+
+// Database filter types
+export type CategoryFindAllFilters = z.infer<typeof categoryFindAllFiltersSchema>;
+export type CategoryCountFilters = z.infer<typeof categoryCountFiltersSchema>;
+export type CategoryExistsFilters = z.infer<typeof categoryExistsFiltersSchema>;
+
 // Column mapping for database queries
 export const categoryColumnMapping: Record<string, string> = {
   name: 'name',

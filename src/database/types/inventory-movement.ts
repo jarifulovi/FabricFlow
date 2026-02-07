@@ -51,6 +51,45 @@ export type CreateInventoryMovementInput = z.infer<typeof createInventoryMovemen
 export type UpdateInventoryMovementInput = z.infer<typeof updateInventoryMovementSchema>;
 export type InventoryMovementRow = z.infer<typeof inventoryMovementRowSchema>;
 
+// ===== DATABASE FILTER TYPES (Per Operation) =====
+// Database-level filtering - reused by QB and Repo
+
+// FindAll operation filters
+export const inventoryMovementFindAllFiltersSchema = z.object({
+  itemId: z.uuid().optional(),
+  warehouseId: z.uuid().optional(),
+  movementType: movementTypeSchema.optional(),
+  itemType: itemTypeSchema.optional(),
+  sourceType: movementSourceSchema.optional(),
+  sourceId: z.uuid().optional(),
+  batchId: z.uuid().optional(),
+  sortBy: z.enum(['createdAt']).optional(),
+  sortOrder: z.enum(['asc', 'desc']).optional(),
+  limit: z.number().int().positive().optional(),
+  offset: z.number().int().nonnegative().optional()
+});
+
+// Count operation filters
+export const inventoryMovementCountFiltersSchema = z.object({
+  itemId: z.uuid().optional(),
+  warehouseId: z.uuid().optional(),
+  movementType: movementTypeSchema.optional(),
+  itemType: itemTypeSchema.optional(),
+  sourceType: movementSourceSchema.optional()
+});
+
+// Exists operation filters
+export const inventoryMovementExistsFiltersSchema = z.object({
+  id: z.uuid().optional(),
+  itemId: z.uuid().optional(),
+  warehouseId: z.uuid().optional()
+});
+
+// Database filter types
+export type InventoryMovementFindAllFilters = z.infer<typeof inventoryMovementFindAllFiltersSchema>;
+export type InventoryMovementCountFilters = z.infer<typeof inventoryMovementCountFiltersSchema>;
+export type InventoryMovementExistsFilters = z.infer<typeof inventoryMovementExistsFiltersSchema>;
+
 // Column mapping for database queries
 export const inventoryMovementColumnMapping: Record<string, string> = {
   itemId: 'item_id',

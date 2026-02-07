@@ -18,7 +18,10 @@ import {
   CreateProductVariantInput, 
   UpdateProductVariantInput,
   ProductVariantWithProductRow,
-  ProductVariantListRow
+  ProductVariantListRow,
+  VariantFindAllFilters,
+  VariantCountFilters,
+  VariantExistsFilters
 } from './../types/variant';
 import { dbValidator } from '../validators/base.validator';
 
@@ -183,20 +186,7 @@ export const variantRepo = {
     };
   },
 
-  async findAll(filters?: {
-    productId?: string;
-    color?: string;
-    size?: string;
-    gender?: string;
-    season?: string;
-    fit?: string;
-    search?: string;
-    includeDeleted?: boolean;
-    sortBy?: 'sku' | 'price' | 'createdAt';
-    sortOrder?: 'asc' | 'desc';
-    limit?: number;
-    offset?: number;
-  }, executor?: Pool | PoolClient): Promise<ProductVariantListRow[]> {
+  async findAll(filters?: VariantFindAllFilters, executor?: Pool | PoolClient): Promise<ProductVariantListRow[]> {
     const db = executor || pool;
     if (filters?.productId && !dbValidator.isValidUUID(filters.productId)) {
       throw new Error('Invalid product ID');
@@ -259,16 +249,7 @@ export const variantRepo = {
   },
 
   // Count variants with filters
-  async count(filters?: {
-    productId?: string;
-    color?: string;
-    size?: string;
-    gender?: string;
-    season?: string;
-    fit?: string;
-    search?: string;
-    includeDeleted?: boolean;
-  }, executor?: Pool | PoolClient): Promise<number> {
+  async count(filters?: VariantCountFilters, executor?: Pool | PoolClient): Promise<number> {
     const db = executor || pool;
     if (filters?.productId && !dbValidator.isValidUUID(filters.productId)) {
       throw new Error('Invalid product ID');
@@ -282,18 +263,7 @@ export const variantRepo = {
   },
 
   // Check if variant exists with filters
-  async exists(filters?: {
-    id?: string;
-    sku?: string;
-    productId?: string;
-    color?: string;
-    size?: string;
-    gender?: string;
-    season?: string;
-    fit?: string;
-    search?: string;
-    includeDeleted?: boolean;
-  }, executor?: Pool | PoolClient): Promise<boolean> {
+  async exists(filters?: VariantExistsFilters, executor?: Pool | PoolClient): Promise<boolean> {
     const db = executor || pool;
     if (!dbValidator.isValidUUID(filters?.id, true)) {
       throw new Error('Invalid variant ID');
