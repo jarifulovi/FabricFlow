@@ -2,6 +2,7 @@ export const buildExistsCategoryQuery = (filters?: {
   id?: string;
   search?: string;
   includeDeleted?: boolean;
+  excludeIds?: string[];
 }) => {
   let text = `SELECT EXISTS(SELECT 1 FROM categories `;
   const values: string[] = [];
@@ -24,6 +25,13 @@ export const buildExistsCategoryQuery = (filters?: {
     text += ` AND name ILIKE $${counter}`;
     values.push(`%${filters.search}%`);
     counter++;
+  }
+
+  if (filters?.excludeIds && filters.excludeIds.length > 0) {
+    const placeholders = filters.excludeIds.map((_, index) => `$${counter + index}`).join(', ');
+    text += ` AND id NOT IN (${placeholders})`;
+    values.push(...filters.excludeIds);
+    counter += filters.excludeIds.length;
   }
 
   text += ') as exists';

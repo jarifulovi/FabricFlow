@@ -6,6 +6,7 @@ FROM categories
 export const buildSelectCategoriesQuery = (filters?: {
   search?: string; // search by name
   includeDeleted?: boolean; // include soft-deleted categories
+  excludeIds?: string[]; // exclude specific category IDs
   sortBy?: 'name' | 'createdAt';
   sortOrder?: 'asc' | 'desc';
   limit?: number;
@@ -26,6 +27,13 @@ export const buildSelectCategoriesQuery = (filters?: {
     text += ` AND name ILIKE $${counter}`;
     values.push(`%${filters.search}%`);
     counter++;
+  }
+
+  if (filters?.excludeIds && filters.excludeIds.length > 0) {
+    const placeholders = filters.excludeIds.map((_, index) => `$${counter + index}`).join(', ');
+    text += ` AND id NOT IN (${placeholders})`;
+    values.push(...filters.excludeIds);
+    counter += filters.excludeIds.length;
   }
 
   // Sorting

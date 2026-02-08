@@ -6,6 +6,7 @@ export const buildExistsProductQuery = (filters?: {
   tag?: string;
   search?: string;
   includeDeleted?: boolean;
+  excludeIds?: string[];
 }) => {
   let text = `SELECT EXISTS(SELECT 1 FROM products p `;
   const values: (string | number)[] = [];
@@ -43,6 +44,12 @@ export const buildExistsProductQuery = (filters?: {
       text += ` AND (p.name ILIKE $${counter} OR p.sku ILIKE $${counter})`;
       values.push(`%${filters.search}%`);
       counter++;
+    }
+    if (filters.excludeIds && filters.excludeIds.length > 0) {
+      const placeholders = filters.excludeIds.map((_, index) => `$${counter + index}`).join(', ');
+      text += ` AND p.id NOT IN (${placeholders})`;
+      values.push(...filters.excludeIds);
+      counter += filters.excludeIds.length;
     }
   }
 

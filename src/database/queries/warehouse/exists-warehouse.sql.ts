@@ -3,6 +3,7 @@ export const buildExistsWarehouseQuery = (filters?: {
   isActive?: boolean;
   search?: string;
   includeDeleted?: boolean;
+  excludeIds?: string[];
 }) => {
   let text = `SELECT EXISTS(SELECT 1 FROM warehouses `;
   const values: (string | boolean)[] = [];
@@ -29,6 +30,13 @@ export const buildExistsWarehouseQuery = (filters?: {
     text += ` AND (name ILIKE $${counter} OR location ILIKE $${counter})`;
     values.push(`%${filters.search}%`);
     counter++;
+  }
+
+  if (filters?.excludeIds && filters.excludeIds.length > 0) {
+    const placeholders = filters.excludeIds.map((_, index) => `$${counter + index}`).join(', ');
+    text += ` AND id NOT IN (${placeholders})`;
+    values.push(...filters.excludeIds);
+    counter += filters.excludeIds.length;
   }
 
   text += ') as exists';

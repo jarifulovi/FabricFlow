@@ -49,6 +49,7 @@ export const warehouseFindAllFiltersSchema = z.object({
   isActive: z.boolean().optional(),
   search: z.string().min(1).optional(),
   includeDeleted: z.boolean().optional(),
+  excludeIds: z.array(z.uuid()).optional(),
   sortBy: z.enum(['name', 'createdAt']).optional(),
   sortOrder: z.enum(['asc', 'desc']).optional(),
   limit: z.number().int().positive().optional(),
@@ -59,7 +60,8 @@ export const warehouseFindAllFiltersSchema = z.object({
 export const warehouseCountFiltersSchema = z.object({
   isActive: z.boolean().optional(),
   search: z.string().min(1).optional(),
-  includeDeleted: z.boolean().optional()
+  includeDeleted: z.boolean().optional(),
+  excludeIds: z.array(z.uuid()).optional()
 });
 
 // Exists operation filters
@@ -67,7 +69,8 @@ export const warehouseExistsFiltersSchema = z.object({
   id: z.uuid().optional(),
   name: z.string().min(1).optional(),
   search: z.string().min(1).optional(),
-  includeDeleted: z.boolean().optional()
+  includeDeleted: z.boolean().optional(),
+  excludeIds: z.array(z.uuid()).optional()
 });
 
 // Database filter types

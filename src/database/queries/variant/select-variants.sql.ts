@@ -18,6 +18,7 @@ export const buildSelectVariantsQuery = (filters?: {
   fit?: string;
   search?: string; // search by sku or vendor_sku
   includeDeleted?: boolean;
+  excludeIds?: string[]; // exclude specific variant IDs
   sortBy?: 'sku' | 'price' | 'createdAt';
   sortOrder?: 'asc' | 'desc';
   limit?: number;
@@ -62,6 +63,12 @@ export const buildSelectVariantsQuery = (filters?: {
     text += ` AND (v.sku ILIKE $${counter} OR v.vendor_sku ILIKE $${counter})`;
     values.push(`%${filters.search}%`);
     counter++;
+  }
+  if (filters?.excludeIds && filters.excludeIds.length > 0) {
+    const placeholders = filters.excludeIds.map((_, index) => `$${counter + index}`).join(', ');
+    text += ` AND v.id NOT IN (${placeholders})`;
+    values.push(...filters.excludeIds);
+    counter += filters.excludeIds.length;
   }
 
   // Sorting

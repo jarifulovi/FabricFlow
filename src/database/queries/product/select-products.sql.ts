@@ -17,6 +17,7 @@ export const buildSelectProductsQuery = (filters?: {
   tag?: string; // search by single tag
   search?: string; // search by name or SKU
   includeDeleted?: boolean; // include soft-deleted products
+  excludeIds?: string[]; // exclude specific product IDs
   sortBy?: 'name' | 'createdAt' | 'updatedAt';
   sortOrder?: 'asc' | 'desc';
   limit?: number;
@@ -50,6 +51,12 @@ export const buildSelectProductsQuery = (filters?: {
       text += ` AND (p.name ILIKE $${counter} OR p.sku ILIKE $${counter})`;
       values.push(`%${filters.search}%`);
       counter++;
+    }
+    if (filters.excludeIds && filters.excludeIds.length > 0) {
+      const placeholders = filters.excludeIds.map((_, index) => `$${counter + index}`).join(', ');
+      text += ` AND p.id NOT IN (${placeholders})`;
+      values.push(...filters.excludeIds);
+      counter += filters.excludeIds.length;
     }
   }
 

@@ -6,6 +6,7 @@ FROM categories
 export const buildCountCategoriesQuery = (filters?: {
   search?: string;
   includeDeleted?: boolean;
+  excludeIds?: string[];
 }) => {
   let text = baseCountCategoriesSQL;
   const values: string[] = [];
@@ -22,6 +23,13 @@ export const buildCountCategoriesQuery = (filters?: {
     text += ` AND name ILIKE $${counter}`;
     values.push(`%${filters.search}%`);
     counter++;
+  }
+
+  if (filters?.excludeIds && filters.excludeIds.length > 0) {
+    const placeholders = filters.excludeIds.map((_, index) => `$${counter + index}`).join(', ');
+    text += ` AND id NOT IN (${placeholders})`;
+    values.push(...filters.excludeIds);
+    counter += filters.excludeIds.length;
   }
 
   return { text, values };

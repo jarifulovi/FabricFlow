@@ -45,6 +45,7 @@ export type CategoryRow = z.infer<typeof categoryRowSchema>;
 export const categoryFindAllFiltersSchema = z.object({
   search: z.string().max(500).optional(),
   includeDeleted: z.boolean().optional(),
+  excludeIds: z.array(z.uuid()).optional(),
   sortBy: z.enum(['name', 'createdAt']).optional(),
   sortOrder: z.enum(['asc', 'desc']).optional(),
   limit: z.number().int().positive().optional(),
@@ -54,14 +55,16 @@ export const categoryFindAllFiltersSchema = z.object({
 // Count operation filters
 export const categoryCountFiltersSchema = z.object({
   search: z.string().max(500).optional(),
-  includeDeleted: z.boolean().optional()
+  includeDeleted: z.boolean().optional(),
+  excludeIds: z.array(z.uuid()).optional()
 });
 
 // Exists operation filters
 export const categoryExistsFiltersSchema = z.object({
   id: z.uuid().optional(),
   search: z.string().max(500).optional(),
-  includeDeleted: z.boolean().optional()
+  includeDeleted: z.boolean().optional(),
+  excludeIds: z.array(z.uuid()).optional()
 });
 
 // Database filter types

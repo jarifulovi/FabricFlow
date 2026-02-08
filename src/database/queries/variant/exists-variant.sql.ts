@@ -9,6 +9,7 @@ export const buildExistsVariantQuery = (filters?: {
   fit?: string;
   search?: string;
   includeDeleted?: boolean;
+  excludeIds?: string[];
 }) => {
   let text = `SELECT EXISTS(SELECT 1 FROM product_variants v `;
   const values: string[] = [];
@@ -57,6 +58,12 @@ export const buildExistsVariantQuery = (filters?: {
     text += ` AND (v.sku ILIKE $${counter} OR v.vendor_sku ILIKE $${counter})`;
     values.push(`%${filters.search}%`);
     counter++;
+  }
+  if (filters?.excludeIds && filters.excludeIds.length > 0) {
+    const placeholders = filters.excludeIds.map((_, index) => `$${counter + index}`).join(', ');
+    text += ` AND v.id NOT IN (${placeholders})`;
+    values.push(...filters.excludeIds);
+    counter += filters.excludeIds.length;
   }
 
   text += ') as exists';

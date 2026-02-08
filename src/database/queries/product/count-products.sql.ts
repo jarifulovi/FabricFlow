@@ -9,6 +9,7 @@ export const buildCountProductsQuery = (filters?: {
   tag?: string;
   search?: string;
   includeDeleted?: boolean;
+  excludeIds?: string[];
 }) => {
   let text = baseCountProductsSQL;
   const values: (string | number)[] = [];
@@ -38,6 +39,12 @@ export const buildCountProductsQuery = (filters?: {
       text += ` AND (p.name ILIKE $${counter} OR p.sku ILIKE $${counter})`;
       values.push(`%${filters.search}%`);
       counter++;
+    }
+    if (filters.excludeIds && filters.excludeIds.length > 0) {
+      const placeholders = filters.excludeIds.map((_, index) => `$${counter + index}`).join(', ');
+      text += ` AND p.id NOT IN (${placeholders})`;
+      values.push(...filters.excludeIds);
+      counter += filters.excludeIds.length;
     }
   }
 

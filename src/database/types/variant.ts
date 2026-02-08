@@ -83,6 +83,7 @@ export const variantFindAllFiltersSchema = z.object({
   fit: z.string().min(1).optional(),
   search: z.string().min(1).optional(),
   includeDeleted: z.boolean().optional(),
+  excludeIds: z.array(z.uuid()).optional(),
   sortBy: z.enum(['sku', 'createdAt']).optional(),
   sortOrder: z.enum(['asc', 'desc']).optional(),
   limit: z.number().int().positive().optional(),
@@ -98,7 +99,8 @@ export const variantCountFiltersSchema = z.object({
   season: z.string().min(1).optional(),
   fit: z.string().min(1).optional(),
   search: z.string().min(1).optional(),
-  includeDeleted: z.boolean().optional()
+  includeDeleted: z.boolean().optional(),
+  excludeIds: z.array(z.uuid()).optional()
 });
 
 // Exists operation filters
@@ -112,7 +114,8 @@ export const variantExistsFiltersSchema = z.object({
   season: z.string().min(1).optional(),
   fit: z.string().min(1).optional(),
   search: z.string().min(1).optional(),
-  includeDeleted: z.boolean().optional()
+  includeDeleted: z.boolean().optional(),
+  excludeIds: z.array(z.uuid()).optional()
 });
 
 // Database filter types

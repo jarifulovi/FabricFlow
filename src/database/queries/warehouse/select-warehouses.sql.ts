@@ -7,6 +7,7 @@ export const buildSelectWarehousesQuery = (filters?: {
   isActive?: boolean;
   search?: string; // search by name or location
   includeDeleted?: boolean; // include soft-deleted warehouses
+  excludeIds?: string[]; // exclude specific warehouse IDs
   sortBy?: 'name' | 'createdAt';
   sortOrder?: 'asc' | 'desc';
   limit?: number;
@@ -32,6 +33,13 @@ export const buildSelectWarehousesQuery = (filters?: {
     text += ` AND (name ILIKE $${counter} OR location ILIKE $${counter})`;
     values.push(`%${filters.search}%`);
     counter++;
+  }
+
+  if (filters?.excludeIds && filters.excludeIds.length > 0) {
+    const placeholders = filters.excludeIds.map((_, index) => `$${counter + index}`).join(', ');
+    text += ` AND id NOT IN (${placeholders})`;
+    values.push(...filters.excludeIds);
+    counter += filters.excludeIds.length;
   }
 
   // Sorting
