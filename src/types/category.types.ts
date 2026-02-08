@@ -15,9 +15,9 @@ export const categoryApiQuerySchema = categoryFindAllFiltersSchema.omit({
   offset: true,
   search: true
 }).extend({
-  page: z.string().regex(/^\d+$/, 'Page must be a number').transform(Number).optional(),
-  pageSize: z.string().regex(/^\d+$/, 'Page size must be a number').transform(Number).optional(),
-  name: z.string().min(1).optional(), // API uses "name" for search
+  page: z.string().regex(/^[1-9]\d*$/, 'Page must be a positive number').transform(Number).optional(),
+  pageSize: z.string().regex(/^[1-9]\d*$/, 'Page size must be a positive number').transform(Number).optional(),
+  name: z.string().optional(), // API uses "name" for search
   includeDeleted: z.enum(['true', 'false']).transform(val => val === 'true').optional()
 });
 

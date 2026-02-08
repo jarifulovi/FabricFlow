@@ -25,12 +25,6 @@ import { dbValidator } from '../validators/base.validator';
 export const categoryRepo = {
   async create(input: CreateCategoryInput, executor?: Pool | PoolClient): Promise<CategoryRow> {
     const db = executor || pool;
-    if (!dbValidator.isValidString(input.name)) {
-      throw new Error('Invalid category name');
-    }
-    if (!dbValidator.isValidString(input.description, 500, true)) {
-      throw new Error('Invalid category description');
-    }
     const { text, values } = buildInsertCategoryQuery(input);
     const result = await db.query<CategoryRow>(text, values);
     return result.rows[0];
@@ -38,15 +32,6 @@ export const categoryRepo = {
 
   async update(id: string, input: UpdateCategoryInput, executor?: Pool | PoolClient): Promise<CategoryRow> {
     const db = executor || pool;
-    if (!dbValidator.isValidUUID(id)) {
-      throw new Error('Invalid category ID');
-    }
-    if (!dbValidator.isValidString(input.name, 500, true)) {
-      throw new Error('Invalid category name');
-    }
-    if (!dbValidator.isValidString(input.description, 500, true)) {
-      throw new Error('Invalid category description');
-    }
     const { text, values } = buildPatchCategoryQuery(id, input);
     const result = await db.query<CategoryRow>(text, values);
     return result.rows[0];
@@ -54,9 +39,6 @@ export const categoryRepo = {
 
   async findById(id: string, includeDeleted: boolean = false, executor?: Pool | PoolClient): Promise<CategoryRow | null> {
     const db = executor || pool;
-    if (!dbValidator.isValidUUID(id)) {
-      throw new Error('Invalid category ID');
-    }
     const { text, values } = includeDeleted 
       ? buildSelectCategoryByIdIncludedDeletedQuery(id)
       : buildSelectCategoryByIdQuery(id);
@@ -66,21 +48,6 @@ export const categoryRepo = {
 
   async findAll(filters?: CategoryFindAllFilters, executor?: Pool | PoolClient): Promise<CategoryRow[]> {
     const db = executor || pool;
-    if (!dbValidator.isValidString(filters?.search, 500, true)) {
-      throw new Error('Invalid search term');
-    }
-    if (!dbValidator.isValidEnum(filters?.sortBy, ['name', 'createdAt'], true)) {
-      throw new Error('Invalid sortBy value');
-    }
-    if (!dbValidator.isValidEnum(filters?.sortOrder, ['asc', 'desc'], true)) {
-      throw new Error('Invalid sortOrder value');
-    }
-    if (!dbValidator.isPositiveNumber(filters?.limit, true)) {
-      throw new Error('Invalid limit value');
-    }
-    if (!dbValidator.isNonNegativeNumber(filters?.offset, true)) {
-      throw new Error('Invalid offset value');
-    }
     const { text, values } = buildSelectCategoriesQuery(filters);
     const result = await db.query<CategoryRow>(text, values);
     return result.rows;
@@ -89,9 +56,6 @@ export const categoryRepo = {
   // Soft delete (recommended for production)
   async softDelete(id: string, executor?: Pool | PoolClient): Promise<CategoryRow> {
     const db = executor || pool;
-    if (!dbValidator.isValidUUID(id)) {
-      throw new Error('Invalid category ID');
-    }
     const { text, values } = buildBulkSoftDeleteCategoriesQuery([id]);
     const result = await db.query<CategoryRow>(text, values);
     return result.rows[0];
@@ -100,9 +64,6 @@ export const categoryRepo = {
   // Hard delete (only for testing purposes and batch clean-ups)
   async hardDelete(id: string, executor?: Pool | PoolClient): Promise<CategoryRow> {
     const db = executor || pool;
-    if (!dbValidator.isValidUUID(id)) {
-      throw new Error('Invalid category ID');
-    }
     const { text, values } = buildBulkHardDeleteCategoriesQuery([id]);
     const result = await db.query<CategoryRow>(text, values);
     return result.rows[0];
@@ -111,9 +72,6 @@ export const categoryRepo = {
   // Count categories with filters
   async count(filters?: CategoryCountFilters, executor?: Pool | PoolClient): Promise<number> {
     const db = executor || pool;
-    if (!dbValidator.isValidString(filters?.search, 500, true)) {
-      throw new Error('Invalid search term');
-    }
     const { text, values } = buildCountCategoriesQuery(filters);
     const result = await db.query<{ count: string }>(text, values);
     return parseInt(result.rows[0].count, 10);
@@ -122,12 +80,6 @@ export const categoryRepo = {
   // Check if category exists with filters
   async exists(filters?: CategoryExistsFilters, executor?: Pool | PoolClient): Promise<boolean> {
     const db = executor || pool;
-    if (!dbValidator.isValidUUID(filters?.id, true)) {
-      throw new Error('Invalid category ID');
-    }
-    if (!dbValidator.isValidString(filters?.search, 500, true)) {
-      throw new Error('Invalid search term');
-    }
     const { text, values } = buildExistsCategoryQuery(filters);
     const result = await db.query<{ exists: boolean }>(text, values);
     return result.rows[0].exists;
