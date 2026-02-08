@@ -19,7 +19,6 @@ import {
   CategoryCountFilters,
   CategoryExistsFilters
 } from './../types/category';
-import { dbValidator } from '../validators/base.validator';
 
 
 export const categoryRepo = {

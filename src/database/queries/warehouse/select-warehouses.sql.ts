@@ -1,18 +1,11 @@
+import { WarehouseFindAllFilters } from '../../types/warehouse';
+
 export const baseWarehousesSQL = `
 SELECT *
 FROM warehouses
 `;
 
-export const buildSelectWarehousesQuery = (filters?: {
-  isActive?: boolean;
-  search?: string; // search by name or location
-  includeDeleted?: boolean; // include soft-deleted warehouses
-  excludeIds?: string[]; // exclude specific warehouse IDs
-  sortBy?: 'name' | 'createdAt';
-  sortOrder?: 'asc' | 'desc';
-  limit?: number;
-  offset?: number;
-}) => {
+export const buildSelectWarehousesQuery = (filters?: WarehouseFindAllFilters) => {
   let text = baseWarehousesSQL;
   const values: (string | boolean)[] = [];
   let counter = 1;

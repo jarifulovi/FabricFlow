@@ -1,9 +1,6 @@
-export const buildExistsCategoryQuery = (filters?: {
-  id?: string;
-  search?: string;
-  includeDeleted?: boolean;
-  excludeIds?: string[];
-}) => {
+import { CategoryExistsFilters } from '../../types/category';
+
+export const buildExistsCategoryQuery = (filters?: CategoryExistsFilters) => {
   let text = `SELECT EXISTS(SELECT 1 FROM categories `;
   const values: string[] = [];
   let counter = 1;

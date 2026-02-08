@@ -1,19 +1,11 @@
+import { VariantCountFilters } from '../../types/variant';
+
 export const baseCountVariantsSQL = `
 SELECT COUNT(*) as count
 FROM product_variants v
 `;
 
-export const buildCountVariantsQuery = (filters?: {
-  productId?: string;
-  color?: string;
-  size?: string;
-  gender?: string;
-  season?: string;
-  fit?: string;
-  search?: string;
-  includeDeleted?: boolean;
-  excludeIds?: string[];
-}) => {
+export const buildCountVariantsQuery = (filters?: VariantCountFilters) => {
   let text = baseCountVariantsSQL;
   const values: string[] = [];
   let counter = 1;

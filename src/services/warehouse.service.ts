@@ -9,8 +9,8 @@ import { WarehouseApiQuery } from '../types/warehouse.types';
 
 export const warehouseService = {
   async create(input: CreateWarehouseInput): Promise<WarehouseRow> {
-    // Check if warehouse exists
-    const existing = await warehouseRepo.exists({ name: input.name, includeDeleted: false });
+    // Check if warehouse exists using search (checks name and location)
+    const existing = await warehouseRepo.exists({ search: input.name, includeDeleted: false });
     if (existing) {
       throw new Error('Warehouse with the same name already exists');
     }

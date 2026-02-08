@@ -1,13 +1,8 @@
-export const buildExistsProductQuery = (filters?: {
-  id?: string;
-  sku?: string;
-  categoryId?: string;
-  status?: 'active' | 'inactive' | 'discontinued';
-  tag?: string;
-  search?: string;
-  includeDeleted?: boolean;
-  excludeIds?: string[];
-}) => {
+import { ProductExistsFilters } from "../../types/product";
+
+
+
+export const buildExistsProductQuery = (filters?: ProductExistsFilters) => {
   let text = `SELECT EXISTS(SELECT 1 FROM products p `;
   const values: (string | number)[] = [];
   let counter = 1;

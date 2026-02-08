@@ -1,13 +1,11 @@
+import { CategoryCountFilters } from '../../types/category';
+
 export const baseCountCategoriesSQL = `
 SELECT COUNT(*) as count
 FROM categories
 `;
 
-export const buildCountCategoriesQuery = (filters?: {
-  search?: string;
-  includeDeleted?: boolean;
-  excludeIds?: string[];
-}) => {
+export const buildCountCategoriesQuery = (filters?: CategoryCountFilters) => {
   let text = baseCountCategoriesSQL;
   const values: string[] = [];
   let counter = 1;

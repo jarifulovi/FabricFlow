@@ -1,14 +1,11 @@
+import { WarehouseCountFilters } from '../../types/warehouse';
+
 export const baseCountWarehousesSQL = `
 SELECT COUNT(*) as count
 FROM warehouses
 `;
 
-export const buildCountWarehousesQuery = (filters?: {
-  isActive?: boolean;
-  search?: string;
-  includeDeleted?: boolean;
-  excludeIds?: string[];
-}) => {
+export const buildCountWarehousesQuery = (filters?: WarehouseCountFilters) => {
   let text = baseCountWarehousesSQL;
   const values: (string | boolean)[] = [];
   let counter = 1;

@@ -1,3 +1,5 @@
+import { VariantFindAllFilters } from '../../types/variant';
+
 export const baseSelectVariantsSQL = `
 SELECT 
   v.*,
@@ -9,21 +11,7 @@ INNER JOIN products p ON v.product_id = p.id
 LEFT JOIN categories c ON p.category_id = c.id
 `;
 
-export const buildSelectVariantsQuery = (filters?: {
-  productId?: string;
-  color?: string;
-  size?: string;
-  gender?: string;
-  season?: string;
-  fit?: string;
-  search?: string; // search by sku or vendor_sku
-  includeDeleted?: boolean;
-  excludeIds?: string[]; // exclude specific variant IDs
-  sortBy?: 'sku' | 'price' | 'createdAt';
-  sortOrder?: 'asc' | 'desc';
-  limit?: number;
-  offset?: number;
-}) => {
+export const buildSelectVariantsQuery = (filters?: VariantFindAllFilters) => {
   let text = baseSelectVariantsSQL;
   const values: string[] = [];
   let counter = 1;

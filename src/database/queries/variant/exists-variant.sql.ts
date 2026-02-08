@@ -1,16 +1,6 @@
-export const buildExistsVariantQuery = (filters?: {
-  id?: string; // check if this id exists
-  sku?: string; // check if this sku exists
-  productId?: string;
-  color?: string;
-  size?: string;
-  gender?: string;
-  season?: string;
-  fit?: string;
-  search?: string;
-  includeDeleted?: boolean;
-  excludeIds?: string[];
-}) => {
+import { VariantExistsFilters } from '../../types/variant';
+
+export const buildExistsVariantQuery = (filters?: VariantExistsFilters) => {
   let text = `SELECT EXISTS(SELECT 1 FROM product_variants v `;
   const values: string[] = [];
   let counter = 1;

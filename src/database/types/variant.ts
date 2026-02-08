@@ -76,12 +76,12 @@ export type ProductVariantListRow = ProductVariantRow & {
 // FindAll operation filters
 export const variantFindAllFiltersSchema = z.object({
   productId: z.uuid().optional(),
-  color: z.string().min(1).optional(),
-  size: z.string().min(1).optional(),
-  gender: z.string().min(1).optional(),
-  season: z.string().min(1).optional(),
-  fit: z.string().min(1).optional(),
-  search: z.string().min(1).optional(),
+  color: z.string().optional(),
+  size: z.string().optional(),
+  gender: z.string().optional(),
+  season: z.string().optional(),
+  fit: z.string().optional(),
+  search: z.string().optional(),
   includeDeleted: z.boolean().optional(),
   excludeIds: z.array(z.uuid()).optional(),
   sortBy: z.enum(['sku', 'createdAt']).optional(),
@@ -93,12 +93,12 @@ export const variantFindAllFiltersSchema = z.object({
 // Count operation filters
 export const variantCountFiltersSchema = z.object({
   productId: z.uuid().optional(),
-  color: z.string().min(1).optional(),
-  size: z.string().min(1).optional(),
-  gender: z.string().min(1).optional(),
-  season: z.string().min(1).optional(),
-  fit: z.string().min(1).optional(),
-  search: z.string().min(1).optional(),
+  color: z.string().optional(),
+  size: z.string().optional(),
+  gender: z.string().optional(),
+  season: z.string().optional(),
+  fit: z.string().optional(),
+  search: z.string().optional(),
   includeDeleted: z.boolean().optional(),
   excludeIds: z.array(z.uuid()).optional()
 });
@@ -106,14 +106,14 @@ export const variantCountFiltersSchema = z.object({
 // Exists operation filters
 export const variantExistsFiltersSchema = z.object({
   id: z.uuid().optional(),
-  sku: z.string().min(1).optional(),
+  sku: z.string().optional(),
   productId: z.uuid().optional(),
-  color: z.string().min(1).optional(),
-  size: z.string().min(1).optional(),
-  gender: z.string().min(1).optional(),
-  season: z.string().min(1).optional(),
-  fit: z.string().min(1).optional(),
-  search: z.string().min(1).optional(),
+  color: z.string().optional(),
+  size: z.string().optional(),
+  gender: z.string().optional(),
+  season: z.string().optional(),
+  fit: z.string().optional(),
+  search: z.string().optional(),
   includeDeleted: z.boolean().optional(),
   excludeIds: z.array(z.uuid()).optional()
 });

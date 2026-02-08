@@ -1,16 +1,11 @@
+import { ProductCountFilters } from "../../types/product";
+
 export const baseCountProductsSQL = `
 SELECT COUNT(*) as count
 FROM products p
 `;
 
-export const buildCountProductsQuery = (filters?: {
-  categoryId?: string;
-  status?: 'active' | 'inactive' | 'discontinued';
-  tag?: string;
-  search?: string;
-  includeDeleted?: boolean;
-  excludeIds?: string[];
-}) => {
+export const buildCountProductsQuery = (filters?: ProductCountFilters) => {
   let text = baseCountProductsSQL;
   const values: (string | number)[] = [];
   let counter = 1;

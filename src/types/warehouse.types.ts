@@ -16,8 +16,8 @@ export const warehouseApiQuerySchema = warehouseFindAllFiltersSchema.omit({
   isActive: true,
   includeDeleted: true
 }).extend({
-  page: z.string().regex(/^\d+$/, 'Page must be a number').transform(Number).optional(),
-  pageSize: z.string().regex(/^\d+$/, 'Page size must be a number').transform(Number).optional(),
+  page: z.string().regex(/^[1-9]\d*$/, 'Page must be a positive number').transform(Number).optional(),
+  pageSize: z.string().regex(/^[1-9]\d*$/, 'Page size must be a positive number').transform(Number).optional(),
   isActive: z.enum(['true', 'false']).transform(val => val === 'true').optional(),
   includeDeleted: z.enum(['true', 'false']).transform(val => val === 'true').optional()
 });

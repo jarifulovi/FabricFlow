@@ -18,8 +18,8 @@ export const variantApiQuerySchema = variantFindAllFiltersSchema.omit({
   limit: true,
   offset: true
 }).extend({
-  page: z.string().regex(/^\d+$/, 'Page must be a number').transform(Number).optional(),
-  pageSize: z.string().regex(/^\d+$/, 'Page size must be a number').transform(Number).optional(),
+  page: z.string().regex(/^[1-9]\d*$/, 'Page must be a positive number').transform(Number).optional(),
+  pageSize: z.string().regex(/^[1-9]\d*$/, 'Page size must be a positive number').transform(Number).optional(),
   productId: z.uuid('Invalid product ID').optional(),
   includeDeleted: z.enum(['true', 'false']).transform(val => val === 'true').optional()
 });

@@ -10,7 +10,7 @@ import { ProductApiQuery } from '../types/product.types';
 
 export const productService = {
   async create(input: CreateProductInput): Promise<ProductRow> {
-    // Business validation: Check if SKU already exists (excluding deleted products)
+    // Check if SKU already exists (excluding deleted products)
     const existingBySku = await productRepo.exists({ sku: input.sku, includeDeleted: false });
     if (existingBySku) {
       throw new Error('Product with the same SKU already exists');
@@ -36,6 +36,11 @@ export const productService = {
       if (!existingCategory) {
         throw new Error('Category not found from service');
       }
+    }
+    // Check if sku already exists for another product (excluding deleted products)
+    const existingBySku = await productRepo.exists({ sku: input.sku, excludeIds: [id], includeDeleted: false });
+    if (existingBySku) {
+      throw new Error('Another product with the same SKU already exists');
     }
 
 
@@ -95,7 +100,7 @@ export const productService = {
       throw new Error('Product not found');
     }
 
-    // Check if product has variants before deleting
+    // Check if product has variants before deleting (put it in transactions)
     const variantCount = await variantRepo.count({ productId: id, includeDeleted: false });
     if (variantCount > 0) {
       throw new Error('Cannot delete product that has variants. Delete variants first.');

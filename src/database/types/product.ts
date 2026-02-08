@@ -56,12 +56,12 @@ export type ProductRow = z.infer<typeof productRowSchema>;
 // FindAll operation filters
 export const productFindAllFiltersSchema = z.object({
   categoryId: z.uuid().optional(),
-  search: z.string().min(1).optional(),
+  search: z.string().optional(), // search by name or SKU
   status: productStatusSchema.optional(),
-  tag: z.string().min(1).optional(),
+  tag: z.string().optional(),
   includeDeleted: z.boolean().optional(),
   excludeIds: z.array(z.uuid()).optional(),
-  sortBy: z.enum(['name', 'createdAt']).optional(),
+  sortBy: z.enum(['name', 'createdAt', 'updatedAt']).optional(),
   sortOrder: z.enum(['asc', 'desc']).optional(),
   limit: z.number().int().positive().optional(),
   offset: z.number().int().nonnegative().optional()
@@ -70,9 +70,9 @@ export const productFindAllFiltersSchema = z.object({
 // Count operation filters
 export const productCountFiltersSchema = z.object({
   categoryId: z.uuid().optional(),
-  search: z.string().min(1).optional(),
+  search: z.string().optional(),
   status: productStatusSchema.optional(),
-  tag: z.string().min(1).optional(),
+  tag: z.string().optional(),
   includeDeleted: z.boolean().optional(),
   excludeIds: z.array(z.uuid()).optional()
 });
@@ -80,11 +80,11 @@ export const productCountFiltersSchema = z.object({
 // Exists operation filters
 export const productExistsFiltersSchema = z.object({
   id: z.uuid().optional(),
-  sku: z.string().min(1).optional(),
+  sku: z.string().optional(),
   categoryId: z.uuid().optional(),
   status: productStatusSchema.optional(),
-  tag: z.string().min(1).optional(),
-  search: z.string().min(1).optional(),
+  tag: z.string().optional(),
+  search: z.string().optional(),
   includeDeleted: z.boolean().optional(),
   excludeIds: z.array(z.uuid()).optional()
 });

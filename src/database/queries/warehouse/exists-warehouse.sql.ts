@@ -1,10 +1,6 @@
-export const buildExistsWarehouseQuery = (filters?: {
-  id?: string; // check if this id exists
-  isActive?: boolean;
-  search?: string;
-  includeDeleted?: boolean;
-  excludeIds?: string[];
-}) => {
+import { WarehouseExistsFilters } from '../../types/warehouse';
+
+export const buildExistsWarehouseQuery = (filters?: WarehouseExistsFilters) => {
   let text = `SELECT EXISTS(SELECT 1 FROM warehouses `;
   const values: (string | boolean)[] = [];
   let counter = 1;

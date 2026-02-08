@@ -1,17 +1,11 @@
+import { CategoryFindAllFilters } from '../../types/category';
+
 export const baseCategoriesSQL = `
 SELECT *
 FROM categories
 `;
 
-export const buildSelectCategoriesQuery = (filters?: {
-  search?: string; // search by name
-  includeDeleted?: boolean; // include soft-deleted categories
-  excludeIds?: string[]; // exclude specific category IDs
-  sortBy?: 'name' | 'createdAt';
-  sortOrder?: 'asc' | 'desc';
-  limit?: number;
-  offset?: number;
-}) => {
+export const buildSelectCategoriesQuery = (filters?: CategoryFindAllFilters) => {
   let text = baseCategoriesSQL;
   const values: string[] = [];
   let counter = 1;

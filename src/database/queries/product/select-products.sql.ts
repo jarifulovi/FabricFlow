@@ -1,4 +1,4 @@
-import { productColumnMapping } from "../../types/product";
+import { ProductFindAllFilters, productColumnMapping } from "../../types/product";
 
 export const baseSelectProductsSQL = `
 SELECT 
@@ -11,18 +11,7 @@ LEFT JOIN categories c ON p.category_id = c.id
 /**
  * Builds a query for selecting products with optional filters.
  */
-export const buildSelectProductsQuery = (filters?: {
-  categoryId?: string;  // UUID
-  status?: 'active' | 'inactive' | 'discontinued';
-  tag?: string; // search by single tag
-  search?: string; // search by name or SKU
-  includeDeleted?: boolean; // include soft-deleted products
-  excludeIds?: string[]; // exclude specific product IDs
-  sortBy?: 'name' | 'createdAt' | 'updatedAt';
-  sortOrder?: 'asc' | 'desc';
-  limit?: number;
-  offset?: number;
-}) => {
+export const buildSelectProductsQuery = (filters?: ProductFindAllFilters) => {
   let text = baseSelectProductsSQL;
   const values: (string | number)[] = [];
   let counter = 1;

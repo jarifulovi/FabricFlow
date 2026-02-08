@@ -47,7 +47,7 @@ export type WarehouseRow = z.infer<typeof warehouseRowSchema>;
 // FindAll operation filters
 export const warehouseFindAllFiltersSchema = z.object({
   isActive: z.boolean().optional(),
-  search: z.string().min(1).optional(),
+  search: z.string().optional(),
   includeDeleted: z.boolean().optional(),
   excludeIds: z.array(z.uuid()).optional(),
   sortBy: z.enum(['name', 'createdAt']).optional(),
@@ -59,7 +59,7 @@ export const warehouseFindAllFiltersSchema = z.object({
 // Count operation filters
 export const warehouseCountFiltersSchema = z.object({
   isActive: z.boolean().optional(),
-  search: z.string().min(1).optional(),
+  search: z.string().optional(),
   includeDeleted: z.boolean().optional(),
   excludeIds: z.array(z.uuid()).optional()
 });
@@ -67,8 +67,8 @@ export const warehouseCountFiltersSchema = z.object({
 // Exists operation filters
 export const warehouseExistsFiltersSchema = z.object({
   id: z.uuid().optional(),
-  name: z.string().min(1).optional(),
-  search: z.string().min(1).optional(),
+  isActive: z.boolean().optional(),
+  search: z.string().optional(),
   includeDeleted: z.boolean().optional(),
   excludeIds: z.array(z.uuid()).optional()
 });
