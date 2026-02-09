@@ -6,7 +6,13 @@
   "scripts": {
     "dev": "tsx watch src/server.ts",
     "build": "tsc",
-    "start": "node dist/server.js"
+    "start": "node dist/server.js",
+    "seed": "npx tsx src/database/seeds/index.ts",
+    "seed:categories": "npx tsx src/database/seeds/categories.seed.ts",
+    "seed:warehouses": "npx tsx src/database/seeds/warehouses.seed.ts",
+    "seed:products": "npx tsx src/database/seeds/products.seed.ts",
+    "seed:variants": "npx tsx src/database/seeds/variants.seed.ts",
+    "seed:clear": "npx tsx src/database/seeds/clear.ts"
   },
   "keywords": [],
   "author": "",
