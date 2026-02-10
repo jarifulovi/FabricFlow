@@ -18,6 +18,11 @@ router.get('/:id', categoryController.findById);
 // GET /categories - Get all categories with filters
 router.get('/', categoryController.findAll);
 
+// DELETE /categories/:id/hard
+if (process.env.NODE_ENV === 'test') {
+  router.delete('/:id/hard', categoryController.hardDelete);
+}
+
 // DELETE /categories/:id - Soft delete category
 router.delete('/:id', categoryController.softDelete);
 

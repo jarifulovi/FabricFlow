@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { categoryServicePublic } from '../services';
+import { categoryServicePrivate, categoryServicePublic } from '../services';
 import { createCategorySchema, updateCategorySchema } from '../database/types/category';
 import { categoryParamsSchema, categoryApiQuerySchema } from '../types/category.types';
 import { asyncHandler } from '../utils/async-handler';
@@ -79,6 +79,17 @@ export const categoryController = {
       success: true,
       data: result,
       message: 'Category deleted successfully'
+    });
+  }),
+
+  // DELETE /categories/:id/hard - Hard delete category (only for testing and clean-up)
+  hardDelete: asyncHandler(async (req: Request, res: Response): Promise<void> => {
+    const { id } = categoryParamsSchema.parse(req.params);
+    const result = await categoryServicePrivate.hardDelete(id);
+    res.status(200).json({
+      success: true,
+      data: result,
+      message: 'Category permanently deleted successfully'
     });
   })
 };

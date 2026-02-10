@@ -14,6 +14,10 @@ export const categoryServicePublic = {
   softDelete: categoryService.softDelete,
 };
 
+export const categoryServicePrivate = {
+  hardDelete: categoryService.hardDelete,
+};
+
 export const productServicePublic = {
   findAll: productService.findAll,
   findAllDefault: productService.findAllDefault,
