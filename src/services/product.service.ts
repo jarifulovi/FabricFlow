@@ -1,4 +1,6 @@
-import { categoryRepo, productRepo, variantRepo } from '../database/repositories/index';
+import { fa } from 'zod/v4/locales';
+import { categoryRepo, productRepo } from '../database/repositories/index';
+import { deleteProductTransaction } from '../database/transactions/delete-product';
 import {
   CreateProductInput,
   UpdateProductInput,
@@ -7,6 +9,8 @@ import {
   ProductFindAllFilters,
 } from '../database/types/product';
 import { ProductApiQuery } from '../types/product.types';
+
+
 
 export const productService = {
   async create(input: CreateProductInput): Promise<ProductRow> {
@@ -34,7 +38,7 @@ export const productService = {
     if (input.categoryId) {
       const existingCategory = await categoryRepo.exists({ id: input.categoryId, includeDeleted: false });
       if (!existingCategory) {
-        throw new Error('Category not found from service');
+        throw new Error('Category not found');
       }
     }
     // Check if sku already exists for another product (excluding deleted products)
@@ -100,12 +104,16 @@ export const productService = {
       throw new Error('Product not found');
     }
 
-    // Check if product has variants before deleting (put it in transactions)
-    const variantCount = await variantRepo.count({ productId: id, includeDeleted: false });
-    if (variantCount > 0) {
-      throw new Error('Cannot delete product that has variants. Delete variants first.');
+    return await deleteProductTransaction(id, false);
+  },
+
+  async hardDelete(id: string): Promise<ProductRow> {
+    // Verify product exists (including deleted products, since we want to hard delete)
+    const existing = await productRepo.exists({ id, includeDeleted: true });
+    if (!existing) {
+      throw new Error('Product not found');
     }
 
-    return await productRepo.softDelete(id);
-  },
+    return await deleteProductTransaction(id, true);
+  }
 };

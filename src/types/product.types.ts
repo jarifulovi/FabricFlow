@@ -20,8 +20,7 @@ export const productApiQuerySchema = productFindAllFiltersSchema.omit({
 }).extend({
   page: z.string().regex(/^[1-9]\d*$/, 'Page must be a positive number').transform(Number).optional(),
   pageSize: z.string().regex(/^[1-9]\d*$/, 'Page size must be a positive number').transform(Number).optional(),
-  includeDeleted: z.enum(['true', 'false']).transform(val => val === 'true').optional(),
-  status: z.enum(['active', 'inactive', 'discontinued']).optional() // String from query
+  includeDeleted: z.enum(['true', 'false']).transform(val => val === 'true').optional()
 });
 
 // API types

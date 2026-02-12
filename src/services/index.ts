@@ -28,6 +28,10 @@ export const productServicePublic = {
   softDelete: productService.softDelete,
 };
 
+export const productServicePrivate = {
+  hardDelete: productService.hardDelete,
+};
+
 export const variantServicePublic = {
   findAll: variantService.findAll,
   findAllDefault: variantService.findAllDefault,

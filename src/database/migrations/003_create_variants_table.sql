@@ -9,7 +9,7 @@
 
 CREATE TABLE IF NOT EXISTS product_variants (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  product_id UUID REFERENCES products(id) ON DELETE CASCADE, -- Link to master product
+  product_id UUID NOT NULL REFERENCES products(id),          -- Link to master product
   sku VARCHAR(100) NOT NULL,                                 -- Variant-specific SKU
   vendor_sku VARCHAR(100),                                   -- Optional vendor SKU
   color VARCHAR(50),
