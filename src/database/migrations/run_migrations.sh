@@ -1,11 +1,9 @@
 #!/bin/bash
+set -a
+source "$(dirname "$0")/../../../.env"
+set +a
 
-DB_HOST="localhost"
-DB_PORT="5432"
-DB_USER="postgres"
-DB_PASSWORD="postgres"
-DB_NAME="fabricflow"
-MIGRATIONS_DIR="src/database/migrations"
+MIGRATIONS_DIR="$(dirname "$0")"
 
 # Set password for non-interactive execution
 export PGPASSWORD="$DB_PASSWORD"

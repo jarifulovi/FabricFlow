@@ -369,7 +369,7 @@ describe('Category API', () => {
       expect(response.body.data.description).toBe(updatedData.description);
     });
 
-    it.skip('should allow partial updates', async () => { // needs investigation
+    it('should allow partial updates', async () => {
       const partialUpdateData = {
         description: 'Partially updated description',
       };
@@ -414,7 +414,7 @@ describe('Category API', () => {
       expect(response.body).toHaveProperty('message');
     });
 
-    it.skip('should not allow updating to a duplicate category name', async () => { // needs investigation
+    it('should not allow updating to a duplicate category name', async () => {
       // First, create another category
       const conflictingCategoryName = `Conflicting Category ${Date.now()}`;
       const conflictResponse = await request(app)
@@ -425,9 +425,9 @@ describe('Category API', () => {
       expect(conflictResponse.body).toHaveProperty('success', true);
       const conflictingCategoryId = conflictResponse.body.data.id;
 
-      // Now, try to update the original category to have the same name as updated one
+      // Now, try to update the newly created category to have the same name as updated one
       const response = await request(app)
-        .patch(`${endpoint}/${createdCategoryId}`)
+        .patch(`${endpoint}/${conflictingCategoryId}`)
         .send({ name: updatedCategoryName })
         .expect('Content-Type', /json/)
         .expect(400);

@@ -27,9 +27,11 @@ export const categoryService = {
       throw new Error('Category not found');
     }
     // Verify name doesn't exists (excluding updated category and deleted categories)
-    const nameExists = await categoryRepo.exists({ search: input.name, excludeIds: [id], includeDeleted: false });
-    if (nameExists) {
-      throw new Error('Another category with the same name already exists');
+    if (input.name) {
+      const nameExists = await categoryRepo.exists({ search: input.name, excludeIds: [id], includeDeleted: false });
+      if (nameExists) {
+        throw new Error('Another category with the same name already exists');
+      }
     }
 
     return await categoryRepo.update(id, input);
