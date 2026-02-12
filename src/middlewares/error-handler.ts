@@ -24,6 +24,7 @@ function getStatusCodeFromError(error: Error): number {
       message.includes('required') || 
       message.includes('must be') ||
       message.includes('cannot be empty') ||
+      message.includes('cannot delete') ||
       message.includes('already exists')) {
     return 400;
   }

@@ -5,6 +5,7 @@ import pool from '../../src/database/connection.js';
 describe('Category API', () => {
 
   const endpoint = '/api/categories';
+  const productEndpoint = '/api/products';
 
   beforeAll(async () => {
     // Add any setup logic if necessary (e.g., seeding test data)
@@ -531,6 +532,79 @@ describe('Category API', () => {
 
       expect(response.body).toHaveProperty('success', false);
       expect(response.body).toHaveProperty('message');
+    });
+  });
+
+  describe('category-product integrity', () => {
+    let categoryForIntegrityTest: string;
+    let productForIntegrityTest: string;
+
+    beforeAll(async () => {
+      // Create a category specifically for integrity testing
+      const categoryResponse = await request(app)
+        .post(endpoint)
+        .send({
+          name: `Integrity Test Category ${Date.now()}`,
+          description: 'Category for testing referential integrity'
+        })
+        .expect(201);
+      
+      categoryForIntegrityTest = categoryResponse.body.data.id;
+
+      // Create a product linked to this category
+      const productResponse = await request(app)
+        .post(productEndpoint)
+        .send({
+          sku: `INTEGRITY-SKU-${Date.now()}`,
+          name: `Integrity Test Product ${Date.now()}`,
+          categoryId: categoryForIntegrityTest,
+          status: 'active',
+          unit: 'piece'
+        })
+        .expect(201);
+
+      productForIntegrityTest = productResponse.body.data.id;
+    });
+
+    afterAll(async () => {
+      // Clean up
+      if (productForIntegrityTest) {
+        await request(app)
+          .delete(`${productEndpoint}/${productForIntegrityTest}/hard`)
+          .expect(200);
+      }
+      if (categoryForIntegrityTest) {
+        await request(app)
+          .delete(`${endpoint}/${categoryForIntegrityTest}/hard`)
+          .expect(200);
+      }
+    });
+
+    it('should not allow deleting category with active products', async () => {
+      const response = await request(app)
+        .delete(`${endpoint}/${categoryForIntegrityTest}`)
+        .expect('Content-Type', /json/)
+        .expect(400);
+
+      expect(response.body).toHaveProperty('success', false);
+      expect(response.body).toHaveProperty('message');
+      expect(response.body.message).toContain('Cannot delete category');
+    });
+
+    it('should allow deleting category after soft deleting its products', async () => {
+      // First, soft delete the product
+      await request(app)
+        .delete(`${productEndpoint}/${productForIntegrityTest}`)
+        .expect(200);
+
+      // Now, should be able to delete the category
+      const response = await request(app)
+        .delete(`${endpoint}/${categoryForIntegrityTest}`)
+        .expect('Content-Type', /json/)
+        .expect(200);
+
+      expect(response.body).toHaveProperty('success', true);
+      expect(response.body.data.id).toBe(categoryForIntegrityTest);
     });
   });
 });

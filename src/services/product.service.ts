@@ -41,12 +41,13 @@ export const productService = {
         throw new Error('Category not found');
       }
     }
-    // Check if sku already exists for another product (excluding deleted products)
-    const existingBySku = await productRepo.exists({ sku: input.sku, excludeIds: [id], includeDeleted: false });
-    if (existingBySku) {
-      throw new Error('Another product with the same SKU already exists');
+    // Check if sku already exists for another product (excluding deleted products) - only when SKU is being updated
+    if (input.sku) {
+      const existingBySku = await productRepo.exists({ sku: input.sku, excludeIds: [id], includeDeleted: false });
+      if (existingBySku) {
+        throw new Error('Another product with the same SKU already exists');
+      }
     }
-
 
     return await productRepo.update(id, input);
   },
