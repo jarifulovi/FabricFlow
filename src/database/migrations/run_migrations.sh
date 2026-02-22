@@ -1,7 +1,16 @@
 #!/bin/bash
+
+# Save DB_NAME if already set by calling script (e.g., for test database)
+SAVED_DB_NAME="$DB_NAME"
+
 set -a
 source "$(dirname "$0")/../../../.env"
 set +a
+
+# Restore DB_NAME if it was set before sourcing .env
+if [ -n "$SAVED_DB_NAME" ]; then
+  DB_NAME="$SAVED_DB_NAME"
+fi
 
 MIGRATIONS_DIR="$(dirname "$0")"
 
