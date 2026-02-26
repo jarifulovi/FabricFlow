@@ -13,36 +13,44 @@ export const buildExistsVariantQuery = (filters?: VariantExistsFilters) => {
   }
 
   if (filters?.id) {
-    text += ` AND v.id = $${counter++}`;
+    text += ` AND v.id = $${counter}`;
     values.push(filters.id);
+    counter++;
   }
   if (filters?.sku) {
-    text += ` AND v.sku = $${counter++}`;
+    text += ` AND v.sku = $${counter}`;
     values.push(filters.sku);
+    counter++;
   }
   if (filters?.productId) {
-    text += ` AND v.product_id = $${counter++}`;
+    text += ` AND v.product_id = $${counter}`;
     values.push(filters.productId);
+    counter++;
   }
   if (filters?.color) {
-    text += ` AND v.color = $${counter++}`;
+    text += ` AND v.color = $${counter}`;
     values.push(filters.color);
+    counter++;
   }
   if (filters?.size) {
-    text += ` AND v.size = $${counter++}`;
+    text += ` AND v.size = $${counter}`;
     values.push(filters.size);
+    counter++;
   }
   if (filters?.gender) {
-    text += ` AND v.gender = $${counter++}`;
+    text += ` AND v.gender = $${counter}`;
     values.push(filters.gender);
+    counter++;
   }
   if (filters?.season) {
-    text += ` AND v.season = $${counter++}`;
+    text += ` AND v.season = $${counter}`;
     values.push(filters.season);
+    counter++;
   }
   if (filters?.fit) {
-    text += ` AND v.fit = $${counter++}`;
+    text += ` AND v.fit = $${counter}`;
     values.push(filters.fit);
+    counter++;
   }
   if (filters?.search) {
     text += ` AND (v.sku ILIKE $${counter} OR v.vendor_sku ILIKE $${counter})`;

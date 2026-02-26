@@ -42,6 +42,10 @@ export const variantServicePublic = {
   softDelete: variantService.softDelete,
 };
 
+export const variantServicePrivate = {
+  hardDelete: variantService.hardDelete,
+};
+
 export const warehouseServicePublic = {
   findAll: warehouseService.findAll,
   findAllDefault: warehouseService.findAllDefault,

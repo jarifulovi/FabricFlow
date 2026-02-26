@@ -1,4 +1,4 @@
-import { variantRepo } from '../database/repositories/index';
+import { variantRepo } from '../database/repositories';
 import {
   CreateProductVariantInput,
   UpdateProductVariantInput,
@@ -25,6 +25,13 @@ export const variantService = {
     const existing = await variantRepo.exists({ id, includeDeleted: false });
     if (!existing) {
       throw new Error('Variant not found');
+    }
+    // Check if sku already exists for another variant (excluding deleted variants) - only when SKU is being updated
+    if (input.sku) {
+      const existingBySku = await variantRepo.exists({ sku: input.sku, excludeIds: [id], includeDeleted: false });
+      if (existingBySku) {
+        throw new Error('Another variant with the same SKU already exists');
+      }
     }
 
     return await variantRepo.update(id, input);
@@ -60,11 +67,15 @@ export const variantService = {
     return await variantRepo.findAll(dbFilters);
   },
 
-  async findAllDefault(): Promise<ProductVariantListRow[]> {
+  async findAllDefault(params?: Pick<VariantApiQuery, 'page' | 'pageSize'>): Promise<ProductVariantListRow[]> {
+    const { page, pageSize } = params || {};
+
     const dbFilters: VariantFindAllFilters = {
       includeDeleted: false,
       sortBy: 'sku',
-      sortOrder: 'asc'
+      sortOrder: 'asc',
+      limit: pageSize,
+      offset: page && pageSize ? (page - 1) * pageSize : undefined
     };
     
     return await variantRepo.findAll(dbFilters);
@@ -78,5 +89,16 @@ export const variantService = {
     }
 
     return await variantRepo.softDelete(id);
+  },
+
+  // Hard delete (only for testing purposes and batch clean-ups)
+  async hardDelete(id: string): Promise<ProductVariantRow> {
+    // Verify variant exists (including deleted variants for hard delete)
+    const existing = await variantRepo.exists({ id, includeDeleted: true });
+    if (!existing) {
+      throw new Error('Variant not found');
+    }
+
+    return await variantRepo.hardDelete(id);
   },
 };

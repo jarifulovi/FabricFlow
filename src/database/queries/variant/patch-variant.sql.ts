@@ -1,4 +1,4 @@
-import { productVariantColumnMapping, UpdateProductVariantInput } from '../../types/variant';
+import { variantColumnMapping, UpdateProductVariantInput } from '../../types/variant';
 
 export const buildPatchVariantQuery = (id: string, input: UpdateProductVariantInput) => {
   const fields: string[] = [];
@@ -6,8 +6,8 @@ export const buildPatchVariantQuery = (id: string, input: UpdateProductVariantIn
   let counter = 1;
 
   for (const [key, value] of Object.entries(input)) {
-    if (value !== undefined && productVariantColumnMapping[key]) {
-      fields.push(`${productVariantColumnMapping[key]} = $${counter}`);
+    if (value !== undefined && variantColumnMapping[key]) {
+      fields.push(`${variantColumnMapping[key]} = $${counter}`);
       values.push(value);
       counter++;
     }

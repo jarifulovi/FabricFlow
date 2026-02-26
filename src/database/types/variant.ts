@@ -123,7 +123,7 @@ export type VariantFindAllFilters = z.infer<typeof variantFindAllFiltersSchema>;
 export type VariantCountFilters = z.infer<typeof variantCountFiltersSchema>;
 export type VariantExistsFilters = z.infer<typeof variantExistsFiltersSchema>;
 
-export const productVariantColumnMapping: Record<string, string> = {
+export const variantColumnMapping: Record<string, string> = {
   productId: 'product_id',
   sku: 'sku',
   vendorSku: 'vendor_sku',
