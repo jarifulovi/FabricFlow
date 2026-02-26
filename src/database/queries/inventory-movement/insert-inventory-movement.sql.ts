@@ -47,8 +47,9 @@ export const buildBulkInsertInventoryMovementQuery = (inputs: CreateInventoryMov
     } = input;
 
     valuePlaceholders.push(
-      `($${counter++}, $${counter++}, $${counter++}, $${counter++}, $${counter++}, $${counter++}, $${counter++}, $${counter++}, $${counter++})`
+      `($${counter}, $${counter + 1}, $${counter + 2}, $${counter + 3}, $${counter + 4}, $${counter + 5}, $${counter + 6}, $${counter + 7}, $${counter + 8})`
     );
+    counter += 9;
 
     values.push(itemId, warehouseId, quantity, movementType, itemType, sourceType, sourceId, batchId, price);
   });

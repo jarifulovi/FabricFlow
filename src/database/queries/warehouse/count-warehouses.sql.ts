@@ -18,7 +18,8 @@ export const buildCountWarehousesQuery = (filters?: WarehouseCountFilters) => {
   }
 
   if (filters?.isActive !== undefined) {
-    text += ` AND is_active = $${counter++}`;
+    text += ` AND is_active = $${counter}`;
+    counter++;
     values.push(filters.isActive);
   }
 

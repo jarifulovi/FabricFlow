@@ -19,15 +19,18 @@ export const buildCountProductsQuery = (filters?: ProductCountFilters) => {
 
   if (filters) {
     if (filters.categoryId !== undefined) {
-      text += ` AND p.category_id = $${counter++}`;
+      text += ` AND p.category_id = $${counter}`;
+      counter++;
       values.push(filters.categoryId);
     }
     if (filters.status) {
-      text += ` AND p.status = $${counter++}`;
+      text += ` AND p.status = $${counter}`;
+      counter++;
       values.push(filters.status);
     }
     if (filters.tag) {
-      text += ` AND $${counter++} = ANY(p.tags)`;
+      text += ` AND $${counter} = ANY(p.tags)`;
+      counter++;
       values.push(filters.tag);
     }
     if (filters.search) {

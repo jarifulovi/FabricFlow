@@ -18,7 +18,8 @@ export const buildSelectWarehousesQuery = (filters?: WarehouseFindAllFilters) =>
   }
 
   if (filters?.isActive !== undefined) {
-    text += ` AND is_active = $${counter++}`;
+    text += ` AND is_active = $${counter}`;
+    counter++;
     values.push(filters.isActive);
   }
 
@@ -46,11 +47,13 @@ export const buildSelectWarehousesQuery = (filters?: WarehouseFindAllFilters) =>
 
   // Pagination
   if (filters?.limit !== undefined) {
-    text += ` LIMIT $${counter++}`;
+    text += ` LIMIT $${counter}`;
+    counter++;
     values.push(filters.limit.toString());
   }
   if (filters?.offset !== undefined) {
-    text += ` OFFSET $${counter++}`;
+    text += ` OFFSET $${counter}`;
+    counter++;
     values.push(filters.offset.toString());
   }
 

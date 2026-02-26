@@ -24,27 +24,33 @@ export const buildSelectVariantsQuery = (filters?: VariantFindAllFilters) => {
   }
 
   if (filters?.productId) {
-    text += ` AND v.product_id = $${counter++}`;
+    text += ` AND v.product_id = $${counter}`;
+    counter++;
     values.push(filters.productId);
   }
   if (filters?.color) {
-    text += ` AND v.color = $${counter++}`;
+    text += ` AND v.color = $${counter}`;
+    counter++;
     values.push(filters.color);
   }
   if (filters?.size) {
-    text += ` AND v.size = $${counter++}`;
+    text += ` AND v.size = $${counter}`;
+    counter++;
     values.push(filters.size);
   }
   if (filters?.gender) {
-    text += ` AND v.gender = $${counter++}`;
+    text += ` AND v.gender = $${counter}`;
+    counter++;
     values.push(filters.gender);
   }
   if (filters?.season) {
-    text += ` AND v.season = $${counter++}`;
+    text += ` AND v.season = $${counter}`;
+    counter++;
     values.push(filters.season);
   }
   if (filters?.fit) {
-    text += ` AND v.fit = $${counter++}`;
+    text += ` AND v.fit = $${counter}`;
+    counter++;
     values.push(filters.fit);
   }
   if (filters?.search) {
@@ -70,11 +76,13 @@ export const buildSelectVariantsQuery = (filters?: VariantFindAllFilters) => {
 
   // Pagination
   if (filters?.limit !== undefined) {
-    text += ` LIMIT $${counter++}`;
+    text += ` LIMIT $${counter}`;
+    counter++;
     values.push(filters.limit.toString());
   }
   if (filters?.offset !== undefined) {
-    text += ` OFFSET $${counter++}`;
+    text += ` OFFSET $${counter}`;
+    counter++;
     values.push(filters.offset.toString());
   }
 

@@ -14,14 +14,14 @@ export const buildExistsCategoryQuery = (filters?: CategoryExistsFilters) => {
 
   if (filters?.id) {
     text += ` AND id = $${counter}`;
-    values.push(filters.id);
     counter++;
+    values.push(filters.id);
   }
 
   if (filters?.search) {
     text += ` AND name ILIKE $${counter}`;
-    values.push(`%${filters.search}%`);
     counter++;
+    values.push(`%${filters.search}%`);
   }
 
   if (filters?.excludeIds && filters.excludeIds.length > 0) {

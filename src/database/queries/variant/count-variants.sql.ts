@@ -19,33 +19,33 @@ export const buildCountVariantsQuery = (filters?: VariantCountFilters) => {
 
   if (filters?.productId) {
     text += ` AND v.product_id = $${counter}`;
-    values.push(filters.productId);
     counter++;
+    values.push(filters.productId);
   }
   if (filters?.color) {
     text += ` AND v.color = $${counter}`;
-    values.push(filters.color);
     counter++;
+    values.push(filters.color);
   }
   if (filters?.size) {
     text += ` AND v.size = $${counter}`;
-    values.push(filters.size);
     counter++;
+    values.push(filters.size);
   }
   if (filters?.gender) {
     text += ` AND v.gender = $${counter}`;
-    values.push(filters.gender);
     counter++;
+    values.push(filters.gender);
   }
   if (filters?.season) {
     text += ` AND v.season = $${counter}`;
-    values.push(filters.season);
     counter++;
+    values.push(filters.season);
   }
   if (filters?.fit) {
     text += ` AND v.fit = $${counter}`;
-    values.push(filters.fit);
     counter++;
+    values.push(filters.fit);
   }
   if (filters?.search) {
     text += ` AND (v.sku ILIKE $${counter} OR v.vendor_sku ILIKE $${counter})`;

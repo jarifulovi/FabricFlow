@@ -19,25 +19,29 @@ export const buildCountReceivingSlipsQuery = (filters?: {
 
   if (filters) {
     if (filters.type) {
-      text += ` WHERE type = $${counter++}`;
+      text += ` WHERE type = $${counter}`;
+      counter++;
       values.push(filters.type);
       whereAdded = true;
     }
     if (filters.status) {
       text += whereAdded ? ' AND' : ' WHERE';
-      text += ` status = $${counter++}`;
+      text += ` status = $${counter}`;
+      counter++;
       values.push(filters.status);
       whereAdded = true;
     }
     if (filters.warehouseId) {
       text += whereAdded ? ' AND' : ' WHERE';
-      text += ` warehouse_id = $${counter++}`;
+      text += ` warehouse_id = $${counter}`;
+      counter++;
       values.push(filters.warehouseId);
       whereAdded = true;
     }
     if (filters.createdBy) {
       text += whereAdded ? ' AND' : ' WHERE';
-      text += ` created_by = $${counter++}`;
+      text += ` created_by = $${counter}`;
+      counter++;
       values.push(filters.createdBy);
       whereAdded = true;
     }

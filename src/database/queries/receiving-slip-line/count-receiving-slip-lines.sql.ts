@@ -15,19 +15,22 @@ export const buildCountReceivingSlipLinesQuery = (filters?: {
 
   if (filters) {
     if (filters.slipId) {
-      text += ` WHERE slip_id = $${counter++}`;
+      text += ` WHERE slip_id = $${counter}`;
+      counter++;
       values.push(filters.slipId);
       whereAdded = true;
     }
     if (filters.warehouseId) {
       text += whereAdded ? ' AND' : ' WHERE';
-      text += ` warehouse_id = $${counter++}`;
+      text += ` warehouse_id = $${counter}`;
+      counter++;
       values.push(filters.warehouseId);
       whereAdded = true;
     }
     if (filters.variantId) {
       text += whereAdded ? ' AND' : ' WHERE';
-      text += ` variant_id = $${counter++}`;
+      text += ` variant_id = $${counter}`;
+      counter++;
       values.push(filters.variantId);
     }
   }

@@ -13,12 +13,14 @@ export const buildExistsWarehouseQuery = (filters?: WarehouseExistsFilters) => {
   }
 
   if (filters?.id) {
-    text += ` AND id = $${counter++}`;
+    text += ` AND id = $${counter}`;
+    counter++;
     values.push(filters.id);
   }
 
   if (filters?.isActive !== undefined) {
-    text += ` AND is_active = $${counter++}`;
+    text += ` AND is_active = $${counter}`;
+    counter++;
     values.push(filters.isActive);
   }
 

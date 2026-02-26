@@ -19,8 +19,8 @@ export const buildCountCategoriesQuery = (filters?: CategoryCountFilters) => {
 
   if (filters?.search) {
     text += ` AND name ILIKE $${counter}`;
-    values.push(`%${filters.search}%`);
     counter++;
+    values.push(`%${filters.search}%`);
   }
 
   if (filters?.excludeIds && filters.excludeIds.length > 0) {

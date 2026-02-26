@@ -45,8 +45,9 @@ export const buildBulkInsertReceivingSlipLineQuery = (inputs: CreateReceivingSli
     } = input;
 
     valuePlaceholders.push(
-      `($${counter++}, $${counter++}, $${counter++}, $${counter++}, $${counter++}, $${counter++}, $${counter++}, $${counter++})`
+      `($${counter}, $${counter + 1}, $${counter + 2}, $${counter + 3}, $${counter + 4}, $${counter + 5}, $${counter + 6}, $${counter + 7})`
     );
+    counter += 8;
 
     values.push(slipId, lineNumber, warehouseId, variantId, vendorSku, quantity, price, notes);
   });

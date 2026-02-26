@@ -19,19 +19,22 @@ export const buildSelectReceivingSlipLinesQuery = (filters?: {
 
   if (filters) {
     if (filters.slipId) {
-      text += ` WHERE slip_id = $${counter++}`;
+      text += ` WHERE slip_id = $${counter}`;
+      counter++;
       values.push(filters.slipId);
       whereAdded = true;
     }
     if (filters.warehouseId) {
       text += whereAdded ? ' AND' : ' WHERE';
-      text += ` warehouse_id = $${counter++}`;
+      text += ` warehouse_id = $${counter}`;
+      counter++;
       values.push(filters.warehouseId);
       whereAdded = true;
     }
     if (filters.variantId) {
       text += whereAdded ? ' AND' : ' WHERE';
-      text += ` variant_id = $${counter++}`;
+      text += ` variant_id = $${counter}`;
+      counter++;
       values.push(filters.variantId);
     }
   }
@@ -46,11 +49,13 @@ export const buildSelectReceivingSlipLinesQuery = (filters?: {
 
   // Pagination
   if (filters?.limit !== undefined) {
-    text += ` LIMIT $${counter++}`;
+    text += ` LIMIT $${counter}`;
+    counter++;
     values.push(filters.limit.toString());
   }
   if (filters?.offset !== undefined) {
-    text += ` OFFSET $${counter++}`;
+    text += ` OFFSET $${counter}`;
+    counter++;
     values.push(filters.offset.toString());
   }
 

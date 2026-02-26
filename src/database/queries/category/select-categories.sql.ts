@@ -19,8 +19,8 @@ export const buildSelectCategoriesQuery = (filters?: CategoryFindAllFilters) => 
 
   if (filters?.search) {
     text += ` AND name ILIKE $${counter}`;
-    values.push(`%${filters.search}%`);
     counter++;
+    values.push(`%${filters.search}%`);
   }
 
   if (filters?.excludeIds && filters.excludeIds.length > 0) {
@@ -41,11 +41,13 @@ export const buildSelectCategoriesQuery = (filters?: CategoryFindAllFilters) => 
 
   // Pagination
   if (filters?.limit !== undefined) {
-    text += ` LIMIT $${counter++}`;
+    text += ` LIMIT $${counter}`;
+    counter++;
     values.push(filters.limit.toString());
   }
   if (filters?.offset !== undefined) {
-    text += ` OFFSET $${counter++}`;
+    text += ` OFFSET $${counter}`;
+    counter++;
     values.push(filters.offset.toString());
   }
 
