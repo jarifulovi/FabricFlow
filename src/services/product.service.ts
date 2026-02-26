@@ -1,11 +1,9 @@
-import { fa } from 'zod/v4/locales';
-import { categoryRepo, productRepo } from '../database/repositories/index';
-import { deleteProductTransaction } from '../database/transactions/delete-product';
+import { categoryRepo, productRepo } from '../database/repositories';
+import { deleteProductTransaction } from '../database/transactions';
 import {
   CreateProductInput,
   UpdateProductInput,
   ProductRow,
-  ProductStatus,
   ProductFindAllFilters,
 } from '../database/types/product';
 import { ProductApiQuery } from '../types/product.types';

@@ -6,7 +6,7 @@ import { productParamsSchema, productSkuParamsSchema, productApiQuerySchema } fr
 
 export const productController = {
   // POST /products
-  create: asyncHandler(async (req: Request, res: Response) => {
+  create: asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const productData = createProductSchema.parse(req.body);
     const newProduct = await productServicePublic.create(productData);
     res.status(201).json({
@@ -17,11 +17,11 @@ export const productController = {
   }),
 
   // PATCH /products/:id
-  update: asyncHandler(async (req: Request, res: Response) => {
+  update: asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { id } = productParamsSchema.parse(req.params);
     const updateData = updateProductSchema.parse(req.body);
     const updatedProduct = await productServicePublic.update(id, updateData);
-    res.json({
+    res.status(200).json({
       success: true,
       data: updatedProduct,
       message: 'Product updated successfully'
@@ -29,30 +29,30 @@ export const productController = {
   }),
 
   // GET /products/:id
-  findById: asyncHandler(async (req: Request, res: Response) => {
+  findById: asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { id } = productParamsSchema.parse(req.params);
     const product = await productServicePublic.findById(id);
-    res.json({
+    res.status(200).json({
       success: true,
       data: product
     });
   }),
 
   // GET /products/sku/:sku
-  findBySku: asyncHandler(async (req: Request, res: Response) => {
+  findBySku: asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { sku } = productSkuParamsSchema.parse(req.params);
     const product = await productServicePublic.findBySku(sku);
-    res.json({
+    res.status(200).json({
       success: true,
       data: product
     });
   }),
 
   // GET /products
-  findAll: asyncHandler(async (req: Request, res: Response) => {
+  findAll: asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const filters = productApiQuerySchema.parse(req.query);
     const products = await productServicePublic.findAll(filters);
-    res.json({
+    res.status(200).json({
       success: true,
       data: products,
       pagination: {
@@ -65,10 +65,10 @@ export const productController = {
   }),
 
   // GET /products/default
-  findAllDefault: asyncHandler(async (req: Request, res: Response) => {
+  findAllDefault: asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const filters = productApiQuerySchema.pick({ page: true, pageSize: true }).parse(req.query);
     const products = await productServicePublic.findAllDefault(filters);
-    res.json({
+    res.status(200).json({
       success: true,
       data: products,
       pagination: {
@@ -81,10 +81,10 @@ export const productController = {
   }),
 
   // DELETE /products/:id - Soft delete product
-  softDelete: asyncHandler(async (req: Request, res: Response) => {
+  softDelete: asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { id } = productParamsSchema.parse(req.params);
     const deletedProduct = await productServicePublic.softDelete(id);
-    res.json({
+    res.status(200).json({
       success: true,
       data: deletedProduct,
       message: 'Product deleted successfully'
@@ -92,10 +92,10 @@ export const productController = {
   }),
 
   // DELETE /products/:id/hard - Hard delete product (only for testing and clean-up)
-  hardDelete: asyncHandler(async (req: Request, res: Response) => {
+  hardDelete: asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { id } = productParamsSchema.parse(req.params);
     const deletedProduct = await productServicePrivate.hardDelete(id);
-    res.json({
+    res.status(200).json({
       success: true,
       data: deletedProduct,
       message: 'Product permanently deleted successfully'

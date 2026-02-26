@@ -26,4 +26,4 @@ if (process.env.NODE_ENV === 'test') {
 // DELETE /categories/:id - Soft delete category
 router.delete('/:id', categoryController.softDelete);
 
-export { router as categoryRoutes };
+export const categoryRoutes = router;

@@ -5,7 +5,7 @@ import { ProductRow } from './../types/product';
 
 
 export const deleteProductTransaction = async (
-  id: string,
+  productId: string,
   hardDelete: boolean = false,
 ): Promise<ProductRow> => {
   const client = await pool.connect();
@@ -15,7 +15,7 @@ export const deleteProductTransaction = async (
 
     // 1️⃣ Check if product has active variants
     const variantCount = await variantRepo.count(
-      { productId: id, includeDeleted: false },
+      { productId, includeDeleted: false },
       client
     );
 
@@ -27,8 +27,8 @@ export const deleteProductTransaction = async (
 
     // 2️⃣ Perform delete
     const deletedProduct = hardDelete
-      ? await productRepo.hardDelete(id, client)
-      : await productRepo.softDelete(id, client);
+      ? await productRepo.hardDelete(productId, client)
+      : await productRepo.softDelete(productId, client);
 
     await client.query('COMMIT');
     return deletedProduct;
