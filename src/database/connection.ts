@@ -22,8 +22,42 @@ pool.on('connect', () => {
 
 pool.on('error', (err) => {
   console.error('Unexpected error on idle client', err);
-  process.exit(-1);
 });
+
+
+/**
+ * Test the database connection with retry logic.
+ */
+export async function connectWithRetry(
+  retries = 5,
+  delayMs = 3000
+) {
+  for (let attempt = 1; attempt <= retries; attempt++) {
+    try {
+      await pool.query('SELECT 1');
+      console.log('Database connected');
+      return;
+    } catch (err) {
+      console.error(
+        `DB connection failed (attempt ${attempt}/${retries})`
+      );
+
+      if (attempt === retries) {
+        throw err;
+      }
+
+      await new Promise((res) => setTimeout(res, delayMs));
+    }
+  }
+}
+
+/**
+ * Gracefully close the pool
+ */
+export async function closePool() {
+  await pool.end();
+  console.log('Database pool closed');
+}
 
 export default pool;
 
