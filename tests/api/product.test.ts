@@ -1,6 +1,7 @@
 import request from 'supertest';
-import app from '../../src/app.js';
-import pool from '../../src/database/connection.js';
+import app from '../../src/app';
+import pool from '../../src/database/connection';
+import { makeCategory, makeProduct } from '../helpers/generators';
 
 describe('Product API', () => {
 
@@ -11,10 +12,7 @@ describe('Product API', () => {
     // Create a test category for product tests
     const categoryResponse = await request(app)
       .post('/api/categories')
-      .send({
-        name: `Product Test Category ${Date.now()}`,
-        description: 'Category for product testing'
-      })
+      .send(makeCategory({ description: 'Category for product testing' }))
       .expect(201);
     
     testCategoryId = categoryResponse.body.data.id;
@@ -51,35 +49,32 @@ describe('Product API', () => {
 
   describe('create product', () => {
     let createdProductId: string;
-    const timestamp = Date.now();
-    const testProductSku = `TEST-SKU-${timestamp}`;
-    const testProductName = `Test Product ${timestamp}`;
+    let productData: ReturnType<typeof makeProduct>;
+    let testProductSku: string;
 
-    it('should create a new product', async () => {
-      const newProduct = {
-        sku: testProductSku,
-        name: testProductName,
+    beforeAll(() => {
+      productData = makeProduct(testCategoryId, {
         description: 'This is a test product',
         brandName: 'Test Brand',
         brandCode: 'TB001',
-        categoryId: testCategoryId,
-        status: 'active',
-        unit: 'piece',
         tags: ['test', 'sample']
-      };
+      });
+      testProductSku = productData.sku;
+    });
 
+    it('should create a new product', async () => {
       const response = await request(app)
         .post(endpoint)
-        .send(newProduct)
+        .send(productData)
         .expect('Content-Type', /json/)
         .expect(201);
 
       expect(response.body).toHaveProperty('success', true);
       expect(response.body).toHaveProperty('data');
       expect(response.body.data).toHaveProperty('id');
-      expect(response.body.data.sku).toBe(newProduct.sku);
-      expect(response.body.data.name).toBe(newProduct.name);
-      expect(response.body.data.description).toBe(newProduct.description);
+      expect(response.body.data.sku).toBe(productData.sku);
+      expect(response.body.data.name).toBe(productData.name);
+      expect(response.body.data.description).toBe(productData.description);
       expect(response.body.data.category_id).toBe(testCategoryId);
 
       // Save ID for cleanup and further tests
@@ -88,17 +83,9 @@ describe('Product API', () => {
     });
 
     it('should not create a product with duplicate SKU', async () => {
-      const duplicateProduct = {
-        sku: testProductSku,
-        name: 'Another Product',
-        categoryId: testCategoryId,
-        status: 'active',
-        unit: 'meter'
-      };
-
       const response = await request(app)
         .post(endpoint)
-        .send(duplicateProduct)
+        .send(makeProduct(testCategoryId, { sku: testProductSku, name: 'Another Product', unit: 'meter' }))
         .expect('Content-Type', /json/)
         .expect(400);
 
@@ -107,13 +94,7 @@ describe('Product API', () => {
     });
 
     it('should create with minimum required fields', async () => {
-      const minimalProduct = {
-        sku: `MINIMAL-SKU-${timestamp}`,
-        name: `Minimal Product ${timestamp}`,
-        categoryId: testCategoryId,
-        status: 'active',
-        unit: 'piece'
-      };
+      const minimalProduct = makeProduct(testCategoryId);
 
       const response = await request(app)
         .post(endpoint)
@@ -130,13 +111,9 @@ describe('Product API', () => {
     });
 
     it('should fail to create a product without required fields', async () => {
-      const invalidProduct = {
-        description: 'Missing required fields'
-      };
-
       const response = await request(app)
         .post(endpoint)
-        .send(invalidProduct)
+        .send({ description: 'Missing required fields' })
         .expect('Content-Type', /json/)
         .expect(400);
 
@@ -145,17 +122,9 @@ describe('Product API', () => {
     });
 
     it('should fail to create a product with non-existent category', async () => {
-      const invalidProduct = {
-        sku: `INVALID-CAT-${timestamp}`,
-        name: 'Product with Invalid Category',
-        categoryId: '00000000-0000-0000-0000-000000000000',
-        status: 'active',
-        unit: 'piece'
-      };
-
       const response = await request(app)
         .post(endpoint)
-        .send(invalidProduct)
+        .send(makeProduct('00000000-0000-0000-0000-000000000000'))
         .expect('Content-Type', /json/)
         .expect(404);
 
@@ -173,13 +142,7 @@ describe('Product API', () => {
       // Now, try to create a new product with the same SKU
       const response = await request(app)
         .post(endpoint)
-        .send({
-          sku: testProductSku,
-          name: 'Recreated Product',
-          categoryId: testCategoryId,
-          status: 'active',
-          unit: 'piece'
-        })
+        .send(makeProduct(testCategoryId, { sku: testProductSku, name: 'Recreated Product' }))
         .expect('Content-Type', /json/)
         .expect(201);
 
@@ -210,19 +173,15 @@ describe('Product API', () => {
 
     beforeAll(async () => {
       // Seed a product to test retrieval
-      createdProductSku = `GET-TEST-SKU-${Date.now()}`;
-      createdProductName = `Retrieval Test Product ${Date.now()}`;
-      const newProduct = {
-        sku: createdProductSku,
-        name: createdProductName,
+      const productData = makeProduct(testCategoryId, {
         description: 'Product for testing retrieval by ID',
-        categoryId: testCategoryId,
-        status: 'active',
         unit: 'meter'
-      };
+      });
+      createdProductSku = productData.sku;
+      createdProductName = productData.name;
       const response = await request(app)
         .post(endpoint)
-        .send(newProduct)
+        .send(productData)
         .expect(201);
 
       expect(response.body).toHaveProperty('success', true);
@@ -295,32 +254,10 @@ describe('Product API', () => {
 
     beforeAll(async () => {
       // Seed multiple products for testing list retrieval and filters
-      const timestamp = Date.now();
       const productsToSeed = [
-        { 
-          sku: `LIST-SKU-1-${timestamp}`, 
-          name: `List Test Product 1 ${timestamp}`, 
-          status: 'active',
-          categoryId: testCategoryId,
-          unit: 'piece' as const,
-          tags: ['list-test']
-        },
-        { 
-          sku: `LIST-SKU-2-${timestamp}`, 
-          name: `List Test Product 2 ${timestamp}`, 
-          status: 'inactive',
-          categoryId: testCategoryId,
-          unit: 'meter' as const,
-          tags: ['list-test']
-        },
-        { 
-          sku: `SEARCH-SKU-${timestamp}`, 
-          name: `SearchableProduct ${timestamp}`, 
-          status: 'active',
-          categoryId: testCategoryId,
-          unit: 'piece' as const,
-          tags: ['searchable']
-        },
+        makeProduct(testCategoryId, { status: 'active',   unit: 'piece', tags: ['list-test'] }),
+        makeProduct(testCategoryId, { status: 'inactive', unit: 'meter', tags: ['list-test'] }),
+        makeProduct(testCategoryId, { name: `SearchableProduct ${Date.now()}`, status: 'active', unit: 'piece', tags: ['searchable'] }),
       ];
 
       for (const product of productsToSeed) {
@@ -443,24 +380,19 @@ describe('Product API', () => {
   describe('update product', () => {
     
     let createdProductId: string;
-    const timestamp = Date.now();
-    const originalProductSku = `UPDATE-SKU-${timestamp}`;
-    const originalProductName = `Update Test Product ${timestamp}`;
-    const updatedProductName = `Updated Product Name ${timestamp}`;
+    let originalData: ReturnType<typeof makeProduct>;
+    let originalProductSku: string;
+    let updatedProductName: string;
 
     beforeAll(async () => {
+      originalData = makeProduct(testCategoryId, { description: 'Product for testing update' });
+      originalProductSku = originalData.sku;
+      updatedProductName = makeProduct(testCategoryId).name;
+
       // Seed a product to test update
-      const newProduct = {
-        sku: originalProductSku,
-        name: originalProductName,
-        description: 'Product for testing update',
-        categoryId: testCategoryId,
-        status: 'active',
-        unit: 'piece'
-      };
       const response = await request(app)
         .post(endpoint)
-        .send(newProduct)
+        .send(originalData)
         .expect(201);
 
       expect(response.body).toHaveProperty('success', true);
@@ -547,16 +479,10 @@ describe('Product API', () => {
 
     it('should not allow updating to a duplicate product SKU', async () => {
       // First, create another product
-      const conflictingSku = `CONFLICT-SKU-${Date.now()}`;
+      const conflictData = makeProduct(testCategoryId);
       const conflictResponse = await request(app)
         .post(endpoint)
-        .send({ 
-          sku: conflictingSku, 
-          name: 'Conflicting Product',
-          categoryId: testCategoryId,
-          status: 'active',
-          unit: 'piece'
-        })
+        .send(conflictData)
         .expect(201);
 
       expect(conflictResponse.body).toHaveProperty('success', true);
@@ -593,23 +519,17 @@ describe('Product API', () => {
   describe('delete product', () => {
     
     let createdProductId: string;
-    const timestamp = Date.now();
-    const productSku = `DELETE-SKU-${timestamp}`;
-    const productName = `Delete Test Product ${timestamp}`;
+    let productData: ReturnType<typeof makeProduct>;
+    let productName: string;
 
     beforeAll(async () => {
+      productData = makeProduct(testCategoryId, { description: 'Product for testing deletion' });
+      productName = productData.name;
+
       // Seed a product to test deletion
-      const newProduct = {
-        sku: productSku,
-        name: productName,
-        description: 'Product for testing deletion',
-        categoryId: testCategoryId,
-        status: 'active',
-        unit: 'piece'
-      };
       const response = await request(app)
         .post(endpoint)
-        .send(newProduct)
+        .send(productData)
         .expect(201);
 
       expect(response.body).toHaveProperty('success', true);

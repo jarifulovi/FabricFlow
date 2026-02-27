@@ -1,6 +1,7 @@
 import request from 'supertest';
-import app from '../../src/app.js';
-import pool from '../../src/database/connection.js';
+import app from '../../src/app';
+import pool from '../../src/database/connection';
+import { makeCategory, makeProduct } from '../helpers/generators';
 
 describe('Category API', () => {
 
@@ -18,26 +19,20 @@ describe('Category API', () => {
 
   describe('create category', () => {
     let createdCategoryId: string;
-    const timestamp = Date.now();
-    const testCategoryName = `Test Category ${timestamp}`;
+    const categoryData = makeCategory({ description: 'This is a test category' });
 
     it('should create a new category', async () => {
-      const newCategory = {
-        name: testCategoryName,
-        description: 'This is a test category',
-      };
-
       const response = await request(app)
         .post(endpoint)
-        .send(newCategory)
+        .send(categoryData)
         .expect('Content-Type', /json/)
         .expect(201);
 
       expect(response.body).toHaveProperty('success', true);
       expect(response.body).toHaveProperty('data');
       expect(response.body.data).toHaveProperty('id');
-      expect(response.body.data.name).toBe(newCategory.name);
-      expect(response.body.data.description).toBe(newCategory.description);
+      expect(response.body.data.name).toBe(categoryData.name);
+      expect(response.body.data.description).toBe(categoryData.description);
 
       // Save ID for cleanup and further tests
       createdCategoryId = response.body.data.id;
@@ -45,14 +40,9 @@ describe('Category API', () => {
     });
 
     it('should not create a category with duplicate name', async () => {
-      const duplicateCategory = {
-        name: testCategoryName,
-        description: 'Duplicate category test',
-      };
-
       const response = await request(app)
         .post(endpoint)
-        .send(duplicateCategory)
+        .send(makeCategory({ name: categoryData.name, description: 'Duplicate category test' }))
         .expect('Content-Type', /json/)
         .expect(400);
 
@@ -61,14 +51,9 @@ describe('Category API', () => {
     });
 
     it('should not create a category with duplicate name but different case', async () => {
-      const duplicateCategory = {
-        name: testCategoryName.toUpperCase(),
-        description: 'Duplicate category case sensitivity test',
-      };
-
       const response = await request(app)
         .post(endpoint)
-        .send(duplicateCategory)
+        .send(makeCategory({ name: categoryData.name.toUpperCase(), description: 'Duplicate category case sensitivity test' }))
         .expect('Content-Type', /json/)
         .expect(400);
         
@@ -77,9 +62,7 @@ describe('Category API', () => {
     });
 
     it('should create with minimum required fields', async () => {
-      const minimalCategory = {
-        name: `Minimal Category ${timestamp}`,
-      };
+      const minimalCategory = makeCategory();
 
       const response = await request(app)
         .post(endpoint)
@@ -119,17 +102,14 @@ describe('Category API', () => {
       // Now, try to create a new category with the same name
       const response = await request(app)
         .post(endpoint)
-        .send({
-          name: testCategoryName,
-          description: 'Recreating category after soft delete',
-        })
+        .send(makeCategory({ name: categoryData.name, description: 'Recreating category after soft delete' }))
         .expect('Content-Type', /json/)
         .expect(201);
 
       expect(response.body).toHaveProperty('success', true);
       expect(response.body).toHaveProperty('data');
       expect(response.body.data).toHaveProperty('id');
-      expect(response.body.data.name).toBe(testCategoryName);
+      expect(response.body.data.name).toBe(categoryData.name);
     });
   });
 
@@ -140,14 +120,11 @@ describe('Category API', () => {
 
     beforeAll(async () => {
       // Seed a category to test retrieval
-      createdCategoryName = `Retrieval Test Category ${Date.now()}`;
-      const newCategory = {
-        name: createdCategoryName,
-        description: 'Category for testing retrieval by ID',
-      };
+      const categoryData = makeCategory({ description: 'Category for testing retrieval by ID' });
+      createdCategoryName = categoryData.name;
       const response = await request(app)
         .post(endpoint)
-        .send(newCategory)
+        .send(categoryData)
         .expect(201);
 
       expect(response.body).toHaveProperty('success', true);
@@ -204,9 +181,9 @@ describe('Category API', () => {
     beforeAll(async () => {
       // Seed multiple categories for testing list retrieval and filters
       const categoriesToSeed = [
-        { name: `List Test Category 1 ${Date.now()}`, description: 'First category for list retrieval test' },
-        { name: `List Test Category 2 ${Date.now()}`, description: 'Second category for list retrieval test' },
-        { name: `Another Category ${Date.now()}`, description: 'Category to test search filter' },
+        makeCategory({ name: `List Test Category 1 ${Date.now()}`, description: 'First category for list retrieval test' }),
+        makeCategory({ name: `List Test Category 2 ${Date.now()}`, description: 'Second category for list retrieval test' }),
+        makeCategory({ name: `Another Category ${Date.now()}`, description: 'Category to test search filter' }),
       ];
 
       for (const category of categoriesToSeed) {
@@ -322,19 +299,14 @@ describe('Category API', () => {
   describe('update category', () => {
     
     let createdCategoryId: string;
-    const timestamp = Date.now();
-    const originalCategoryName = `Update Test Category ${timestamp}`;
-    const updatedCategoryName = `Updated Category Name ${timestamp}`;
+    const originalData = makeCategory({ description: 'Category for testing update' });
+    const { name: updatedCategoryName } = makeCategory();
 
     beforeAll(async () => {
       // Seed a category to test update
-      const newCategory = {
-        name: originalCategoryName,
-        description: 'Category for testing update',
-      };
       const response = await request(app)
         .post(endpoint)
-        .send(newCategory)
+        .send(originalData)
         .expect(201);
 
       expect(response.body).toHaveProperty('success', true);
@@ -417,10 +389,10 @@ describe('Category API', () => {
 
     it('should not allow updating to a duplicate category name', async () => {
       // First, create another category
-      const conflictingCategoryName = `Conflicting Category ${Date.now()}`;
+      const conflictingData = makeCategory();
       const conflictResponse = await request(app)
         .post(endpoint)
-        .send({ name: conflictingCategoryName })
+        .send(conflictingData)
         .expect(201);
 
       expect(conflictResponse.body).toHaveProperty('success', true);
@@ -446,18 +418,14 @@ describe('Category API', () => {
   describe('delete category', () => {
     
     let createdCategoryId: string;
-    const timestamp = Date.now();
-    const categoryName = `Delete Test Category ${timestamp}`;
+    const categoryData = makeCategory({ description: 'Category for testing deletion' });
+    const categoryName = categoryData.name;
 
     beforeAll(async () => {
       // Seed a category to test deletion
-      const newCategory = {
-        name: categoryName,
-        description: 'Category for testing deletion',
-      };
       const response = await request(app)
         .post(endpoint)
-        .send(newCategory)
+        .send(categoryData)
         .expect(201);
 
       expect(response.body).toHaveProperty('success', true);
@@ -543,10 +511,7 @@ describe('Category API', () => {
       // Create a category specifically for integrity testing
       const categoryResponse = await request(app)
         .post(endpoint)
-        .send({
-          name: `Integrity Test Category ${Date.now()}`,
-          description: 'Category for testing referential integrity'
-        })
+        .send(makeCategory({ description: 'Category for testing referential integrity' }))
         .expect(201);
       
       categoryForIntegrityTest = categoryResponse.body.data.id;
@@ -554,13 +519,7 @@ describe('Category API', () => {
       // Create a product linked to this category
       const productResponse = await request(app)
         .post(productEndpoint)
-        .send({
-          sku: `INTEGRITY-SKU-${Date.now()}`,
-          name: `Integrity Test Product ${Date.now()}`,
-          categoryId: categoryForIntegrityTest,
-          status: 'active',
-          unit: 'piece'
-        })
+        .send(makeProduct(categoryForIntegrityTest))
         .expect(201);
 
       productForIntegrityTest = productResponse.body.data.id;
