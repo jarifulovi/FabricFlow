@@ -5,6 +5,7 @@ SELECT
   v.*,
   p.sku AS product_sku,
   p.name AS product_name,
+  p.status AS product_status,
   c.name AS category_name
 FROM product_variants v
 INNER JOIN products p ON v.product_id = p.id
@@ -63,6 +64,12 @@ export const buildSelectVariantsQuery = (filters?: VariantFindAllFilters) => {
     text += ` AND v.id NOT IN (${placeholders})`;
     values.push(...filters.excludeIds);
     counter += filters.excludeIds.length;
+  }
+  if (filters?.ids && filters.ids.length > 0) {
+    const placeholders = filters.ids.map((_, index) => `$${counter + index}`).join(', ');
+    text += ` AND v.id IN (${placeholders})`;
+    values.push(...filters.ids);
+    counter += filters.ids.length;
   }
 
   // Sorting

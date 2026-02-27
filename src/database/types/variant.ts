@@ -67,6 +67,7 @@ export type ProductVariantWithProductRow = ProductVariantRow & {
 export type ProductVariantListRow = ProductVariantRow & {
   productSku: string;
   productName: string;
+  productStatus: string;
   categoryName: string;
 };
 
@@ -75,6 +76,7 @@ export type ProductVariantListRow = ProductVariantRow & {
 
 // FindAll operation filters
 export const variantFindAllFiltersSchema = z.object({
+  ids: z.array(z.uuid()).optional(),
   productId: z.uuid().optional(),
   color: z.string().optional(),
   size: z.string().optional(),

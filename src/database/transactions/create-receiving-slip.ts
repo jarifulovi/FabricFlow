@@ -2,6 +2,7 @@
 import pool from './../connection';
 import { receivingSlipRepo } from './../repositories/receiving-slip.repo';
 import { receivingSlipLineRepo } from './../repositories/receiving-slip-line.repo';
+import { variantRepo } from './../repositories/variant.repo';
 import {
   CreateReceivingSlipInput,
   ReceivingSlipRow,
@@ -25,6 +26,19 @@ export const createReceivingSlipTransaction = async (
     // Validate line items
     if (!input.lineItems || input.lineItems.length === 0) {
       throw new Error('At least one line item is required');
+    }
+
+    // Check product status for each variant — draft cannot contain discontinued product variants
+    const variantIds = input.lineItems.map(li => li.variantId);
+    const variants = await variantRepo.findAll({ ids: variantIds }, client);
+
+    if (variants.length !== variantIds.length) {
+      throw new Error('One or more variants were not found');
+    }
+    for (const variant of variants) {
+      if (variant.productStatus === 'discontinued') {
+        throw new Error(`Cannot add variant of a discontinued product to a receiving slip`);
+      }
     }
 
     // Create the receiving slip

@@ -152,6 +152,7 @@ export const variantRepo = {
       deletedAt: row.deleted_at,
       productSku: row.product_sku,
       productName: row.product_name,
+      productStatus: row.product_status,
       categoryName: row.category_name,
     }));
   },

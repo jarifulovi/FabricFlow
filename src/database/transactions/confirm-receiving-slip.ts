@@ -3,6 +3,7 @@ import pool from './../connection';
 import { receivingSlipRepo } from './../repositories/receiving-slip.repo';
 import { receivingSlipLineRepo } from './../repositories/receiving-slip-line.repo';
 import { inventoryMovementRepo } from './../repositories/inventory-movement.repo';
+import { variantRepo } from './../repositories/variant.repo';
 import {
   CreateInventoryMovementInput,
 } from './../types/inventory-movement';
@@ -29,6 +30,22 @@ export const confirmReceivingSlipTransaction = async (
     const lineItems = await receivingSlipLineRepo.findAll({ slipId }, client);
     if (lineItems.length === 0) {
       throw new Error('No line items found for this receiving slip');
+    }
+
+    // Check product status — confirmed slip cannot contain inactive or discontinued product variants
+    const variantIds = lineItems.map(li => li.variantId);
+    const variants = await variantRepo.findAll({ ids: variantIds }, client);
+
+    if (variants.length !== variantIds.length) {
+      throw new Error('One or more variants in this receiving slip were not found');
+    }
+    for (const variant of variants) {
+      if (variant.productStatus === 'inactive') {
+        throw new Error(`Cannot confirm receiving slip: variant belongs to an inactive product`);
+      }
+      if (variant.productStatus === 'discontinued') {
+        throw new Error(`Cannot confirm receiving slip: variant belongs to a discontinued product`);
+      }
     }
 
     // Update receiving slip status to CONFIRMED

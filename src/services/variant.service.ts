@@ -1,4 +1,4 @@
-import { variantRepo } from '../database/repositories';
+import { variantRepo, productRepo } from '../database/repositories';
 import {
   CreateProductVariantInput,
   UpdateProductVariantInput,
@@ -11,6 +11,18 @@ import { VariantApiQuery } from '../types/variant.types';
 
 export const variantService = {
   async create(input: CreateProductVariantInput): Promise<ProductVariantRow> {
+    // Check parent product status before allowing variant creation
+    const product = await productRepo.findById(input.productId, false);
+    if (!product) {
+      throw new Error('Product not found');
+    }
+    if (product.status === 'inactive') {
+      throw new Error('Cannot create variant for an inactive product');
+    }
+    if (product.status === 'discontinued') {
+      throw new Error('Cannot create variant for a discontinued product');
+    }
+
     // Check if variant SKU already exists (excluding deleted variants)
     const existingBySku = await variantRepo.exists({ sku: input.sku, includeDeleted: false });
     if (existingBySku) {
@@ -21,10 +33,14 @@ export const variantService = {
   },
 
   async update(id: string, input: UpdateProductVariantInput): Promise<ProductVariantRow> {
-    // Verify variant exists (excluding deleted variants)
-    const existing = await variantRepo.exists({ id, includeDeleted: false });
+    // Verify variant exists and fetch with product info to check status
+    const existing = await variantRepo.findById(id, false);
     if (!existing) {
       throw new Error('Variant not found');
+    }
+    // Block all updates for variants of discontinued products
+    if (existing.product.status === 'discontinued') {
+      throw new Error('Cannot update variant of a discontinued product');
     }
     // Check if sku already exists for another variant (excluding deleted variants) - only when SKU is being updated
     if (input.sku) {
