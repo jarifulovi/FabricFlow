@@ -49,13 +49,18 @@ describe('Product API', () => {
 
   describe('create product', () => {
     let createdProductId: string;
-    const productData = makeProduct(testCategoryId, {
-      description: 'This is a test product',
-      brandName: 'Test Brand',
-      brandCode: 'TB001',
-      tags: ['test', 'sample']
+    let productData: ReturnType<typeof makeProduct>;
+    let testProductSku: string;
+
+    beforeAll(() => {
+      productData = makeProduct(testCategoryId, {
+        description: 'This is a test product',
+        brandName: 'Test Brand',
+        brandCode: 'TB001',
+        tags: ['test', 'sample']
+      });
+      testProductSku = productData.sku;
     });
-    const testProductSku = productData.sku;
 
     it('should create a new product', async () => {
       const response = await request(app)
@@ -375,11 +380,15 @@ describe('Product API', () => {
   describe('update product', () => {
     
     let createdProductId: string;
-    const originalData = makeProduct(testCategoryId, { description: 'Product for testing update' });
-    const originalProductSku = originalData.sku;
-    const { name: updatedProductName } = makeProduct(testCategoryId);
+    let originalData: ReturnType<typeof makeProduct>;
+    let originalProductSku: string;
+    let updatedProductName: string;
 
     beforeAll(async () => {
+      originalData = makeProduct(testCategoryId, { description: 'Product for testing update' });
+      originalProductSku = originalData.sku;
+      updatedProductName = makeProduct(testCategoryId).name;
+
       // Seed a product to test update
       const response = await request(app)
         .post(endpoint)
@@ -510,10 +519,13 @@ describe('Product API', () => {
   describe('delete product', () => {
     
     let createdProductId: string;
-    const productData = makeProduct(testCategoryId, { description: 'Product for testing deletion' });
-    const productName = productData.name;
+    let productData: ReturnType<typeof makeProduct>;
+    let productName: string;
 
     beforeAll(async () => {
+      productData = makeProduct(testCategoryId, { description: 'Product for testing deletion' });
+      productName = productData.name;
+
       // Seed a product to test deletion
       const response = await request(app)
         .post(endpoint)
