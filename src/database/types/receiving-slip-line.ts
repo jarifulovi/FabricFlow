@@ -50,3 +50,37 @@ export const receivingSlipLineColumnMapping: Record<string, string> = {
   createdAt: 'created_at',
   updatedAt: 'updated_at',
 };
+
+// ===== DATABASE FILTER TYPES (Per Operation) =====
+// Database-level filtering - reused by QB and Repo
+
+// FindAll operation filters
+export const receivingSlipLineFindAllFiltersSchema = z.object({
+  slipId: z.uuid().optional(),
+  warehouseId: z.uuid().optional(),
+  variantId: z.uuid().optional(),
+  sortBy: z.enum(['createdAt']).optional(),
+  sortOrder: z.enum(['asc', 'desc']).optional(),
+  limit: z.number().int().positive().optional(),
+  offset: z.number().int().nonnegative().optional()
+});
+
+// Count operation filters
+export const receivingSlipLineCountFiltersSchema = z.object({
+  slipId: z.uuid().optional(),
+  warehouseId: z.uuid().optional(),
+  variantId: z.uuid().optional()
+});
+
+// Exists operation filters
+export const receivingSlipLineExistsFiltersSchema = z.object({
+  id: z.uuid().optional(),
+  slipId: z.uuid().optional(),
+  warehouseId: z.uuid().optional(),
+  variantId: z.uuid().optional()
+});
+
+// Database filter types
+export type ReceivingSlipLineFindAllFilters = z.infer<typeof receivingSlipLineFindAllFiltersSchema>;
+export type ReceivingSlipLineCountFilters = z.infer<typeof receivingSlipLineCountFiltersSchema>;
+export type ReceivingSlipLineExistsFilters = z.infer<typeof receivingSlipLineExistsFiltersSchema>;

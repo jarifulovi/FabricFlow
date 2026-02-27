@@ -1,4 +1,4 @@
-import { CategoryFindAllFilters } from '../../types/category';
+import { CategoryFindAllFilters, categoryColumnMapping } from '../../types/category';
 
 export const baseCategoriesSQL = `
 SELECT *
@@ -32,7 +32,7 @@ export const buildSelectCategoriesQuery = (filters?: CategoryFindAllFilters) => 
 
   // Sorting
   if (filters?.sortBy) {
-    const sortColumn = filters.sortBy === 'createdAt' ? 'created_at' : 'name';
+    const sortColumn = categoryColumnMapping[filters.sortBy] || 'name';
     const sortOrder = filters.sortOrder === 'asc' ? 'ASC' : 'DESC';
     text += ` ORDER BY ${sortColumn} ${sortOrder}`;
   } else {

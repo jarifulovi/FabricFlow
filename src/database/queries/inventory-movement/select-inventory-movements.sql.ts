@@ -1,73 +1,50 @@
-import { MovementType, MovementSource, ItemType } from '../../types/inventory-movement';
+import { InventoryMovementFindAllFilters, inventoryMovementColumnMapping } from '../../types/inventory-movement';
 
 export const baseInventoryMovementsSQL = `
 SELECT *
 FROM inventory_movements
 `;
 
-export const buildSelectInventoryMovementsQuery = (filters?: {
-  itemId?: string;
-  warehouseId?: string;
-  movementType?: MovementType;
-  itemType?: ItemType;
-  sourceType?: MovementSource;
-  sourceId?: string;
-  batchId?: string;
-  sortBy?: 'createdAt';
-  sortOrder?: 'asc' | 'desc';
-  limit?: number;
-  offset?: number;
-}) => {
+export const buildSelectInventoryMovementsQuery = (filters?: InventoryMovementFindAllFilters) => {
   let text = baseInventoryMovementsSQL;
   const values: string[] = [];
   let counter = 1;
-  let whereAdded = false;
+
+  text += 'WHERE 1=1';
 
   if (filters) {
     if (filters.itemId) {
-      text += ` WHERE item_id = $${counter}`;
+      text += ` AND item_id = $${counter}`;
       counter++;
       values.push(filters.itemId);
-      whereAdded = true;
     }
     if (filters.warehouseId) {
-      text += whereAdded ? ' AND' : ' WHERE';
-      text += ` warehouse_id = $${counter}`;
+      text += ` AND warehouse_id = $${counter}`;
       counter++;
       values.push(filters.warehouseId);
-      whereAdded = true;
     }
     if (filters.movementType) {
-      text += whereAdded ? ' AND' : ' WHERE';
-      text += ` movement_type = $${counter}`;
+      text += ` AND movement_type = $${counter}`;
       counter++;
       values.push(filters.movementType);
-      whereAdded = true;
     }
     if (filters.itemType) {
-      text += whereAdded ? ' AND' : ' WHERE';
-      text += ` item_type = $${counter}`;
+      text += ` AND item_type = $${counter}`;
       counter++;
       values.push(filters.itemType);
-      whereAdded = true;
     }
     if (filters.sourceType) {
-      text += whereAdded ? ' AND' : ' WHERE';
-      text += ` source_type = $${counter}`;
+      text += ` AND source_type = $${counter}`;
       counter++;
       values.push(filters.sourceType);
-      whereAdded = true;
     }
     if (filters.sourceId) {
-      text += whereAdded ? ' AND' : ' WHERE';
-      text += ` source_id = $${counter}`;
+      text += ` AND source_id = $${counter}`;
       counter++;
       values.push(filters.sourceId);
-      whereAdded = true;
     }
     if (filters.batchId) {
-      text += whereAdded ? ' AND' : ' WHERE';
-      text += ` batch_id = $${counter}`;
+      text += ` AND batch_id = $${counter}`;
       counter++;
       values.push(filters.batchId);
     }
@@ -75,8 +52,9 @@ export const buildSelectInventoryMovementsQuery = (filters?: {
 
   // Sorting
   if (filters?.sortBy) {
+    const sortColumn = inventoryMovementColumnMapping[filters.sortBy] || 'created_at';
     const sortOrder = filters.sortOrder === 'asc' ? 'ASC' : 'DESC';
-    text += ` ORDER BY created_at ${sortOrder}`;
+    text += ` ORDER BY ${sortColumn} ${sortOrder}`;
   } else {
     text += ` ORDER BY created_at DESC`; // default ordering
   }

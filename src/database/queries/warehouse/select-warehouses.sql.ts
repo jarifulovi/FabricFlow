@@ -1,4 +1,4 @@
-import { WarehouseFindAllFilters } from '../../types/warehouse';
+import { WarehouseFindAllFilters, warehouseColumnMapping } from '../../types/warehouse';
 
 export const baseWarehousesSQL = `
 SELECT *
@@ -38,7 +38,7 @@ export const buildSelectWarehousesQuery = (filters?: WarehouseFindAllFilters) =>
 
   // Sorting
   if (filters?.sortBy) {
-    const sortColumn = filters.sortBy === 'createdAt' ? 'created_at' : 'name';
+    const sortColumn = warehouseColumnMapping[filters.sortBy] || 'name';
     const sortOrder = filters.sortOrder === 'asc' ? 'ASC' : 'DESC';
     text += ` ORDER BY ${sortColumn} ${sortOrder}`;
   } else {

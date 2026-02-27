@@ -1,4 +1,4 @@
-import { VariantFindAllFilters } from '../../types/variant';
+import { VariantFindAllFilters, variantColumnMapping } from '../../types/variant';
 
 export const baseSelectVariantsSQL = `
 SELECT 
@@ -74,7 +74,7 @@ export const buildSelectVariantsQuery = (filters?: VariantFindAllFilters) => {
 
   // Sorting
   if (filters?.sortBy) {
-    const sortColumn = filters.sortBy === 'createdAt' ? 'created_at' : filters.sortBy;
+    const sortColumn = variantColumnMapping[filters.sortBy] || 'created_at';
     const sortOrder = filters.sortOrder === 'asc' ? 'ASC' : 'DESC';
     text += ` ORDER BY v.${sortColumn} ${sortOrder}`;
   } else {

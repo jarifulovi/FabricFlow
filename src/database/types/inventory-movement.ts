@@ -75,14 +75,21 @@ export const inventoryMovementCountFiltersSchema = z.object({
   warehouseId: z.uuid().optional(),
   movementType: movementTypeSchema.optional(),
   itemType: itemTypeSchema.optional(),
-  sourceType: movementSourceSchema.optional()
+  sourceType: movementSourceSchema.optional(),
+  sourceId: z.uuid().optional(),
+  batchId: z.uuid().optional()
 });
 
 // Exists operation filters
 export const inventoryMovementExistsFiltersSchema = z.object({
   id: z.uuid().optional(),
   itemId: z.uuid().optional(),
-  warehouseId: z.uuid().optional()
+  warehouseId: z.uuid().optional(),
+  movementType: movementTypeSchema.optional(),
+  itemType: itemTypeSchema.optional(),
+  sourceType: movementSourceSchema.optional(),
+  sourceId: z.uuid().optional(),
+  batchId: z.uuid().optional()
 });
 
 // Database filter types

@@ -66,13 +66,18 @@ export const receivingSlipFindAllFiltersSchema = z.object({
 export const receivingSlipCountFiltersSchema = z.object({
   type: slipTypeSchema.optional(),
   status: slipStatusSchema.optional(),
-  warehouseId: z.uuid().optional()
+  warehouseId: z.uuid().optional(),
+  createdBy: z.uuid().optional()
 });
 
 // Exists operation filters
 export const receivingSlipExistsFiltersSchema = z.object({
   id: z.uuid().optional(),
-  slipNumber: z.string().min(1).optional()
+  slipNumber: z.string().min(1).optional(),
+  type: slipTypeSchema.optional(),
+  status: slipStatusSchema.optional(),
+  warehouseId: z.uuid().optional(),
+  createdBy: z.uuid().optional()
 });
 
 // Database filter types

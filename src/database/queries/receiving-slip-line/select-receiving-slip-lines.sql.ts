@@ -1,39 +1,30 @@
+import { ReceivingSlipLineFindAllFilters, receivingSlipLineColumnMapping } from '../../types/receiving-slip-line';
+
 export const baseReceivingSlipLinesSQL = `
 SELECT *
 FROM receiving_slip_lines
 `;
 
-export const buildSelectReceivingSlipLinesQuery = (filters?: {
-  slipId?: string;
-  warehouseId?: string;
-  variantId?: string;
-  sortBy?: 'createdAt';
-  sortOrder?: 'asc' | 'desc';
-  limit?: number;
-  offset?: number;
-}) => {
+export const buildSelectReceivingSlipLinesQuery = (filters?: ReceivingSlipLineFindAllFilters) => {
   let text = baseReceivingSlipLinesSQL;
   const values: string[] = [];
   let counter = 1;
-  let whereAdded = false;
+
+  text += 'WHERE 1=1';
 
   if (filters) {
     if (filters.slipId) {
-      text += ` WHERE slip_id = $${counter}`;
+      text += ` AND slip_id = $${counter}`;
       counter++;
       values.push(filters.slipId);
-      whereAdded = true;
     }
     if (filters.warehouseId) {
-      text += whereAdded ? ' AND' : ' WHERE';
-      text += ` warehouse_id = $${counter}`;
+      text += ` AND warehouse_id = $${counter}`;
       counter++;
       values.push(filters.warehouseId);
-      whereAdded = true;
     }
     if (filters.variantId) {
-      text += whereAdded ? ' AND' : ' WHERE';
-      text += ` variant_id = $${counter}`;
+      text += ` AND variant_id = $${counter}`;
       counter++;
       values.push(filters.variantId);
     }
@@ -41,8 +32,9 @@ export const buildSelectReceivingSlipLinesQuery = (filters?: {
 
   // Sorting
   if (filters?.sortBy) {
+    const sortColumn = receivingSlipLineColumnMapping[filters.sortBy] || 'created_at';
     const sortOrder = filters.sortOrder === 'asc' ? 'ASC' : 'DESC';
-    text += ` ORDER BY created_at ${sortOrder}`;
+    text += ` ORDER BY ${sortColumn} ${sortOrder}`;
   } else {
     text += ` ORDER BY created_at ASC`; // default ordering
   }
