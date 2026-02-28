@@ -6,7 +6,7 @@ export const slipStatusSchema = z.enum(['draft', 'confirmed', 'cancelled']);
 
 export const receivingSlipSchema = z.object({
   id: z.uuid({ message: 'Invalid slip ID' }),
-  slipNumber: z.string({ message: 'Slip number is required' }).min(1, 'Slip number cannot be empty'),
+  slipNumber: z.string({ message: 'Slip number is required' }).regex(/^USR\d+-\d+$/, 'Slip number must follow format USR[UserID]-[SlipNumber]'),
   type: slipTypeSchema,
   status: slipStatusSchema,
   date: z.date({ message: 'Invalid date' }),
@@ -25,7 +25,21 @@ export const createReceivingSlipSchema = receivingSlipSchema.omit({
 });
 
 export const updateReceivingSlipSchema = z.object({
-  status: slipStatusSchema,
+  notes: z.string().max(1000, 'Notes are too long').optional().nullable(),
+  date: z.date({ message: 'Invalid date' }).optional(),
+  createdBy: z.uuid({ message: 'Invalid user ID' }).optional().nullable(),
+  status: slipStatusSchema.optional(),
+});
+
+// Slip-level fields allowed to be patched on a draft slip
+// warehouseId is allowed since line items are fully recreated in the same transaction
+export const updateDraftReceivingSlipSlipSchema = z.object({
+  slipNumber: z.string({ message: 'Slip number is required' }).regex(/^USR\d+-\d+$/, 'Slip number must follow format USR[UserID]-[SlipNumber]').optional(),
+  type: slipTypeSchema.optional(),
+  date: z.date({ message: 'Invalid date' }).optional(),
+  warehouseId: z.uuid({ message: 'Invalid warehouse ID' }).optional(),
+  notes: z.string().max(1000, 'Notes are too long').optional().nullable(),
+  createdBy: z.uuid({ message: 'Invalid user ID' }).optional().nullable(),
 });
 
 export const receivingSlipRowSchema = receivingSlipSchema.omit({
@@ -44,6 +58,7 @@ export type SlipStatus = z.infer<typeof slipStatusSchema>;
 export type ReceivingSlip = z.infer<typeof receivingSlipSchema>;
 export type CreateReceivingSlipInput = z.infer<typeof createReceivingSlipSchema>;
 export type UpdateReceivingSlipInput = z.infer<typeof updateReceivingSlipSchema>;
+export type UpdateDraftReceivingSlipSlipInput = z.infer<typeof updateDraftReceivingSlipSlipSchema>;
 export type ReceivingSlipRow = z.infer<typeof receivingSlipRowSchema>;
 
 // ===== DATABASE FILTER TYPES (Per Operation) =====

@@ -67,4 +67,11 @@ export const receivingSlipLineRepo = {
     const result = await db.query<ReceivingSlipLineRow>(text, values);
     return result.rows[0];
   },
+
+  async deleteMany(ids: string[], executor?: Pool | PoolClient): Promise<ReceivingSlipLineRow[]> {
+    const db = executor || pool;
+    const { text, values } = buildDeleteReceivingSlipLinesQuery(ids);
+    const result = await db.query<ReceivingSlipLineRow>(text, values);
+    return result.rows;
+  },
 };

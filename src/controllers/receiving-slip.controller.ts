@@ -1,9 +1,9 @@
 import { Request, Response } from 'express';
 import { receivingSlipServicePublic } from '../services';
 import { asyncHandler } from '../utils/async-handler';
-import { createReceivingSlipSchema, updateReceivingSlipSchema } from '../database/types/receiving-slip';
+import { createReceivingSlipSchema } from '../database/types/receiving-slip';
 import { createReceivingSlipLineSchema } from '../database/types/receiving-slip-line';
-import { receivingSlipParamsSchema, receivingSlipSlipNumberParamsSchema, receivingSlipApiQuerySchema } from '../types/receiving-slip.types';
+import { receivingSlipParamsSchema, receivingSlipSlipNumberParamsSchema, receivingSlipApiQuerySchema, updateReceivingSlipBodySchema } from '../types/receiving-slip.types';
 import { z } from 'zod/v4';
 
 // Schema for creating receiving slip with line items
@@ -74,7 +74,7 @@ export const receivingSlipController = {
   // PATCH /receiving-slips/:id
   updateReceivingSlip: asyncHandler(async (req: Request, res: Response) => {
     const { id } = receivingSlipParamsSchema.parse(req.params);
-    const updateData = updateReceivingSlipSchema.parse(req.body);
+    const updateData = updateReceivingSlipBodySchema.parse(req.body);
     const updatedSlip = await receivingSlipServicePublic.update(id, updateData);
     res.json({
       success: true,
