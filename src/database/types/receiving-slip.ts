@@ -24,8 +24,8 @@ export const createReceivingSlipSchema = receivingSlipSchema.omit({
   status: true,
 });
 
-export const updateReceivingSlipSchema = createReceivingSlipSchema.partial().extend({
-  status: slipStatusSchema.optional(),
+export const updateReceivingSlipSchema = z.object({
+  status: slipStatusSchema,
 });
 
 export const receivingSlipRowSchema = receivingSlipSchema.omit({

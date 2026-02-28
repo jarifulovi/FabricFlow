@@ -7,14 +7,16 @@ import {
   buildSelectReceivingSlipsQuery,
   buildSelectReceivingSlipByIdQuery,
   buildSelectReceivingSlipByNumberQuery,
+  buildCountReceivingSlipsQuery,
+  buildExistsReceivingSlipQuery,
 } from './../queries/index';
 import { 
   ReceivingSlipRow, 
   CreateReceivingSlipInput, 
   UpdateReceivingSlipInput,
-  SlipType,
-  SlipStatus,
-  ReceivingSlipFindAllFilters
+  ReceivingSlipFindAllFilters,
+  ReceivingSlipCountFilters,
+  ReceivingSlipExistsFilters,
 } from './../types/receiving-slip';
 
 
@@ -61,5 +63,19 @@ export const receivingSlipRepo = {
     const { text, values } = buildDeleteReceivingSlipsQuery([id]);
     const result = await db.query<ReceivingSlipRow>(text, values);
     return result.rows[0];
+  },
+
+  async count(filters?: ReceivingSlipCountFilters, executor?: Pool | PoolClient): Promise<number> {
+    const db = executor || pool;
+    const { text, values } = buildCountReceivingSlipsQuery(filters);
+    const result = await db.query<{ count: string }>(text, values);
+    return parseInt(result.rows[0].count, 10);
+  },
+
+  async exists(filters?: ReceivingSlipExistsFilters, executor?: Pool | PoolClient): Promise<boolean> {
+    const db = executor || pool;
+    const { text, values } = buildExistsReceivingSlipQuery(filters);
+    const result = await db.query<{ exists: boolean }>(text, values);
+    return result.rows[0].exists;
   },
 };

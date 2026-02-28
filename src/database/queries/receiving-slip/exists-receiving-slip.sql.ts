@@ -12,8 +12,8 @@ export const buildExistsReceivingSlipQuery = (filters?: ReceivingSlipExistsFilte
       values.push(filters.id);
     }
     if (filters.slipNumber) {
-      text += ` AND slip_number ILIKE $${counter}`;
-      values.push(`%${filters.slipNumber}%`);
+      text += ` AND slip_number = $${counter}`;
+      values.push(filters.slipNumber);
       counter++;
     }
     if (filters.type) {
