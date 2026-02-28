@@ -7,8 +7,6 @@ import {
 import {
   UpdateReceivingSlipInput,
   ReceivingSlipRow,
-  SlipStatus,
-  SlipType,
   ReceivingSlipFindAllFilters,
 } from '../database/types/receiving-slip';
 import { ReceivingSlipApiQuery } from '../types/receiving-slip.types';
@@ -16,8 +14,10 @@ import { ReceivingSlipApiQuery } from '../types/receiving-slip.types';
 export const receivingSlipService = {
   async create(input: CreateReceivingSlipWithLinesInput): Promise<ReceivingSlipRow> {
     // Check if already exists
-
-
+    const exists = await receivingSlipRepo.exists({ slipNumber: input.slip.slipNumber });
+    if (exists) {
+      throw new Error('Receiving slip with this slip number already exists');
+    }
     return await createReceivingSlipTransaction(input);
   },
 
@@ -26,6 +26,11 @@ export const receivingSlipService = {
     await confirmReceivingSlipTransaction(slipId);
   },
 
+  async cancel(slipId: string): Promise<void> {
+    // TODO: Needs to implement cancel receiving slip feature
+  },
+
+  // TODO: Needs to add update feature for subtle fields(notes, attachments etc) on any status
   async update(id: string, input: UpdateReceivingSlipInput): Promise<ReceivingSlipRow> {
     const existing = await receivingSlipRepo.findById(id);
     if (!existing) {
@@ -45,6 +50,7 @@ export const receivingSlipService = {
     return await receivingSlipRepo.update(id, input);
   },
 
+  // TODO: Needs to add a filter for retrieving with slips lines or without lines
   async findById(id: string): Promise<ReceivingSlipRow> {
     const slip = await receivingSlipRepo.findById(id);
     if (!slip) {
@@ -53,6 +59,7 @@ export const receivingSlipService = {
     return slip;
   },
 
+  // TODO: Needs to add a filter for retrieving with slips lines or without lines
   async findBySlipNumber(slipNumber: string): Promise<ReceivingSlipRow> {
     const slip = await receivingSlipRepo.findBySlipNumber(slipNumber);
     if (!slip) {
@@ -74,6 +81,7 @@ export const receivingSlipService = {
     return await receivingSlipRepo.findAll(dbFilters);
   },
 
+  // Needs pagination params in filter
   async findAllDefault(): Promise<ReceivingSlipRow[]> {
     const dbFilters: ReceivingSlipFindAllFilters = {
       sortBy: 'date',
