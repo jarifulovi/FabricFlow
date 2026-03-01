@@ -56,7 +56,6 @@ export const productRepo = {
     return result.rows;
   },
 
-  // Soft delete (recommended for production)
   async softDelete(id: string, executor?: Pool | PoolClient): Promise<ProductRow> {
     const db = executor || pool;
     const { text, values } = buildBulkSoftDeleteProductQuery([id]);
@@ -64,7 +63,6 @@ export const productRepo = {
     return result.rows[0];
   },
 
-  // Hard delete (only for testing purposes and batch clean-ups)
   async hardDelete(id: string, executor?: Pool | PoolClient): Promise<ProductRow> {
     const db = executor || pool;
     const { text, values } = buildBulkHardDeleteProductQuery([id]);
@@ -72,7 +70,6 @@ export const productRepo = {
     return result.rows[0];
   },
 
-  // Count products with filters
   async count(filters?: ProductCountFilters, executor?: Pool | PoolClient): Promise<number> {
     const db = executor || pool;
     const { text, values } = buildCountProductsQuery(filters);
@@ -80,7 +77,6 @@ export const productRepo = {
     return parseInt(result.rows[0].count, 10);
   },
 
-  // Check if product exists with filters
   async exists(filters?: ProductExistsFilters, executor?: Pool | PoolClient): Promise<boolean> {
     const db = executor || pool;
     const { text, values } = buildExistsProductQuery(filters);

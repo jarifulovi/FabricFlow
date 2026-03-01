@@ -12,7 +12,7 @@ export const inventoryMovementService = {
     return await inventoryMovementRepo.create(input);
   },
 
-  async createBulk(inputs: CreateInventoryMovementInput[]): Promise<InventoryMovementRow[]> {
+  async bulkCreate(inputs: CreateInventoryMovementInput[]): Promise<InventoryMovementRow[]> {
     return await inventoryMovementRepo.bulkCreate(inputs);
   },
 

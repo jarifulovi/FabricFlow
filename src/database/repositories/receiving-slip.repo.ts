@@ -28,7 +28,6 @@ export const receivingSlipRepo = {
     return result.rows[0];
   },
 
-  // Update is a patch is restricted for receiving slips except status, only for testing purposes
   async update(id: string, input: UpdateReceivingSlipInput, executor?: Pool | PoolClient): Promise<ReceivingSlipRow> {
     const db = executor || pool;
     const { text, values } = buildPatchReceivingSlipQuery(id, input);
@@ -57,7 +56,6 @@ export const receivingSlipRepo = {
     return result.rows;
   },
 
-  // Delete is restricted for receiving slips, only for testing purposes
   async delete(id: string, executor?: Pool | PoolClient): Promise<ReceivingSlipRow> {
     const db = executor || pool;
     const { text, values } = buildDeleteReceivingSlipsQuery([id]);

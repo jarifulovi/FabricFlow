@@ -66,7 +66,7 @@ export const inventoryMovementController = {
   // POST /inventory-movements/bulk (test env only)
   createInventoryMovementBulk: asyncHandler(async (req: Request, res: Response) => {
     const movementsData = createInventoryMovementSchema.array().parse(req.body);
-    const newMovements = await inventoryMovementServicePrivate.createBulk(movementsData);
+    const newMovements = await inventoryMovementServicePrivate.bulkCreate(movementsData);
     res.status(201).json({
       success: true,
       data: newMovements,

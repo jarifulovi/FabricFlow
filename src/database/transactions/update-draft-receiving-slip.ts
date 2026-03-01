@@ -58,7 +58,7 @@ export const updateDraftReceivingSlipTransaction = async (
       const existingLines = await receivingSlipLineRepo.findAll({ slipId: id }, client);
       if (existingLines.length > 0) {
         const lineIds = existingLines.map(l => l.id);
-        await receivingSlipLineRepo.deleteMany(lineIds, client);
+        await receivingSlipLineRepo.bulkDelete(lineIds, client);
       }
 
       // Recreate with the new line items

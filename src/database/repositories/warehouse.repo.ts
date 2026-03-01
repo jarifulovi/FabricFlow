@@ -45,7 +45,6 @@ export const warehouseRepo = {
     return result.rows;
   },
 
-  // Soft delete (recommended for production)
   async softDelete(id: string, executor?: Pool | PoolClient): Promise<WarehouseRow> {
     const db = executor || pool;
     const { text, values } = buildBulkSoftDeleteWarehousesQuery([id]);
@@ -53,7 +52,6 @@ export const warehouseRepo = {
     return result.rows[0];
   },
 
-  // Hard delete (only for testing purposes and batch clean-ups)
   async hardDelete(id: string, executor?: Pool | PoolClient): Promise<WarehouseRow> {
     const db = executor || pool;
     const { text, values } = buildBulkHardDeleteWarehousesQuery([id]);
@@ -61,7 +59,6 @@ export const warehouseRepo = {
     return result.rows[0];
   },
 
-  // Count warehouses with filters
   async count(filters?: WarehouseCountFilters, executor?: Pool | PoolClient): Promise<number> {
     const db = executor || pool;
     const { text, values } = buildCountWarehousesQuery(filters);
@@ -69,7 +66,6 @@ export const warehouseRepo = {
     return parseInt(result.rows[0].count, 10);
   },
 
-  // Check if warehouse exists with filters
   async exists(filters?: WarehouseExistsFilters, executor?: Pool | PoolClient): Promise<boolean> {
     const db = executor || pool;
     const { text, values } = buildExistsWarehouseQuery(filters);

@@ -157,7 +157,6 @@ export const variantRepo = {
     }));
   },
 
-  // Soft delete (recommended for production)
   async softDelete(id: string, executor?: Pool | PoolClient): Promise<ProductVariantRow> {
     const db = executor || pool;
     const { text, values } = buildBulkSoftDeleteVariantQuery([id]);
@@ -165,7 +164,6 @@ export const variantRepo = {
     return result.rows[0];
   },
 
-  // Hard delete (restricted, only for testing purposes and batch clean-ups)
   async hardDelete(id: string, executor?: Pool | PoolClient): Promise<ProductVariantRow> {
     const db = executor || pool;
     const { text, values } = buildBulkHardDeleteVariantQuery([id]);
@@ -173,7 +171,6 @@ export const variantRepo = {
     return result.rows[0];
   },
 
-  // Count variants with filters
   async count(filters?: VariantCountFilters, executor?: Pool | PoolClient): Promise<number> {
     const db = executor || pool;
     const { text, values } = buildCountVariantsQuery(filters);
@@ -181,7 +178,6 @@ export const variantRepo = {
     return parseInt(result.rows[0].count, 10);
   },
 
-  // Check if variant exists with filters
   async exists(filters?: VariantExistsFilters, executor?: Pool | PoolClient): Promise<boolean> {
     const db = executor || pool;
     const { text, values } = buildExistsVariantQuery(filters);

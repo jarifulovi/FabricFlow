@@ -51,7 +51,6 @@ export const inventoryMovementRepo = {
     return result.rows;
   },
 
-  // Delete is restricted for inventory movements, only for testing purposes
   async delete(id: string, executor?: Pool | PoolClient): Promise<InventoryMovementRow> {
     const db = executor || pool;
     const { text, values } = buildDeleteInventoryMovementsQuery([id]);

@@ -30,7 +30,6 @@ export const receivingSlipLineRepo = {
     return result.rows;
   },
 
-  // Update/patch is restricted for receiving slip lines, only for testing purposes
   async update(id: string, input: UpdateReceivingSlipLineInput, executor?: Pool | PoolClient): Promise<ReceivingSlipLineRow> {
     const db = executor || pool;
     const { text, values } = buildPatchReceivingSlipLineQuery(id, input);
@@ -60,7 +59,6 @@ export const receivingSlipLineRepo = {
     return result.rows;
   },
 
-  // Delete is restricted for receiving slip lines, only for testing purposes
   async delete(id: string, executor?: Pool | PoolClient): Promise<ReceivingSlipLineRow> {
     const db = executor || pool;
     const { text, values } = buildDeleteReceivingSlipLinesQuery([id]);
@@ -68,7 +66,7 @@ export const receivingSlipLineRepo = {
     return result.rows[0];
   },
 
-  async deleteMany(ids: string[], executor?: Pool | PoolClient): Promise<ReceivingSlipLineRow[]> {
+  async bulkDelete(ids: string[], executor?: Pool | PoolClient): Promise<ReceivingSlipLineRow[]> {
     const db = executor || pool;
     const { text, values } = buildDeleteReceivingSlipLinesQuery(ids);
     const result = await db.query<ReceivingSlipLineRow>(text, values);

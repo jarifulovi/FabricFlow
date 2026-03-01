@@ -73,6 +73,6 @@ export const inventoryMovementServicePublic = {
 
 export const inventoryMovementServicePrivate = {
   create: inventoryMovementService.create,
-  createBulk: inventoryMovementService.createBulk,
+  bulkCreate: inventoryMovementService.bulkCreate,
   delete: inventoryMovementService.delete,
 };
