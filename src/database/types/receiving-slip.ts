@@ -1,4 +1,5 @@
 import { z } from 'zod/v4';
+import { receivingSlipLineRowSchema } from './receiving-slip-line';
 
 // Zod Schema - Single source of truth
 export const slipTypeSchema = z.enum(['purchase', 'production']);
@@ -60,6 +61,12 @@ export type CreateReceivingSlipInput = z.infer<typeof createReceivingSlipSchema>
 export type UpdateReceivingSlipInput = z.infer<typeof updateReceivingSlipSchema>;
 export type UpdateDraftReceivingSlipSlipInput = z.infer<typeof updateDraftReceivingSlipSlipSchema>;
 export type ReceivingSlipRow = z.infer<typeof receivingSlipRowSchema>;
+
+// Receiving slip row with embedded line items (used when includeLines=true)
+export const receivingSlipWithLinesRowSchema = receivingSlipRowSchema.extend({
+  lineItems: z.array(receivingSlipLineRowSchema),
+});
+export type ReceivingSlipWithLinesRow = z.infer<typeof receivingSlipWithLinesRowSchema>;
 
 // ===== DATABASE FILTER TYPES (Per Operation) =====
 // Database-level filtering - reused by QB and Repo

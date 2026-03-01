@@ -1,4 +1,4 @@
-import { receivingSlipRepo } from '../database/repositories/index';
+import { receivingSlipRepo, receivingSlipLineRepo } from '../database/repositories/index';
 import {
   createReceivingSlipTransaction,
   confirmReceivingSlipTransaction,
@@ -7,9 +7,10 @@ import {
 } from '../database/transactions/index';
 import {
   ReceivingSlipRow,
+  ReceivingSlipWithLinesRow,
   ReceivingSlipFindAllFilters,
 } from '../database/types/receiving-slip';
-import { ReceivingSlipApiQuery, UpdateReceivingSlipBody } from '../types/receiving-slip.types';
+import { ReceivingSlipApiQuery, ReceivingSlipDefaultQuery, UpdateReceivingSlipBody } from '../types/receiving-slip.types';
 
 export const receivingSlipService = {
   async create(input: CreateReceivingSlipWithLinesInput): Promise<ReceivingSlipRow> {
@@ -66,22 +67,24 @@ export const receivingSlipService = {
     throw new Error('Unexpected slip status');
   },
 
-  // TODO: Needs to add a filter for retrieving with slips lines or without lines
-  async findById(id: string): Promise<ReceivingSlipRow> {
+  async findById(id: string, includeLines?: boolean): Promise<ReceivingSlipRow | ReceivingSlipWithLinesRow> {
     const slip = await receivingSlipRepo.findById(id);
     if (!slip) {
       throw new Error('Receiving slip not found');
     }
-    return slip;
+    if (!includeLines) return slip;
+    const lineItems = await receivingSlipLineRepo.findAll({ slipId: id });
+    return { ...slip, lineItems };
   },
 
-  // TODO: Needs to add a filter for retrieving with slips lines or without lines
-  async findBySlipNumber(slipNumber: string): Promise<ReceivingSlipRow> {
+  async findBySlipNumber(slipNumber: string, includeLines?: boolean): Promise<ReceivingSlipRow | ReceivingSlipWithLinesRow> {
     const slip = await receivingSlipRepo.findBySlipNumber(slipNumber);
     if (!slip) {
       throw new Error('Receiving slip not found');
     }
-    return slip;
+    if (!includeLines) return slip;
+    const lineItems = await receivingSlipLineRepo.findAll({ slipId: slip.id });
+    return { ...slip, lineItems };
   },
 
   async findAll(filters?: ReceivingSlipApiQuery): Promise<ReceivingSlipRow[]> {
@@ -98,10 +101,13 @@ export const receivingSlipService = {
   },
 
   // Needs pagination params in filter
-  async findAllDefault(): Promise<ReceivingSlipRow[]> {
+  async findAllDefault(params?: ReceivingSlipDefaultQuery): Promise<ReceivingSlipRow[]> {
+    const { page, pageSize } = params || {};
     const dbFilters: ReceivingSlipFindAllFilters = {
       sortBy: 'date',
-      sortOrder: 'desc'
+      sortOrder: 'desc',
+      limit: pageSize,
+      offset: page && pageSize ? (page - 1) * pageSize : undefined
     };
     
     return await receivingSlipRepo.findAll(dbFilters);

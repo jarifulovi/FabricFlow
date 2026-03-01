@@ -3,7 +3,7 @@ import { receivingSlipServicePublic } from '../services';
 import { asyncHandler } from '../utils/async-handler';
 import { createReceivingSlipSchema } from '../database/types/receiving-slip';
 import { createReceivingSlipLineSchema } from '../database/types/receiving-slip-line';
-import { receivingSlipParamsSchema, receivingSlipSlipNumberParamsSchema, receivingSlipApiQuerySchema, updateReceivingSlipBodySchema } from '../types/receiving-slip.types';
+import { receivingSlipParamsSchema, receivingSlipSlipNumberParamsSchema, receivingSlipApiQuerySchema, receivingSlipGetQuerySchema, receivingSlipDefaultQuerySchema, updateReceivingSlipBodySchema } from '../types/receiving-slip.types';
 import { z } from 'zod/v4';
 
 // Schema for creating receiving slip with line items
@@ -31,17 +31,25 @@ export const receivingSlipController = {
 
   // GET /receiving-slips/default
   getReceivingSlipsDefault: asyncHandler(async (req: Request, res: Response) => {
-    const slips = await receivingSlipServicePublic.findAllDefault();
+    const params = receivingSlipDefaultQuerySchema.parse(req.query);
+    const slips = await receivingSlipServicePublic.findAllDefault(params);
     res.json({
       success: true,
-      data: slips
+      data: slips,
+      pagination: {
+        ...(params.page && params.pageSize && {
+          currentPage: params.page,
+          pageSize: params.pageSize
+        })
+      }
     });
   }),
 
   // GET /receiving-slips/:id
   getReceivingSlipById: asyncHandler(async (req: Request, res: Response) => {
     const { id } = receivingSlipParamsSchema.parse(req.params);
-    const slip = await receivingSlipServicePublic.findById(id);
+    const { includeLines } = receivingSlipGetQuerySchema.parse(req.query);
+    const slip = await receivingSlipServicePublic.findById(id, includeLines);
     
     res.json({
       success: true,
@@ -52,7 +60,8 @@ export const receivingSlipController = {
   // GET /receiving-slips/slip-number/:slipNumber
   getReceivingSlipByNumber: asyncHandler(async (req: Request, res: Response) => {
     const { slipNumber } = receivingSlipSlipNumberParamsSchema.parse(req.params);
-    const slip = await receivingSlipServicePublic.findBySlipNumber(slipNumber);
+    const { includeLines } = receivingSlipGetQuerySchema.parse(req.query);
+    const slip = await receivingSlipServicePublic.findBySlipNumber(slipNumber, includeLines);
     
     res.json({
       success: true,

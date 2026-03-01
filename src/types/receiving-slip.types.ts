@@ -29,6 +29,19 @@ export type ReceivingSlipParams = z.infer<typeof receivingSlipParamsSchema>;
 export type ReceivingSlipSlipNumberParams = z.infer<typeof receivingSlipSlipNumberParamsSchema>;
 export type ReceivingSlipApiQuery = z.infer<typeof receivingSlipApiQuerySchema>;
 
+// Query param for fetching a single slip (by id or slip number)
+export const receivingSlipGetQuerySchema = z.object({
+  includeLines: z.string().transform(v => v === 'true').optional(),
+});
+export type ReceivingSlipGetQuery = z.infer<typeof receivingSlipGetQuerySchema>;
+
+// Query params for the default listing endpoint (pagination only)
+export const receivingSlipDefaultQuerySchema = z.object({
+  page: z.string().regex(/^\d+$/, 'Page must be a number').transform(Number).optional(),
+  pageSize: z.string().regex(/^\d+$/, 'Page size must be a number').transform(Number).optional(),
+});
+export type ReceivingSlipDefaultQuery = z.infer<typeof receivingSlipDefaultQuerySchema>;
+
 // Combined update body schema - handles both confirmed (header-only) and draft (header + lines) updates
 // The service enforces which fields are applicable per status
 export const updateReceivingSlipBodySchema = z.object({
