@@ -70,3 +70,9 @@ export const inventoryMovementServicePublic = {
   findById: inventoryMovementService.findById,
   findBySource: inventoryMovementService.findBySource,
 };
+
+export const inventoryMovementServicePrivate = {
+  create: inventoryMovementService.create,
+  createBulk: inventoryMovementService.createBulk,
+  delete: inventoryMovementService.delete,
+};

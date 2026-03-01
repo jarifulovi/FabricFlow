@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { inventoryMovementServicePublic } from '../services';
+import { inventoryMovementServicePrivate, inventoryMovementServicePublic } from '../services';
 import { asyncHandler } from '../utils/async-handler';
 import { createInventoryMovementSchema } from '../database/types/inventory-movement';
 import { inventoryMovementParamsSchema, inventoryMovementSourceParamsSchema, inventoryMovementApiQuerySchema } from '../types/inventory-movement.types';
@@ -52,14 +52,35 @@ export const inventoryMovementController = {
     });
   }),
 
-  // POST /inventory-movements
+  // POST /inventory-movements (test env only)
   createInventoryMovement: asyncHandler(async (req: Request, res: Response) => {
     const movementData = createInventoryMovementSchema.parse(req.body);
-    // const newMovement = await inventoryMovementServicePublic.create(movementData);
+    const newMovement = await inventoryMovementServicePrivate.create(movementData);
     res.status(201).json({
       success: true,
-      data: {},
-      message: 'Inventory movement creation is internal only for testing purposes'
+      data: newMovement,
+      message: 'Inventory movement created successfully'
+    });
+  }),
+
+  // POST /inventory-movements/bulk (test env only)
+  createInventoryMovementBulk: asyncHandler(async (req: Request, res: Response) => {
+    const movementsData = createInventoryMovementSchema.array().parse(req.body);
+    const newMovements = await inventoryMovementServicePrivate.createBulk(movementsData);
+    res.status(201).json({
+      success: true,
+      data: newMovements,
+      message: 'Inventory movements created successfully'
+    });
+  }),
+
+  // DELETE /inventory-movements/:id (test env only)
+  deleteInventoryMovement: asyncHandler(async (req: Request, res: Response) => {
+    const { id } = inventoryMovementParamsSchema.parse(req.params);
+    await inventoryMovementServicePrivate.delete(id);
+    res.json({
+      success: true,
+      message: 'Inventory movement deleted successfully'
     });
   })
 };
