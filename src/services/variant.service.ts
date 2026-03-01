@@ -1,4 +1,4 @@
-import { variantRepo, productRepo } from '../database/repositories';
+import { variantRepo, productRepo, receivingSlipLineRepo } from '../database/repositories';
 import {
   CreateProductVariantInput,
   UpdateProductVariantInput,
@@ -98,23 +98,28 @@ export const variantService = {
   },
 
   async softDelete(id: string): Promise<ProductVariantRow> {
-    // Verify variant exists (excluding already deleted variants)
-    const existing = await variantRepo.exists({ id, includeDeleted: false });
-    if (!existing) {
-      throw new Error('Variant not found');
-    }
-
+    await this.validateVariantDeletable(id);
     return await variantRepo.softDelete(id);
   },
 
   // Hard delete (only for testing purposes and batch clean-ups)
   async hardDelete(id: string): Promise<ProductVariantRow> {
-    // Verify variant exists (including deleted variants for hard delete)
-    const existing = await variantRepo.exists({ id, includeDeleted: true });
+    await this.validateVariantDeletable(id, true);
+    return await variantRepo.hardDelete(id);
+  },
+
+  // Private methods for validations and complex logic
+  async validateVariantDeletable(id: string, includeDeleted: boolean = false): Promise<void> {
+    // Verify variant exists (including deleted variants for validation)
+    const existing = await variantRepo.exists({ id, includeDeleted });
     if (!existing) {
       throw new Error('Variant not found');
     }
-
-    return await variantRepo.hardDelete(id);
-  },
+    // Check variant exists in receiving slip lines before allowing deletion
+    const usedInSlips = await receivingSlipLineRepo.exists({ variantId: id });
+    if (usedInSlips) {
+      throw new Error('Cannot delete variant that is used in receiving slip lines');
+    }
+    // TODO: Add checks for sales in future when sales module is implemented
+  }
 };
