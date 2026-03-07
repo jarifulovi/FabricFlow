@@ -98,13 +98,13 @@ export const variantService = {
   },
 
   async softDelete(id: string): Promise<ProductVariantRow> {
-    await this.validateVariantDeletable(id);
+    await variantService.validateVariantDeletable(id);
     return await variantRepo.softDelete(id);
   },
 
   // Hard delete (only for testing purposes and batch clean-ups)
   async hardDelete(id: string): Promise<ProductVariantRow> {
-    await this.validateVariantDeletable(id, true);
+    await variantService.validateVariantDeletable(id, true);
     return await variantRepo.hardDelete(id);
   },
 
