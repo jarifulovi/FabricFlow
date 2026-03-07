@@ -1,17 +1,20 @@
 import request from 'supertest';
 import app from '../../src/app';
 import pool from '../../src/database/connection';
-import { makeCategory, makeProduct } from '../helpers/generators';
+import { makeCategory, makeProduct, makeVariant } from '../helpers/generators';
+
 
 describe('Product API', () => {
 
   const endpoint = '/api/products';
+  const categoryEndpoint = '/api/categories';
+  const variantEndpoint = '/api/variants';
   let testCategoryId: string;
 
   beforeAll(async () => {
     // Create a test category for product tests
     const categoryResponse = await request(app)
-      .post('/api/categories')
+      .post(categoryEndpoint)
       .send(makeCategory({ description: 'Category for product testing' }))
       .expect(201);
     
@@ -38,7 +41,7 @@ describe('Product API', () => {
 
         // Now delete the category
         await request(app)
-          .delete(`/api/categories/${testCategoryId}/hard`);
+          .delete(`${categoryEndpoint}/${testCategoryId}/hard`);
       } catch (error) {
         // Ignore cleanup errors
         console.log('Cleanup warning:', error);
@@ -610,4 +613,82 @@ describe('Product API', () => {
   });
 
   // Add variant-product integrity tests
+  describe('product-variant integrity', () => {
+    let categoryId: string;
+    let productForIntegrityTestId: string;
+    let variantForIntegrityTestId: string;
+
+    beforeAll(async () => {
+      // Create a category for the integrity test
+      const categoryResponse = await request(app)
+        .post(categoryEndpoint)
+        .send(makeCategory({ description: 'Category for product-variant integrity testing' }))
+        .expect(201);
+      
+      categoryId = categoryResponse.body.data.id;
+
+      // Create a product to test variant integrity
+      const productResponse = await request(app)
+        .post(endpoint)
+        .send(makeProduct(categoryId, { description: 'Product for variant integrity test' }))
+        .expect(201);
+      
+      productForIntegrityTestId = productResponse.body.data.id;
+
+      // Create a variant for the integrity test
+      const variantResponse = await request(app)
+        .post(variantEndpoint)
+        .send(makeVariant(productForIntegrityTestId))
+        .expect(201);
+      
+      variantForIntegrityTestId = variantResponse.body.data.id;
+    });
+
+    afterAll(async () => {
+      // Clean up by hard deleting the created variant, product, and category
+      if (variantForIntegrityTestId) {
+        await request(app)
+          .delete(`${variantEndpoint}/${variantForIntegrityTestId}/hard`)
+          .expect(200);
+      }
+      if (productForIntegrityTestId) {
+        await request(app)
+          .delete(`${endpoint}/${productForIntegrityTestId}/hard`)
+          .expect(200);
+      }
+      if (categoryId) {
+        await request(app)
+          .delete(`${categoryEndpoint}/${categoryId}/hard`)
+          .expect(200);
+      }
+    });
+
+    it('should not allow deleting a product that has active variants', async () => {
+      const response = await request(app)
+        .delete(`${endpoint}/${productForIntegrityTestId}`)
+        .expect('Content-Type', /json/)
+        .expect(400);
+
+      expect(response.body).toHaveProperty('success', false);
+      expect(response.body).toHaveProperty('message');
+    });
+
+    it('should allow deleting a product after its variants are deleted', async () => {
+      // First, delete the variant
+      await request(app)
+        .delete(`${variantEndpoint}/${variantForIntegrityTestId}`)
+        .expect(200);
+
+      // Now, try to delete the product again
+      const response = await request(app)
+        .delete(`${endpoint}/${productForIntegrityTestId}`)
+        .expect('Content-Type', /json/)
+        .expect(200);
+
+      expect(response.body).toHaveProperty('success', true);
+      expect(response.body).toHaveProperty('data');
+      expect(response.body.data.id).toBe(productForIntegrityTestId);
+    });
+  });
+
 });
