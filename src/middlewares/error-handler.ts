@@ -18,28 +18,37 @@ function getStatusCodeFromError(error: Error): number {
   
   // Not found errors
   if (message.includes('not found')) return 404;
-  
+
+  // Unauthorized errors
+  if (message.includes('unauthorized') || message.includes('authentication required')) return 401;
+
+  // Forbidden errors
+  if (message.includes('forbidden') || message.includes('permission denied')) return 403;
+
+  // Unprocessable Entity (semantic validation)
+  if (message.includes('unprocessable entity')) return 422;
+
   // Validation errors
   if (message.includes('invalid') || 
       message.includes('required') || 
       message.includes('must be') ||
       message.includes('cannot be empty') ||
-      message.includes('cannot delete') ||
+      message.includes('cannot') ||
       message.includes('already exists')) {
     return 400;
   }
-  
+
   // Database constraint errors (for PostgreSQL)
   if (message.includes('duplicate key') || 
       message.includes('violates unique constraint')) {
     return 409; // Conflict
   }
-  
+
   if (message.includes('foreign key constraint') ||
       message.includes('violates foreign key')) {
     return 400;
   }
-  
+
   // Default to 500 for unknown errors
   return 500;
 }

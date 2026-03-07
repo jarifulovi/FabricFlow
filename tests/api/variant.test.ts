@@ -72,7 +72,7 @@ describe('Variant API', () => {
       expect(response.body).toHaveProperty('data');
       expect(response.body.data).toHaveProperty('id');
       expect(response.body.data.sku).toBe(variantData.sku);
-      expect(response.body.data.product_id).toBe(testProductId);
+      expect(response.body.data.productId).toBe(testProductId);
 
       createdVariantId = response.body.data.id;
       expect(createdVariantId).toBeDefined();
@@ -549,7 +549,7 @@ describe('Variant API', () => {
 
       expect(response.body).toHaveProperty('success', true);
       expect(response.body.data.id).toBe(createdVariantId);
-      expect(response.body.data.deleted_at).not.toBeNull();
+      expect(response.body.data.deletedAt).not.toBeNull();
     });
 
     it('should not find soft deleted variant by ID', async () => {
