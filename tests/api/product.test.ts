@@ -78,7 +78,7 @@ describe('Product API', () => {
       expect(response.body.data.sku).toBe(productData.sku);
       expect(response.body.data.name).toBe(productData.name);
       expect(response.body.data.description).toBe(productData.description);
-      expect(response.body.data.category_id).toBe(testCategoryId);
+      expect(response.body.data.categoryId).toBe(testCategoryId);
 
       // Save ID for cleanup and further tests
       createdProductId = response.body.data.id;
@@ -110,7 +110,7 @@ describe('Product API', () => {
       expect(response.body.data).toHaveProperty('id');
       expect(response.body.data.sku).toBe(minimalProduct.sku);
       expect(response.body.data.description).toBeNull();
-      expect(response.body.data.brand_name).toBeNull();
+      expect(response.body.data.brandName).toBeNull();
     });
 
     it('should fail to create a product without required fields', async () => {
@@ -345,7 +345,7 @@ describe('Product API', () => {
       expect(response.body).toHaveProperty('data');
       expect(Array.isArray(response.body.data)).toBe(true);
       expect(response.body.data.length).toBeGreaterThan(0);
-      expect(response.body.data.every((p: any) => p.category_id === testCategoryId)).toBe(true);
+      expect(response.body.data.every((p: any) => p.categoryId === testCategoryId)).toBe(true);
     });
 
     it('should return empty array if no products match search query', async () => {
@@ -560,7 +560,7 @@ describe('Product API', () => {
       expect(response.body).toHaveProperty('success', true);
       expect(response.body).toHaveProperty('data');
       expect(response.body.data.id).toBe(createdProductId);
-      expect(response.body.data.deleted_at).not.toBeNull();
+      expect(response.body.data.deletedAt).not.toBeNull();
     });
 
     it('should not find soft deleted product by ID', async () => {
