@@ -7,11 +7,16 @@ import {
   buildDeleteReceivingSlipLinesQuery,
   buildSelectReceivingSlipLinesQuery,
   buildSelectReceivingSlipLineByIdQuery,
+  buildCountReceivingSlipLinesQuery,
+  buildExistsReceivingSlipLineQuery
 } from './../queries/index';
 import { 
   ReceivingSlipLineRow, 
   CreateReceivingSlipLineInput, 
-  UpdateReceivingSlipLineInput 
+  UpdateReceivingSlipLineInput,
+  ReceivingSlipLineFindAllFilters,
+  ReceivingSlipLineCountFilters,
+  ReceivingSlipLineExistsFilters
 } from './../types/receiving-slip-line';
 
 
@@ -30,7 +35,6 @@ export const receivingSlipLineRepo = {
     return result.rows;
   },
 
-  // Update/patch is restricted for receiving slip lines, only for testing purposes
   async update(id: string, input: UpdateReceivingSlipLineInput, executor?: Pool | PoolClient): Promise<ReceivingSlipLineRow> {
     const db = executor || pool;
     const { text, values } = buildPatchReceivingSlipLineQuery(id, input);
@@ -45,26 +49,38 @@ export const receivingSlipLineRepo = {
     return result.rows[0] || null;
   },
 
-  async findAll(filters?: {
-    slipId?: string;
-    warehouseId?: string;
-    variantId?: string;
-    sortBy?: 'createdAt';
-    sortOrder?: 'asc' | 'desc';
-    limit?: number;
-    offset?: number;
-  }, executor?: Pool | PoolClient): Promise<ReceivingSlipLineRow[]> {
+  async findAll(filters?: ReceivingSlipLineFindAllFilters, executor?: Pool | PoolClient): Promise<ReceivingSlipLineRow[]> {
     const db = executor || pool;
     const { text, values } = buildSelectReceivingSlipLinesQuery(filters);
     const result = await db.query<ReceivingSlipLineRow>(text, values);
     return result.rows;
   },
 
-  // Delete is restricted for receiving slip lines, only for testing purposes
   async delete(id: string, executor?: Pool | PoolClient): Promise<ReceivingSlipLineRow> {
     const db = executor || pool;
     const { text, values } = buildDeleteReceivingSlipLinesQuery([id]);
     const result = await db.query<ReceivingSlipLineRow>(text, values);
     return result.rows[0];
+  },
+
+  async bulkDelete(ids: string[], executor?: Pool | PoolClient): Promise<ReceivingSlipLineRow[]> {
+    const db = executor || pool;
+    const { text, values } = buildDeleteReceivingSlipLinesQuery(ids);
+    const result = await db.query<ReceivingSlipLineRow>(text, values);
+    return result.rows;
+  },
+
+  async count(filters: ReceivingSlipLineCountFilters, executor?: Pool | PoolClient): Promise<number> {
+    const db = executor || pool;
+    const { text, values } = buildCountReceivingSlipLinesQuery(filters);
+    const result = await db.query(text, values);
+    return parseInt(result.rows[0].count, 10);
+  },
+
+  async exists(filters: ReceivingSlipLineExistsFilters, executor?: Pool | PoolClient): Promise<boolean> {
+    const db = executor || pool;
+    const { text, values } = buildExistsReceivingSlipLineQuery(filters);
+    const result = await db.query(text, values);
+    return result.rows[0].exists;
   },
 };

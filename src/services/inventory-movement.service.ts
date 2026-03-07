@@ -3,18 +3,17 @@ import {
   CreateInventoryMovementInput,
   InventoryMovementRow,
   MovementSource,
-  MovementType,
-  ItemType,
   InventoryMovementFindAllFilters,
 } from '../database/types/inventory-movement';
 import { InventoryMovementApiQuery } from '../types/inventory-movement.types';
 
 export const inventoryMovementService = {
   async create(input: CreateInventoryMovementInput): Promise<InventoryMovementRow> {
-    // Check if movement exists
-    
-
     return await inventoryMovementRepo.create(input);
+  },
+
+  async bulkCreate(inputs: CreateInventoryMovementInput[]): Promise<InventoryMovementRow[]> {
+    return await inventoryMovementRepo.bulkCreate(inputs);
   },
 
   async findById(id: string): Promise<InventoryMovementRow> {
@@ -49,5 +48,14 @@ export const inventoryMovementService = {
     };
     
     return await inventoryMovementRepo.findAll(dbFilters);
+  },
+
+  // Restricted to test environment only
+  async delete(id: string): Promise<InventoryMovementRow> {
+    const movement = await inventoryMovementRepo.findById(id);
+    if (!movement) {
+      throw new Error('Inventory movement not found');
+    }
+    return await inventoryMovementRepo.delete(id);
   },
 };

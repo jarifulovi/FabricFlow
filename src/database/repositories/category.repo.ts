@@ -52,7 +52,6 @@ export const categoryRepo = {
     return result.rows;
   },
 
-  // Soft delete (recommended for production)
   async softDelete(id: string, executor?: Pool | PoolClient): Promise<CategoryRow> {
     const db = executor || pool;
     const { text, values } = buildBulkSoftDeleteCategoriesQuery([id]);
@@ -60,7 +59,6 @@ export const categoryRepo = {
     return result.rows[0];
   },
 
-  // Hard delete (only for testing purposes and batch clean-ups)
   async hardDelete(id: string, executor?: Pool | PoolClient): Promise<CategoryRow> {
     const db = executor || pool;
     const { text, values } = buildBulkHardDeleteCategoriesQuery([id]);
@@ -68,7 +66,6 @@ export const categoryRepo = {
     return result.rows[0];
   },
 
-  // Count categories with filters
   async count(filters?: CategoryCountFilters, executor?: Pool | PoolClient): Promise<number> {
     const db = executor || pool;
     const { text, values } = buildCountCategoriesQuery(filters);
@@ -76,7 +73,6 @@ export const categoryRepo = {
     return parseInt(result.rows[0].count, 10);
   },
 
-  // Check if category exists with filters
   async exists(filters?: CategoryExistsFilters, executor?: Pool | PoolClient): Promise<boolean> {
     const db = executor || pool;
     const { text, values } = buildExistsCategoryQuery(filters);

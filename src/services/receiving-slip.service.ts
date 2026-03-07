@@ -1,15 +1,16 @@
-import { receivingSlipRepo } from '../database/repositories/index';
+import { receivingSlipRepo, receivingSlipLineRepo } from '../database/repositories/index';
 import {
   createReceivingSlipTransaction,
   confirmReceivingSlipTransaction,
+  updateDraftReceivingSlipTransaction,
   CreateReceivingSlipWithLinesInput,
 } from '../database/transactions/index';
 import {
-  UpdateReceivingSlipInput,
   ReceivingSlipRow,
+  ReceivingSlipWithLinesRow,
   ReceivingSlipFindAllFilters,
 } from '../database/types/receiving-slip';
-import { ReceivingSlipApiQuery } from '../types/receiving-slip.types';
+import { ReceivingSlipApiQuery, ReceivingSlipDefaultQuery, UpdateReceivingSlipBody } from '../types/receiving-slip.types';
 
 export const receivingSlipService = {
   async create(input: CreateReceivingSlipWithLinesInput): Promise<ReceivingSlipRow> {
@@ -30,42 +31,60 @@ export const receivingSlipService = {
     // TODO: Needs to implement cancel receiving slip feature
   },
 
-  // TODO: Needs to add update feature for subtle fields(notes, attachments etc) on any status
-  async update(id: string, input: UpdateReceivingSlipInput): Promise<ReceivingSlipRow> {
+  // Allows updating subtle fields (notes, date, createdBy) on confirmed slips.
+  // For draft slips: allows full update of header fields (excl. warehouseId) + line item replacement (delete-recreate).
+  // Status changes are blocked here, handled via confirm/cancel transactions.
+  async update(id: string, input: UpdateReceivingSlipBody): Promise<ReceivingSlipRow> {
     const existing = await receivingSlipRepo.findById(id);
     if (!existing) {
       throw new Error('Receiving slip not found');
-    }
-
-    // Only allow updates on draft slips
-    if (existing.status !== 'draft') {
-      throw new Error('Only draft receiving slips can be updated');
     }
 
     // Status changes are handled by transactions, not direct updates
     if (input.status !== undefined) {
       throw new Error('Status cannot be updated directly. Use confirm or cancel operations');
     }
+    if (existing.status === 'cancelled') {
+      throw new Error('Cannot update a cancelled receiving slip');
+    }
 
-    return await receivingSlipRepo.update(id, input);
+    if (existing.status === 'confirmed') {
+      // Only subtle header fields allowed on confirmed slips
+      const { notes, date, createdBy } = input;
+      return await receivingSlipRepo.update(id, { notes, date, createdBy });
+    }
+
+    if (existing.status === 'draft') {
+      // Full update: all header fields (excl. status) + optional line item replacement
+      const { notes, date, createdBy, slipNumber, type, warehouseId, lineItems } = input;
+      return await updateDraftReceivingSlipTransaction(id, {
+        slip: { notes, date, createdBy, slipNumber, type, warehouseId },
+        lineItems,
+      });
+    }
+
+    // Fallback (should not be reached given the exhaustive status checks above)
+    throw new Error('Unexpected slip status');
   },
 
-  // TODO: Needs to add a filter for retrieving with slips lines or without lines
-  async findById(id: string): Promise<ReceivingSlipRow> {
+  async findById(id: string, includeLines?: boolean): Promise<ReceivingSlipRow | ReceivingSlipWithLinesRow> {
     const slip = await receivingSlipRepo.findById(id);
     if (!slip) {
       throw new Error('Receiving slip not found');
     }
-    return slip;
+    if (!includeLines) return slip;
+    const lineItems = await receivingSlipLineRepo.findAll({ slipId: id });
+    return { ...slip, lineItems };
   },
 
-  // TODO: Needs to add a filter for retrieving with slips lines or without lines
-  async findBySlipNumber(slipNumber: string): Promise<ReceivingSlipRow> {
+  async findBySlipNumber(slipNumber: string, includeLines?: boolean): Promise<ReceivingSlipRow | ReceivingSlipWithLinesRow> {
     const slip = await receivingSlipRepo.findBySlipNumber(slipNumber);
     if (!slip) {
       throw new Error('Receiving slip not found');
     }
-    return slip;
+    if (!includeLines) return slip;
+    const lineItems = await receivingSlipLineRepo.findAll({ slipId: slip.id });
+    return { ...slip, lineItems };
   },
 
   async findAll(filters?: ReceivingSlipApiQuery): Promise<ReceivingSlipRow[]> {
@@ -82,10 +101,13 @@ export const receivingSlipService = {
   },
 
   // Needs pagination params in filter
-  async findAllDefault(): Promise<ReceivingSlipRow[]> {
+  async findAllDefault(params?: ReceivingSlipDefaultQuery): Promise<ReceivingSlipRow[]> {
+    const { page, pageSize } = params || {};
     const dbFilters: ReceivingSlipFindAllFilters = {
       sortBy: 'date',
-      sortOrder: 'desc'
+      sortOrder: 'desc',
+      limit: pageSize,
+      offset: page && pageSize ? (page - 1) * pageSize : undefined
     };
     
     return await receivingSlipRepo.findAll(dbFilters);
