@@ -1,6 +1,13 @@
 -- ============================================================
 -- Migration: Create Categories Table
--- Description: Categories table for product classification
+-- Description: Categories table for product/raw material classification
+
+-- ============================================================
+-- Enum: category type
+-- ============================================================
+
+DROP TYPE IF EXISTS category_type CASCADE;
+CREATE TYPE category_type AS ENUM ('product', 'raw_material');
 
 -- ============================================================
 -- Categories table
@@ -8,7 +15,8 @@
 
 CREATE TABLE IF NOT EXISTS categories (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  name VARCHAR(50) NOT NULL,       -- Shirt, Pant, Jacket, etc.
+  type category_type NOT NULL,                   -- product or raw_material
+  name VARCHAR(50) NOT NULL,                     -- Shirt, Pant, Jacket, Button, Zipper etc.
   description TEXT,
   is_deleted BOOLEAN DEFAULT FALSE,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
@@ -32,8 +40,11 @@ CREATE TRIGGER trigger_categories_updated_at
 
 -- Indexes
 CREATE INDEX idx_categories_is_deleted ON categories(is_deleted) WHERE is_deleted = false;
-CREATE UNIQUE INDEX idx_categories_name_unique ON categories(name) WHERE is_deleted = false;
+CREATE INDEX idx_categories_type ON categories(type);
+-- Name must be unique per type (e.g. 'Cotton' can exist as both product and raw_material category)
+CREATE UNIQUE INDEX idx_categories_type_name_unique ON categories(type, name) WHERE is_deleted = false;
 
 -- Comments
-COMMENT ON TABLE categories IS 'Product categories (e.g., Shirt, Pant, Jacket)';
-COMMENT ON COLUMN categories.name IS 'Category name';
+COMMENT ON TABLE categories IS 'Product/raw material categories (e.g., Shirt, Pant, Jacket, Button, Zipper).';
+COMMENT ON COLUMN categories.type IS 'Distinguishes product categories from raw material categories';
+COMMENT ON COLUMN categories.name IS 'Category name, unique per type';

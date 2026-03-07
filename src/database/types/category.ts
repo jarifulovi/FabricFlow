@@ -1,8 +1,13 @@
 import { z } from 'zod/v4';
 
+// Category type enum
+export const categoryTypeSchema = z.enum(['product', 'raw_material']);
+export type CategoryType = z.infer<typeof categoryTypeSchema>;
+
 // Zod Schema - Single source of truth
 export const categorySchema = z.object({
   id: z.uuid({ message: 'Invalid category ID' }),
+  type: categoryTypeSchema,
   name: z.string({ message: 'Category name is required' }).min(1, 'Category name cannot be empty').max(500, 'Category name is too long'),
   description: z.string().max(500, 'Description is too long').optional().nullable(),
   isDeleted: z.boolean().default(false),
@@ -43,6 +48,7 @@ export type CategoryRow = z.infer<typeof categoryRowSchema>;
 
 // FindAll operation filters
 export const categoryFindAllFiltersSchema = z.object({
+  type: categoryTypeSchema.optional(),
   search: z.string().max(500).optional(),
   includeDeleted: z.boolean().optional(),
   excludeIds: z.array(z.uuid()).optional(),
@@ -54,6 +60,7 @@ export const categoryFindAllFiltersSchema = z.object({
 
 // Count operation filters
 export const categoryCountFiltersSchema = z.object({
+  type: categoryTypeSchema.optional(),
   search: z.string().max(500).optional(),
   includeDeleted: z.boolean().optional(),
   excludeIds: z.array(z.uuid()).optional()
@@ -62,6 +69,7 @@ export const categoryCountFiltersSchema = z.object({
 // Exists operation filters
 export const categoryExistsFiltersSchema = z.object({
   id: z.uuid().optional(),
+  type: categoryTypeSchema.optional(),
   search: z.string().max(500).optional(),
   includeDeleted: z.boolean().optional(),
   excludeIds: z.array(z.uuid()).optional()
@@ -74,6 +82,7 @@ export type CategoryExistsFilters = z.infer<typeof categoryExistsFiltersSchema>;
 
 // Column mapping for database queries
 export const categoryColumnMapping: Record<string, string> = {
+  type: 'type',
   name: 'name',
   description: 'description',
   isDeleted: 'is_deleted',

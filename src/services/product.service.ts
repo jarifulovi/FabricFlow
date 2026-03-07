@@ -17,10 +17,10 @@ export const productService = {
     if (existingBySku) {
       throw new Error('Product with the same SKU already exists');
     }
-    // Check if category exists
-    const existingCategory = await categoryRepo.exists({ id: input.categoryId, includeDeleted: false });
+    // Check if category exists and is of type 'product'
+    const existingCategory = await categoryRepo.exists({ id: input.categoryId, type: 'product', includeDeleted: false });
     if (!existingCategory) {
-      throw new Error('Category not found');
+      throw new Error('Category not found or is not a product category');
     }
 
     return await productRepo.create(input);
@@ -32,11 +32,11 @@ export const productService = {
     if (!existing) {
       throw new Error('Product not found');
     }
-    // Check if category exists
+    // Check if category exists and is of type 'product'
     if (input.categoryId) {
-      const existingCategory = await categoryRepo.exists({ id: input.categoryId, includeDeleted: false });
+      const existingCategory = await categoryRepo.exists({ id: input.categoryId, type: 'product', includeDeleted: false });
       if (!existingCategory) {
-        throw new Error('Category not found');
+        throw new Error('Category not found or is not a product category');
       }
     }
     // Check if sku already exists for another product (excluding deleted products) - only when SKU is being updated

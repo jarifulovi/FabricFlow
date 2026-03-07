@@ -7,7 +7,7 @@ FROM categories
 
 export const buildSelectCategoriesQuery = (filters?: CategoryFindAllFilters) => {
   let text = baseCategoriesSQL;
-  const values: string[] = [];
+  const values: any[] = [];
   let counter = 1;
 
   // Add WHERE clause for deleted status - defaults to false for safety
@@ -15,6 +15,12 @@ export const buildSelectCategoriesQuery = (filters?: CategoryFindAllFilters) => 
     text += 'WHERE 1=1'; // include all categories
   } else {
     text += 'WHERE is_deleted = false'; // exclude deleted categories by default
+  }
+
+  if (filters?.type) {
+    text += ` AND type = $${counter}`;
+    counter++;
+    values.push(filters.type);
   }
 
   if (filters?.search) {

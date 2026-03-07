@@ -11,8 +11,8 @@ import { deleteCategoryTransaction } from '../database/transactions';
 
 export const categoryService = {
   async create(input: CreateCategoryInput): Promise<CategoryRow> {
-    // Check if category with same name exists (excluding deleted categories)
-    const existing = await categoryRepo.exists({ search: input.name, includeDeleted: false });
+    // Check if category with same name exists within the same type (excluding deleted)
+    const existing = await categoryRepo.exists({ type: input.type, search: input.name, includeDeleted: false });
     if (existing) {
       throw new Error('Category with the same name already exists');
     }
@@ -26,9 +26,12 @@ export const categoryService = {
     if (!existing) {
       throw new Error('Category not found');
     }
-    // Verify name doesn't exists (excluding updated category and deleted categories)
+    // Verify name doesn't exist within the same type (excluding updated category and deleted categories)
     if (input.name) {
-      const nameExists = await categoryRepo.exists({ search: input.name, excludeIds: [id], includeDeleted: false });
+      // Fetch the current category to know its type for the uniqueness check
+      const currentCategory = await categoryRepo.findById(id, false);
+      const typeFilter = input.type ?? currentCategory?.type;
+      const nameExists = await categoryRepo.exists({ type: typeFilter, search: input.name, excludeIds: [id], includeDeleted: false });
       if (nameExists) {
         throw new Error('Another category with the same name already exists');
       }

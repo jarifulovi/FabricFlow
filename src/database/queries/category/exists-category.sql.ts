@@ -2,7 +2,7 @@ import { CategoryExistsFilters } from '../../types/category';
 
 export const buildExistsCategoryQuery = (filters?: CategoryExistsFilters) => {
   let text = `SELECT EXISTS(SELECT 1 FROM categories `;
-  const values: string[] = [];
+  const values: any[] = [];
   let counter = 1;
 
   // Add WHERE clause for deleted status - defaults to false for safety
@@ -16,6 +16,12 @@ export const buildExistsCategoryQuery = (filters?: CategoryExistsFilters) => {
     text += ` AND id = $${counter}`;
     counter++;
     values.push(filters.id);
+  }
+
+  if (filters?.type) {
+    text += ` AND type = $${counter}`;
+    counter++;
+    values.push(filters.type);
   }
 
   if (filters?.search) {

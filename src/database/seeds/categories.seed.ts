@@ -3,66 +3,24 @@ import { categoryRepo } from '../repositories/category.repo.js';
 import type { CreateCategoryInput } from '../types/category.js';
 
 const categoriesData: CreateCategoryInput[] = [
-  {
-    name: "Men's Wear",
-    description: "Men's clothing and apparel",
-  },
-  {
-    name: "Women's Wear",
-    description: "Women's clothing and apparel",
-  },
-  {
-    name: "Kids' Wear",
-    description: "Children's clothing and apparel",
-  },
-  {
-    name: 'Accessories',
-    description: 'Fashion accessories like belts, bags, jewelry',
-  },
-  {
-    name: 'Fabrics',
-    description: 'Raw materials and textiles for garment production',
-  },
-  {
-    name: 'Footwear',
-    description: 'Shoes, sandals, boots and other footwear',
-  },
-  {
-    name: 'Undergarments',
-    description: 'Innerwear, lingerie, and undergarments',
-  },
-  {
-    name: 'Activewear',
-    description: 'Sportswear and athletic clothing',
-  },
-  {
-    name: 'Formal Wear',
-    description: 'Suits, dresses, and formal occasion clothing',
-  },
-  {
-    name: 'Casual Wear',
-    description: 'Everyday casual clothing and loungewear',
-  },
-  {
-    name: 'Outerwear',
-    description: 'Jackets, coats, and outer garments',
-  },
-  {
-    name: 'Traditional Wear',
-    description: 'Ethnic and traditional clothing',
-  },
-  {
-    name: 'Denim',
-    description: 'Jeans and denim-based clothing',
-  },
-  {
-    name: 'Knitwear',
-    description: 'Sweaters, cardigans, and knitted garments',
-  },
-  {
-    name: 'Sleepwear',
-    description: 'Pajamas, nightwear, and loungewear',
-  },
+  { type: 'product', name: "Men's Wear", description: "Men's clothing and apparel" },
+  { type: 'product', name: "Women's Wear", description: "Women's clothing and apparel" },
+  { type: 'product', name: "Kids' Wear", description: "Children's clothing and apparel" },
+  { type: 'product', name: 'Accessories', description: 'Fashion accessories like belts, bags, jewelry' },
+  { type: 'product', name: 'Footwear', description: 'Shoes, sandals, boots and other footwear' },
+  { type: 'product', name: 'Undergarments', description: 'Innerwear, lingerie, and undergarments' },
+  { type: 'product', name: 'Activewear', description: 'Sportswear and athletic clothing' },
+  { type: 'product', name: 'Formal Wear', description: 'Suits, dresses, and formal occasion clothing' },
+  { type: 'product', name: 'Casual Wear', description: 'Everyday casual clothing and loungewear' },
+  { type: 'product', name: 'Outerwear', description: 'Jackets, coats, and outer garments' },
+  { type: 'product', name: 'Traditional Wear', description: 'Ethnic and traditional clothing' },
+  { type: 'product', name: 'Denim', description: 'Jeans and denim-based clothing' },
+  { type: 'product', name: 'Knitwear', description: 'Sweaters, cardigans, and knitted garments' },
+  { type: 'product', name: 'Sleepwear', description: 'Pajamas, nightwear, and loungewear' },
+  // Raw material categories
+  { type: 'raw_material', name: 'Fabrics', description: 'Raw textiles and cloth for garment production' },
+  { type: 'raw_material', name: 'Trimmings', description: 'Buttons, zippers, threads, and finishing materials' },
+  { type: 'raw_material', name: 'Packaging', description: 'Boxes, bags, tags, and packaging materials' },
 ];
 
 export async function seedCategories() {

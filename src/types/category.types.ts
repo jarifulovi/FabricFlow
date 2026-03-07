@@ -1,5 +1,5 @@
 import { z } from 'zod/v4';
-import { categoryFindAllFiltersSchema } from '../database/types/category';
+import { categoryFindAllFiltersSchema, categoryTypeSchema } from '../database/types/category';
 
 // ===== API/CONTROLLER TYPES =====
 // These types handle API-specific concerns (pagination, string validation, etc.)
@@ -18,6 +18,7 @@ export const categoryApiQuerySchema = categoryFindAllFiltersSchema.omit({
   page: z.string().regex(/^[1-9]\d*$/, 'Page must be a positive number').transform(Number).optional(),
   pageSize: z.string().regex(/^[1-9]\d*$/, 'Page size must be a positive number').transform(Number).optional(),
   name: z.string().optional(), // API uses "name" for search
+  type: categoryTypeSchema.optional(), // filter by category type
   includeDeleted: z.enum(['true', 'false']).transform(val => val === 'true').optional()
 });
 

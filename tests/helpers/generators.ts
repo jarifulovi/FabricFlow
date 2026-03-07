@@ -21,6 +21,7 @@ const next = () => `${Date.now()}-${++seq}`;
 // ─────────────────────────────────────────────────────────────────────────────
 
 export const makeCategory = (overrides: Partial<CreateCategoryInput> = {}): CreateCategoryInput => ({
+  type: 'product',
   name: `Test Category ${next()}`,
   ...overrides,
 });

@@ -30,6 +30,19 @@ END
 \$\$;
 "
 
+echo "Dropping custom types..."
+psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -d "$DB_NAME" -c "
+DO \$\$
+DECLARE
+    r RECORD;
+BEGIN
+    FOR r IN (SELECT typname FROM pg_type WHERE typtype = 'e' AND typnamespace = (SELECT oid FROM pg_namespace WHERE nspname = 'public')) LOOP
+        EXECUTE 'DROP TYPE IF EXISTS ' || quote_ident(r.typname) || ' CASCADE';
+    END LOOP;
+END
+\$\$;
+"
+
 echo "Running all migrations sequentially..."
 for file in "$MIGRATIONS_DIR"/*.sql; do
     echo "Running $file"
