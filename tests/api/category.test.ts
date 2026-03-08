@@ -39,12 +39,23 @@ describe('Category API', () => {
       expect(createdCategoryId).toBeDefined();
     });
 
+    it('should create a new category with same name but different type', async () => {
+      const response = await request(app)
+        .post(endpoint)
+        .send(makeCategory({ name: categoryData.name, type: 'raw_material', description: 'Same name but different type' }))
+        .expect('Content-Type', /json/)
+        .expect(201);
+
+      expect(response.body).toHaveProperty('success', true);
+      expect(response.body).toHaveProperty('message');
+    });
+
     it('should not create a category with duplicate name', async () => {
       const response = await request(app)
         .post(endpoint)
         .send(makeCategory({ name: categoryData.name, description: 'Duplicate category test' }))
         .expect('Content-Type', /json/)
-        .expect(400);
+        .expect(409);
 
       expect(response.body).toHaveProperty('success', false);
       expect(response.body).toHaveProperty('message');
@@ -55,7 +66,7 @@ describe('Category API', () => {
         .post(endpoint)
         .send(makeCategory({ name: categoryData.name.toUpperCase(), description: 'Duplicate category case sensitivity test' }))
         .expect('Content-Type', /json/)
-        .expect(400);
+        .expect(409);
         
       expect(response.body).toHaveProperty('success', false);
       expect(response.body).toHaveProperty('message');
@@ -403,7 +414,7 @@ describe('Category API', () => {
         .patch(`${endpoint}/${conflictingCategoryId}`)
         .send({ name: updatedCategoryName })
         .expect('Content-Type', /json/)
-        .expect(400);
+        .expect(409);
 
       expect(response.body).toHaveProperty('success', false);
       expect(response.body).toHaveProperty('message');

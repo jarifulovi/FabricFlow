@@ -90,7 +90,7 @@ describe('Product API', () => {
         .post(endpoint)
         .send(makeProduct(testCategoryId, { sku: testProductSku, name: 'Another Product', unit: 'meter' }))
         .expect('Content-Type', /json/)
-        .expect(400);
+        .expect(409);
 
       expect(response.body).toHaveProperty('success', false);
       expect(response.body).toHaveProperty('message');
@@ -496,7 +496,7 @@ describe('Product API', () => {
         .patch(`${endpoint}/${conflictingProductId}`)
         .send({ sku: originalProductSku })
         .expect('Content-Type', /json/)
-        .expect(400);
+        .expect(409);
 
       expect(response.body).toHaveProperty('success', false);
       expect(response.body).toHaveProperty('message');

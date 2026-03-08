@@ -61,6 +61,27 @@ export const makeVariant = (
 ): CreateProductVariantInput => ({
   productId,
   sku: `VAR-SKU-${next()}`,
+  price: 0,
+  ...overrides,
+});
+
+export const makeFullVariant = (
+  productId: string, 
+  overrides: Partial<CreateProductVariantInput> = {}
+): CreateProductVariantInput => ({
+  productId,
+  sku: `VAR-SKU-${next()}`,
+  price: 19.99,
+  vendorSku: `VENDOR-SKU-${next()}`,
+  barcode: `BARCODE-${next()}`,
+  color: 'Red',
+  size: 'M',
+  gender: 'unisex',
+  season: 'Summer',
+  fit: 'Regular',
+  reorderLevel: 10,
+  attributes: { material: 'cotton', pattern: 'striped' },
+  imageUrls: [`https://example.com/image-${next()}.jpg`],
   ...overrides,
 });
 

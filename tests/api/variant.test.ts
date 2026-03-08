@@ -1,7 +1,7 @@
 import request from 'supertest';
 import app from '../../src/app';
 import pool from '../../src/database/connection';
-import { makeCategory, makeProduct, makeVariant } from '../helpers/generators';
+import { makeCategory, makeProduct, makeVariant, makeFullVariant } from '../helpers/generators';
 
 describe('Variant API', () => {
 
@@ -78,12 +78,29 @@ describe('Variant API', () => {
       expect(createdVariantId).toBeDefined();
     });
 
+    it('should create a new variant with all fields', async () => {
+      const fullVariantData = makeFullVariant(testProductId);
+      const response = await request(app)
+        .post(endpoint)
+        .send(fullVariantData)
+        .expect('Content-Type', /json/)
+        .expect(201);
+
+      expect(response.body).toHaveProperty('success', true);
+      expect(response.body).toHaveProperty('data');
+      expect(response.body.data).toHaveProperty('id');
+      expect(response.body.data.sku).toBe(fullVariantData.sku);
+      expect(response.body.data.productId).toBe(testProductId);
+      expect(response.body.data.id).toBeDefined();
+      // check the structure of full variant fields
+    });
+
     it('should not create a variant with duplicate SKU', async () => {
       const response = await request(app)
         .post(endpoint)
         .send(makeVariant(testProductId, { sku: testVariantSku }))
         .expect('Content-Type', /json/)
-        .expect(400);
+        .expect(409);
 
       expect(response.body).toHaveProperty('success', false);
       expect(response.body).toHaveProperty('message');
@@ -465,7 +482,7 @@ describe('Variant API', () => {
         .patch(`${endpoint}/${conflictingVariantId}`)
         .send({ sku: updatedVariantSku })
         .expect('Content-Type', /json/)
-        .expect(400);
+        .expect(409);
 
       expect(response.body).toHaveProperty('success', false);
       expect(response.body).toHaveProperty('message');
