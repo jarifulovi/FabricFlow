@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
+import { AppError } from '../utils/errors';
 
 /**
  * Error response interface for consistent error formatting
@@ -11,50 +12,9 @@ interface ErrorResponse {
 }
 
 /**
- * Maps common error messages to HTTP status codes
- */
-function getStatusCodeFromError(error: Error): number {
-  const message = error.message.toLowerCase();
-  
-  // Not found errors
-  if (message.includes('not found')) return 404;
-
-  // Unauthorized errors
-  if (message.includes('unauthorized') || message.includes('authentication required')) return 401;
-
-  // Forbidden errors
-  if (message.includes('forbidden') || message.includes('permission denied')) return 403;
-
-  // Unprocessable Entity (semantic validation)
-  if (message.includes('unprocessable entity')) return 422;
-
-  // Validation errors
-  if (message.includes('invalid') || 
-      message.includes('required') || 
-      message.includes('must be') ||
-      message.includes('cannot be empty') ||
-      message.includes('cannot') ||
-      message.includes('already exists')) {
-    return 400;
-  }
-
-  // Database constraint errors (for PostgreSQL)
-  if (message.includes('duplicate key') || 
-      message.includes('violates unique constraint')) {
-    return 409; // Conflict
-  }
-
-  if (message.includes('foreign key constraint') ||
-      message.includes('violates foreign key')) {
-    return 400;
-  }
-
-  // Default to 500 for unknown errors
-  return 500;
-}
-
-/**
- * Centralized error handling middleware
+ * Centralized error handling middleware.
+ * Custom AppError subclasses carry their own statusCode — no message parsing needed.
+ * Falls back to message inspection only for unexpected raw DB / library errors.
  */
 export function errorHandler(
   error: Error,
@@ -62,32 +22,45 @@ export function errorHandler(
   res: Response,
   next: NextFunction
 ): void {
-  console.error('Error occurred:', {
-    message: error.message,
-    stack: error.stack,
-    url: req.url,
-    method: req.method,
-    body: req.body,
-    params: req.params,
-    query: req.query
-  });
-
-  const statusCode = getStatusCodeFromError(error);
   const isDevelopment = process.env.NODE_ENV === 'development';
-  
+  const isTest = process.env.NODE_ENV === 'test';
+
+  let statusCode = 500;
+  let message = error.message || 'Internal Server Error';
+
+  if (error instanceof AppError) {
+    // Custom application errors carry their own status code
+    statusCode = error.statusCode;
+  } else if (error.name === 'ZodError') {
+    // Zod validation errors are always 400 Bad Request
+    statusCode = 400;
+  } else {
+    // Fallback: detect common raw DB / library errors by message
+    const msg = message.toLowerCase();
+    if (msg.includes('duplicate key') || msg.includes('violates unique constraint')) {
+      statusCode = 409;
+    } else if (msg.includes('foreign key constraint') || msg.includes('violates foreign key')) {
+      statusCode = 400;
+    }
+    // Only log truly unexpected errors — skip in test env to keep output clean
+    if (!isTest) {
+      console.error('Unexpected error:', {
+        message: error.message,
+        stack: error.stack,
+        url: req.url,
+        method: req.method,
+      });
+    }
+  }
+
   const errorResponse: ErrorResponse = {
     success: false,
-    message: error.message || 'Internal Server Error',
-    ...(isDevelopment && { 
+    message: statusCode === 500 && !isDevelopment ? 'Internal Server Error' : message,
+    ...(isDevelopment && {
       error: error.name,
-      stack: error.stack 
-    })
+      stack: error.stack,
+    }),
   };
-
-  // Don't expose internal errors in production
-  if (!isDevelopment && statusCode === 500) {
-    errorResponse.message = 'Internal Server Error';
-  }
 
   res.status(statusCode).json(errorResponse);
 }

@@ -8,13 +8,14 @@ import {
 } from '../database/types/category';
 import { CategoryApiQuery } from '../types/category.types';
 import { deleteCategoryTransaction } from '../database/transactions';
+import { NotFoundError, ConflictError } from '../utils/errors';
 
 export const categoryService = {
   async create(input: CreateCategoryInput): Promise<CategoryRow> {
     // Check if category with same name exists within the same type (excluding deleted)
     const existing = await categoryRepo.exists({ type: input.type, search: input.name, includeDeleted: false });
     if (existing) {
-      throw new Error('Category with the same name already exists');
+      throw new ConflictError('Category with the same name already exists');
     }
 
     return await categoryRepo.create(input);
@@ -24,7 +25,7 @@ export const categoryService = {
     // Verify category exists (excluding deleted categories)
     const existing = await categoryRepo.exists({id, includeDeleted: false});
     if (!existing) {
-      throw new Error('Category not found');
+      throw new NotFoundError('Category not found');
     }
     // Verify name doesn't exist within the same type (excluding updated category and deleted categories)
     if (input.name) {
@@ -33,7 +34,7 @@ export const categoryService = {
       const typeFilter = input.type ?? currentCategory?.type;
       const nameExists = await categoryRepo.exists({ type: typeFilter, search: input.name, excludeIds: [id], includeDeleted: false });
       if (nameExists) {
-        throw new Error('Another category with the same name already exists');
+        throw new ConflictError('Another category with the same name already exists');
       }
     }
 
@@ -43,7 +44,7 @@ export const categoryService = {
   async findById(id: string): Promise<CategoryRow> {
     const category = await categoryRepo.findById(id, false); // Explicitly exclude deleted
     if (!category) {
-      throw new Error('Category not found');
+      throw new NotFoundError('Category not found');
     }
     return category;
   },
@@ -82,7 +83,7 @@ export const categoryService = {
     // Verify category exists (excluding already deleted categories)
     const existing = await categoryRepo.exists({id, includeDeleted: false});
     if (!existing) {
-      throw new Error('Category not found');
+      throw new NotFoundError('Category not found');
     }
 
     return await deleteCategoryTransaction(id, false);
@@ -93,7 +94,7 @@ export const categoryService = {
     // Verify category exists (including deleted categories for hard delete)
     const existing = await categoryRepo.exists({id, includeDeleted: true});
     if (!existing) {
-      throw new Error('Category not found');
+      throw new NotFoundError('Category not found');
     }
 
     return await deleteCategoryTransaction(id, true);

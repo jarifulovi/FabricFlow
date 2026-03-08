@@ -8,25 +8,26 @@ import {
   VariantFindAllFilters,
 } from '../database/types/variant';
 import { VariantApiQuery } from '../types/variant.types';
+import { NotFoundError, ConflictError, BadRequestError } from '../utils/errors';
 
 export const variantService = {
   async create(input: CreateProductVariantInput): Promise<ProductVariantRow> {
     // Check parent product status before allowing variant creation
     const product = await productRepo.findById(input.productId, false);
     if (!product) {
-      throw new Error('Product not found');
+      throw new NotFoundError('Product not found');
     }
     if (product.status === 'inactive') {
-      throw new Error('Cannot create variant for an inactive product');
+      throw new BadRequestError('Cannot create variant for an inactive product');
     }
     if (product.status === 'discontinued') {
-      throw new Error('Cannot create variant for a discontinued product');
+      throw new BadRequestError('Cannot create variant for a discontinued product');
     }
 
     // Check if variant SKU already exists (excluding deleted variants)
     const existingBySku = await variantRepo.exists({ sku: input.sku, includeDeleted: false });
     if (existingBySku) {
-      throw new Error('Variant with the same SKU already exists');
+      throw new ConflictError('Variant with the same SKU already exists');
     }
 
     return await variantRepo.create(input);
@@ -36,17 +37,17 @@ export const variantService = {
     // Verify variant exists and fetch with product info to check status
     const existing = await variantRepo.findById(id, false);
     if (!existing) {
-      throw new Error('Variant not found');
+      throw new NotFoundError('Variant not found');
     }
     // Block all updates for variants of discontinued products
     if (existing.product.status === 'discontinued') {
-      throw new Error('Cannot update variant of a discontinued product');
+      throw new BadRequestError('Cannot update variant of a discontinued product');
     }
     // Check if sku already exists for another variant (excluding deleted variants) - only when SKU is being updated
     if (input.sku) {
       const existingBySku = await variantRepo.exists({ sku: input.sku, excludeIds: [id], includeDeleted: false });
       if (existingBySku) {
-        throw new Error('Another variant with the same SKU already exists');
+        throw new ConflictError('Another variant with the same SKU already exists');
       }
     }
 
@@ -56,7 +57,7 @@ export const variantService = {
   async findById(id: string): Promise<ProductVariantWithProductRow> {
     const variant = await variantRepo.findById(id, false); // Explicitly exclude deleted
     if (!variant) {
-      throw new Error('Variant not found');
+      throw new NotFoundError('Variant not found');
     }
     return variant;
   },
@@ -64,7 +65,7 @@ export const variantService = {
   async findBySku(sku: string): Promise<ProductVariantWithProductRow> {
     const variant = await variantRepo.findBySku(sku, false); // Explicitly exclude deleted
     if (!variant) {
-      throw new Error('Variant not found');
+      throw new NotFoundError('Variant not found');
     }
     return variant;
   },
@@ -113,12 +114,12 @@ export const variantService = {
     // Verify variant exists (including deleted variants for validation)
     const existing = await variantRepo.exists({ id, includeDeleted });
     if (!existing) {
-      throw new Error('Variant not found');
+      throw new NotFoundError('Variant not found');
     }
     // Check variant exists in receiving slip lines before allowing deletion
     const usedInSlips = await receivingSlipLineRepo.exists({ variantId: id });
     if (usedInSlips) {
-      throw new Error('Cannot delete variant that is used in receiving slip lines');
+      throw new BadRequestError('Cannot delete variant that is used in receiving slip lines');
     }
     // TODO: Add checks for sales in future when sales module is implemented
   }

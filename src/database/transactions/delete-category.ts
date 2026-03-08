@@ -3,6 +3,7 @@ import pool from './../connection';
 import { categoryRepo } from './../repositories/category.repo';
 import { productRepo } from './../repositories/product.repo';
 import { CategoryRow } from './../types/category';
+import { BadRequestError } from '../../utils/errors';
 
 export const deleteCategoryTransaction = async (
   categoryId: string,
@@ -18,7 +19,7 @@ export const deleteCategoryTransaction = async (
       client
     );
     if (existingProductsCount > 0) {
-      throw new Error('Cannot delete category with having products');
+      throw new BadRequestError('Cannot delete category with having products');
     }
 
     // Perform the delete operation

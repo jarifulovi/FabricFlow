@@ -6,6 +6,7 @@ import {
   InventoryMovementFindAllFilters,
 } from '../database/types/inventory-movement';
 import { InventoryMovementApiQuery } from '../types/inventory-movement.types';
+import { NotFoundError } from '../utils/errors';
 
 export const inventoryMovementService = {
   async create(input: CreateInventoryMovementInput): Promise<InventoryMovementRow> {
@@ -19,7 +20,7 @@ export const inventoryMovementService = {
   async findById(id: string): Promise<InventoryMovementRow> {
     const movement = await inventoryMovementRepo.findById(id);
     if (!movement) {
-      throw new Error('Inventory movement not found');
+      throw new NotFoundError('Inventory movement not found');
     }
     return movement;
   },
@@ -54,7 +55,7 @@ export const inventoryMovementService = {
   async delete(id: string): Promise<InventoryMovementRow> {
     const movement = await inventoryMovementRepo.findById(id);
     if (!movement) {
-      throw new Error('Inventory movement not found');
+      throw new NotFoundError('Inventory movement not found');
     }
     return await inventoryMovementRepo.delete(id);
   },

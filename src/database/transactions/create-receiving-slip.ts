@@ -7,9 +7,9 @@ import {
   CreateReceivingSlipInput,
   ReceivingSlipRow,
 } from './../types/receiving-slip';
-import {
-  CreateReceivingSlipLineInput,
+import { CreateReceivingSlipLineInput,
 } from './../types/receiving-slip-line';
+import { NotFoundError, BadRequestError } from '../../utils/errors';
 
 export interface CreateReceivingSlipWithLinesInput {
   slip: CreateReceivingSlipInput;
@@ -25,7 +25,7 @@ export const createReceivingSlipTransaction = async (
 
     // Validate line items
     if (!input.lineItems || input.lineItems.length === 0) {
-      throw new Error('At least one line item is required');
+      throw new BadRequestError('At least one line item is required');
     }
 
     // Check product status for each variant — draft cannot contain discontinued product variants
@@ -33,11 +33,11 @@ export const createReceivingSlipTransaction = async (
     const variants = await variantRepo.findAll({ ids: variantIds }, client);
 
     if (variants.length !== variantIds.length) {
-      throw new Error('One or more variants were not found');
+      throw new NotFoundError('One or more variants were not found');
     }
     for (const variant of variants) {
       if (variant.productStatus === 'discontinued') {
-        throw new Error(`Cannot add variant of a discontinued product to a receiving slip`);
+        throw new BadRequestError(`Cannot add variant of a discontinued product to a receiving slip`);
       }
     }
 

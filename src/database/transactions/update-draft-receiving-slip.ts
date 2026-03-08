@@ -8,6 +8,7 @@ import {
   ReceivingSlipRow,
 } from './../types/receiving-slip';
 import { CreateReceivingSlipLineInput } from './../types/receiving-slip-line';
+import { NotFoundError, BadRequestError } from '../../utils/errors';
 
 export interface UpdateDraftReceivingSlipInput {
   slip?: UpdateDraftReceivingSlipSlipInput;
@@ -25,10 +26,10 @@ export const updateDraftReceivingSlipTransaction = async (
     // Fetch and verify the slip is still a draft
     const slip = await receivingSlipRepo.findById(id, client);
     if (!slip) {
-      throw new Error('Receiving slip not found');
+      throw new NotFoundError('Receiving slip not found');
     }
     if (slip.status !== 'draft') {
-      throw new Error('Only draft slips can be fully updated');
+      throw new BadRequestError('Only draft slips can be fully updated');
     }
 
     // Patch slip-level header fields if provided
@@ -45,11 +46,11 @@ export const updateDraftReceivingSlipTransaction = async (
         const variants = await variantRepo.findAll({ ids: variantIds }, client);
 
         if (variants.length !== variantIds.length) {
-          throw new Error('One or more variants were not found');
+          throw new NotFoundError('One or more variants were not found');
         }
         for (const variant of variants) {
           if (variant.productStatus === 'discontinued') {
-            throw new Error('Cannot add variant of a discontinued product to a receiving slip');
+            throw new BadRequestError('Cannot add variant of a discontinued product to a receiving slip');
           }
         }
       }

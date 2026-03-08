@@ -2,6 +2,7 @@ import pool from './../connection';
 import { productRepo } from './../repositories/product.repo';
 import { variantRepo } from './../repositories/variant.repo';
 import { ProductRow } from './../types/product';
+import { BadRequestError } from '../../utils/errors';
 
 
 export const deleteProductTransaction = async (
@@ -20,7 +21,7 @@ export const deleteProductTransaction = async (
     );
 
     if (variantCount > 0) {
-      throw new Error(
+      throw new BadRequestError(
         'Cannot delete product that has variants. Delete variants first.'
       );
     }

@@ -11,13 +11,14 @@ import {
   ReceivingSlipFindAllFilters,
 } from '../database/types/receiving-slip';
 import { ReceivingSlipApiQuery, ReceivingSlipDefaultQuery, UpdateReceivingSlipBody } from '../types/receiving-slip.types';
+import { NotFoundError, ConflictError, BadRequestError } from '../utils/errors';
 
 export const receivingSlipService = {
   async create(input: CreateReceivingSlipWithLinesInput): Promise<ReceivingSlipRow> {
     // Check if already exists
     const exists = await receivingSlipRepo.exists({ slipNumber: input.slip.slipNumber });
     if (exists) {
-      throw new Error('Receiving slip with this slip number already exists');
+      throw new ConflictError('Receiving slip with this slip number already exists');
     }
     return await createReceivingSlipTransaction(input);
   },
@@ -37,15 +38,15 @@ export const receivingSlipService = {
   async update(id: string, input: UpdateReceivingSlipBody): Promise<ReceivingSlipRow> {
     const existing = await receivingSlipRepo.findById(id);
     if (!existing) {
-      throw new Error('Receiving slip not found');
+      throw new NotFoundError('Receiving slip not found');
     }
 
     // Status changes are handled by transactions, not direct updates
     if (input.status !== undefined) {
-      throw new Error('Status cannot be updated directly. Use confirm or cancel operations');
+      throw new BadRequestError('Status cannot be updated directly. Use confirm or cancel operations');
     }
     if (existing.status === 'cancelled') {
-      throw new Error('Cannot update a cancelled receiving slip');
+      throw new BadRequestError('Cannot update a cancelled receiving slip');
     }
 
     if (existing.status === 'confirmed') {
@@ -64,13 +65,13 @@ export const receivingSlipService = {
     }
 
     // Fallback (should not be reached given the exhaustive status checks above)
-    throw new Error('Unexpected slip status');
+    throw new BadRequestError('Unexpected slip status');
   },
 
   async findById(id: string, includeLines?: boolean): Promise<ReceivingSlipRow | ReceivingSlipWithLinesRow> {
     const slip = await receivingSlipRepo.findById(id);
     if (!slip) {
-      throw new Error('Receiving slip not found');
+      throw new NotFoundError('Receiving slip not found');
     }
     if (!includeLines) return slip;
     const lineItems = await receivingSlipLineRepo.findAll({ slipId: id });
@@ -80,7 +81,7 @@ export const receivingSlipService = {
   async findBySlipNumber(slipNumber: string, includeLines?: boolean): Promise<ReceivingSlipRow | ReceivingSlipWithLinesRow> {
     const slip = await receivingSlipRepo.findBySlipNumber(slipNumber);
     if (!slip) {
-      throw new Error('Receiving slip not found');
+      throw new NotFoundError('Receiving slip not found');
     }
     if (!includeLines) return slip;
     const lineItems = await receivingSlipLineRepo.findAll({ slipId: slip.id });

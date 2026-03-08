@@ -6,13 +6,14 @@ import {
   WarehouseFindAllFilters,
 } from '../database/types/warehouse';
 import { WarehouseApiQuery } from '../types/warehouse.types';
+import { NotFoundError, ConflictError } from '../utils/errors';
 
 export const warehouseService = {
   async create(input: CreateWarehouseInput): Promise<WarehouseRow> {
     // Check if warehouse exists using search (checks name and location)
     const existing = await warehouseRepo.exists({ search: input.name, includeDeleted: false });
     if (existing) {
-      throw new Error('Warehouse with the same name already exists');
+      throw new ConflictError('Warehouse with the same name already exists');
     }
 
     return await warehouseRepo.create(input);
@@ -21,7 +22,7 @@ export const warehouseService = {
   async update(id: string, input: UpdateWarehouseInput): Promise<WarehouseRow> {
     const existing = await warehouseRepo.exists({ id, includeDeleted: false });
     if (!existing) {
-      throw new Error('Warehouse not found');
+      throw new NotFoundError('Warehouse not found');
     }
 
     return await warehouseRepo.update(id, input);
@@ -30,7 +31,7 @@ export const warehouseService = {
   async findById(id: string): Promise<WarehouseRow> {
     const warehouse = await warehouseRepo.findById(id, false);
     if (!warehouse) {
-      throw new Error('Warehouse not found');
+      throw new NotFoundError('Warehouse not found');
     }
     return warehouse;
   },
@@ -64,7 +65,7 @@ export const warehouseService = {
   async softDelete(id: string): Promise<WarehouseRow> {
     const existing = await warehouseRepo.exists({ id, includeDeleted: false });
     if (!existing) {
-      throw new Error('Warehouse not found');
+      throw new NotFoundError('Warehouse not found');
     }
     // TODO: Check for existing slips+line items for all types of invoices
     // TODO: Wrapped in transactions

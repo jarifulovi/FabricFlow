@@ -13,7 +13,6 @@ export const buildPatchCategoryQuery = (id: string, input: UpdateCategoryInput) 
     }
   }
 
-  if (fields.length === 0) throw new Error('No fields provided for patch');
 
   fields.push(`updated_at = CURRENT_TIMESTAMP`);
   const text = `
