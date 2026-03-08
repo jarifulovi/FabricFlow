@@ -1,18 +1,25 @@
 import { z } from 'zod/v4';
 
+// Gender enum for variants
+export const variantGenderSchema = z.enum(['men', 'women', 'kids', 'unisex']);
+export type VariantGender = z.infer<typeof variantGenderSchema>;
+
 // Zod Schema - Single source of truth
 export const productVariantSchema = z.object({
   id: z.uuid({ message: 'Invalid variant ID' }),
   productId: z.uuid({ message: 'Invalid product ID' }),
   sku: z.string({ message: 'SKU is required' }).min(1, 'SKU cannot be empty').max(500, 'SKU is too long'),
   vendorSku: z.string().max(500, 'Vendor SKU is too long').optional().nullable(),
+  barcode: z.string().max(100, 'Barcode is too long').optional().nullable(),
   color: z.string().max(500, 'Color is too long').optional().nullable(),
   size: z.string().max(500, 'Size is too long').optional().nullable(),
-  gender: z.string().max(500, 'Gender is too long').optional().nullable(),
+  gender: variantGenderSchema.optional().nullable(),
   season: z.string().max(500, 'Season is too long').optional().nullable(),
   fit: z.string().max(500, 'Fit is too long').optional().nullable(),
-  price: z.number({ message: 'Price must be a number' }).nonnegative('Price cannot be negative').optional().nullable(),
+  price: z.number({ message: 'Price is required' }).nonnegative('Price cannot be negative'),
   reorderLevel: z.number({ message: 'Reorder level must be a number' }).int('Reorder level must be an integer').nonnegative('Reorder level cannot be negative').optional().nullable(),
+  attributes: z.record(z.string(), z.unknown()).optional().nullable(),
+  imageUrls: z.array(z.string()).optional().nullable(),
   isDeleted: z.boolean().default(false),
   createdAt: z.date(),
   updatedAt: z.date(),
@@ -80,7 +87,7 @@ export const variantFindAllFiltersSchema = z.object({
   productId: z.uuid().optional(),
   color: z.string().optional(),
   size: z.string().optional(),
-  gender: z.string().optional(),
+  gender: variantGenderSchema.optional(),
   season: z.string().optional(),
   fit: z.string().optional(),
   search: z.string().optional(),
@@ -97,7 +104,7 @@ export const variantCountFiltersSchema = z.object({
   productId: z.uuid().optional(),
   color: z.string().optional(),
   size: z.string().optional(),
-  gender: z.string().optional(),
+  gender: variantGenderSchema.optional(),
   season: z.string().optional(),
   fit: z.string().optional(),
   search: z.string().optional(),
@@ -112,7 +119,7 @@ export const variantExistsFiltersSchema = z.object({
   productId: z.uuid().optional(),
   color: z.string().optional(),
   size: z.string().optional(),
-  gender: z.string().optional(),
+  gender: variantGenderSchema.optional(),
   season: z.string().optional(),
   fit: z.string().optional(),
   search: z.string().optional(),
@@ -129,6 +136,7 @@ export const variantColumnMapping: Record<string, string> = {
   productId: 'product_id',
   sku: 'sku',
   vendorSku: 'vendor_sku',
+  barcode: 'barcode',
   color: 'color',
   size: 'size',
   gender: 'gender',
@@ -136,6 +144,8 @@ export const variantColumnMapping: Record<string, string> = {
   fit: 'fit',
   price: 'price',
   reorderLevel: 'reorder_level',
+  attributes: 'attributes',
+  imageUrls: 'image_urls',
   isDeleted: 'is_deleted',
   createdAt: 'created_at',
   updatedAt: 'updated_at',

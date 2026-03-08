@@ -58,6 +58,7 @@ export const variantRepo = {
       productId: flat.productId,
       sku: flat.sku,
       vendorSku: flat.vendorSku,
+      barcode: flat.barcode,
       color: flat.color,
       size: flat.size,
       gender: flat.gender,
@@ -65,6 +66,8 @@ export const variantRepo = {
       fit: flat.fit,
       price: flat.price,
       reorderLevel: flat.reorderLevel,
+      attributes: flat.attributes,
+      imageUrls: flat.imageUrls,
       isDeleted: flat.isDeleted,
       createdAt: flat.createdAt,
       updatedAt: flat.updatedAt,
@@ -103,6 +106,7 @@ export const variantRepo = {
       productId: flat.productId,
       sku: flat.sku,
       vendorSku: flat.vendorSku,
+      barcode: flat.barcode,
       color: flat.color,
       size: flat.size,
       gender: flat.gender,
@@ -110,6 +114,8 @@ export const variantRepo = {
       fit: flat.fit,
       price: flat.price,
       reorderLevel: flat.reorderLevel,
+      attributes: flat.attributes,
+      imageUrls: flat.imageUrls,
       isDeleted: flat.isDeleted,
       createdAt: flat.createdAt,
       updatedAt: flat.updatedAt,
@@ -135,8 +141,6 @@ export const variantRepo = {
     const db = executor || pool;
     const { text, values } = buildSelectVariantsQuery(filters);
     const result = await db.query<any>(text, values);
-    // mapRowsToCamel auto-converts: product_id→productId, vendor_sku→vendorSku,
-    // product_sku→productSku, product_name→productName, product_status→productStatus, etc.
     return mapRowsToCamel<ProductVariantListRow>(result.rows);
   },
 
