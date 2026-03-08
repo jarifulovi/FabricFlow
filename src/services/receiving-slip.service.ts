@@ -12,6 +12,7 @@ import {
 } from '../database/types/receiving-slip';
 import { ReceivingSlipApiQuery, ReceivingSlipDefaultQuery, UpdateReceivingSlipBody } from '../types/receiving-slip.types';
 import { NotFoundError, ConflictError, BadRequestError } from '../utils/errors';
+import { convertToLimitAndOffset, hasUpdateFields } from '../utils/service-utils';
 
 export const receivingSlipService = {
   async create(input: CreateReceivingSlipWithLinesInput): Promise<ReceivingSlipRow> {
@@ -36,6 +37,9 @@ export const receivingSlipService = {
   // For draft slips: allows full update of header fields (excl. warehouseId) + line item replacement (delete-recreate).
   // Status changes are blocked here, handled via confirm/cancel transactions.
   async update(id: string, input: UpdateReceivingSlipBody): Promise<ReceivingSlipRow> {
+    if (!hasUpdateFields(input)) {
+      throw new BadRequestError('No fields provided to update');
+    }
     const existing = await receivingSlipRepo.findById(id);
     if (!existing) {
       throw new NotFoundError('Receiving slip not found');
@@ -90,27 +94,26 @@ export const receivingSlipService = {
 
   async findAll(filters?: ReceivingSlipApiQuery): Promise<ReceivingSlipRow[]> {
     const { page, pageSize, ...rest } = filters || {};
-    
+    const { limit, offset } = convertToLimitAndOffset(page, pageSize);
     // Convert API params to database filters
     const dbFilters: ReceivingSlipFindAllFilters = {
       ...rest,
-      limit: pageSize,
-      offset: page && pageSize ? (page - 1) * pageSize : undefined
+      limit,
+      offset
     };
-    
     return await receivingSlipRepo.findAll(dbFilters);
   },
 
   // Needs pagination params in filter
   async findAllDefault(params?: ReceivingSlipDefaultQuery): Promise<ReceivingSlipRow[]> {
     const { page, pageSize } = params || {};
+    const { limit, offset } = convertToLimitAndOffset(page, pageSize);
     const dbFilters: ReceivingSlipFindAllFilters = {
       sortBy: 'date',
       sortOrder: 'desc',
-      limit: pageSize,
-      offset: page && pageSize ? (page - 1) * pageSize : undefined
+      limit,
+      offset
     };
-    
     return await receivingSlipRepo.findAll(dbFilters);
   },
 };

@@ -9,6 +9,8 @@ import {
 } from '../database/types/variant';
 import { VariantApiQuery } from '../types/variant.types';
 import { NotFoundError, ConflictError, BadRequestError } from '../utils/errors';
+import { convertToLimitAndOffset } from '../utils/service-utils';
+import { hasUpdateFields } from '../utils/service-utils';
 
 export const variantService = {
   async create(input: CreateProductVariantInput): Promise<ProductVariantRow> {
@@ -34,6 +36,9 @@ export const variantService = {
   },
 
   async update(id: string, input: UpdateProductVariantInput): Promise<ProductVariantRow> {
+    if (!hasUpdateFields(input)) {
+      throw new BadRequestError('No fields provided to update');
+    }
     // Verify variant exists and fetch with product info to check status
     const existing = await variantRepo.findById(id, false);
     if (!existing) {
@@ -50,7 +55,6 @@ export const variantService = {
         throw new ConflictError('Another variant with the same SKU already exists');
       }
     }
-
     return await variantRepo.update(id, input);
   },
 
@@ -72,29 +76,27 @@ export const variantService = {
 
   async findAll(filters?: VariantApiQuery): Promise<ProductVariantListRow[]> {
     const { page, pageSize, includeDeleted = false, ...rest } = filters || {};
-    
+    const { limit, offset } = convertToLimitAndOffset(page, pageSize);
     // Convert API params to database filters
     const dbFilters: VariantFindAllFilters = {
       ...rest,
       includeDeleted,
-      limit: pageSize,
-      offset: page && pageSize ? (page - 1) * pageSize : undefined
+      limit,
+      offset
     };
-    
     return await variantRepo.findAll(dbFilters);
   },
 
   async findAllDefault(params?: Pick<VariantApiQuery, 'page' | 'pageSize'>): Promise<ProductVariantListRow[]> {
     const { page, pageSize } = params || {};
-
+    const { limit, offset } = convertToLimitAndOffset(page, pageSize);
     const dbFilters: VariantFindAllFilters = {
       includeDeleted: false,
       sortBy: 'sku',
       sortOrder: 'asc',
-      limit: pageSize,
-      offset: page && pageSize ? (page - 1) * pageSize : undefined
+      limit,
+      offset
     };
-    
     return await variantRepo.findAll(dbFilters);
   },
 

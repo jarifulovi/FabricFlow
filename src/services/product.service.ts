@@ -7,7 +7,10 @@ import {
   ProductFindAllFilters,
 } from '../database/types/product';
 import { ProductApiQuery } from '../types/product.types';
-import { NotFoundError, ConflictError } from '../utils/errors';
+
+import { NotFoundError, ConflictError, BadRequestError } from '../utils/errors';
+import { convertToLimitAndOffset } from '../utils/service-utils';
+import { hasUpdateFields } from '../utils/service-utils';
 
 
 
@@ -28,6 +31,9 @@ export const productService = {
   },
 
   async update(id: string, input: UpdateProductInput): Promise<ProductRow> {
+    if (!hasUpdateFields(input)) {
+      throw new BadRequestError('No fields provided to update');
+    }
     // Verify product exists (excluding deleted products)
     const existing = await productRepo.exists({ id, includeDeleted: false });
     if (!existing) {
@@ -47,7 +53,6 @@ export const productService = {
         throw new ConflictError('Another product with the same SKU already exists');
       }
     }
-
     return await productRepo.update(id, input);
   },
 
@@ -69,31 +74,29 @@ export const productService = {
 
   async findAll(filters?: ProductApiQuery): Promise<ProductRow[]> {
     const { page, pageSize, includeDeleted = false, ...rest } = filters || {};
-    
+    const { limit, offset } = convertToLimitAndOffset(page, pageSize);
     // Convert API params to database filters
     const dbFilters: ProductFindAllFilters = {
       ...rest,
       includeDeleted,
-      limit: pageSize,
-      offset: page && pageSize ? (page - 1) * pageSize : undefined
+      limit,
+      offset
     };
-    
     return await productRepo.findAll(dbFilters);
   },
 
   async findAllDefault(params?: Pick<ProductApiQuery, 'page' | 'pageSize'>): Promise<ProductRow[]> {
     const { page, pageSize } = params || {};
-    
+    const { limit, offset } = convertToLimitAndOffset(page, pageSize);
     // Convert to database filters
     const dbFilters: ProductFindAllFilters = {
       status: 'active',
       includeDeleted: false,
       sortBy: 'name',
       sortOrder: 'asc',
-      limit: pageSize,
-      offset: page && pageSize ? (page - 1) * pageSize : undefined
+      limit,
+      offset
     };
-    
     return await productRepo.findAll(dbFilters);
   },
 

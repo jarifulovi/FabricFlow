@@ -7,6 +7,7 @@ import {
 } from '../database/types/inventory-movement';
 import { InventoryMovementApiQuery } from '../types/inventory-movement.types';
 import { NotFoundError } from '../utils/errors';
+import { convertToLimitAndOffset } from '../utils/service-utils';
 
 export const inventoryMovementService = {
   async create(input: CreateInventoryMovementInput): Promise<InventoryMovementRow> {
@@ -31,14 +32,13 @@ export const inventoryMovementService = {
 
   async findAll(filters?: InventoryMovementApiQuery): Promise<InventoryMovementRow[]> {
     const { page, pageSize, ...rest } = filters || {};
-    
+    const { limit, offset } = convertToLimitAndOffset(page, pageSize);
     // Convert API params to database filters
     const dbFilters: InventoryMovementFindAllFilters = {
       ...rest,
-      limit: pageSize,
-      offset: page && pageSize ? (page - 1) * pageSize : undefined
+      limit,
+      offset
     };
-    
     return await inventoryMovementRepo.findAll(dbFilters);
   },
 

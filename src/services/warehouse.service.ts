@@ -6,7 +6,9 @@ import {
   WarehouseFindAllFilters,
 } from '../database/types/warehouse';
 import { WarehouseApiQuery } from '../types/warehouse.types';
-import { NotFoundError, ConflictError } from '../utils/errors';
+import { NotFoundError, ConflictError, BadRequestError } from '../utils/errors';
+import { convertToLimitAndOffset } from '../utils/service-utils';
+import { hasUpdateFields } from '../utils/service-utils';
 
 export const warehouseService = {
   async create(input: CreateWarehouseInput): Promise<WarehouseRow> {
@@ -20,11 +22,13 @@ export const warehouseService = {
   },
 
   async update(id: string, input: UpdateWarehouseInput): Promise<WarehouseRow> {
+    if (!hasUpdateFields(input)) {
+      throw new BadRequestError('No fields provided to update');
+    }
     const existing = await warehouseRepo.exists({ id, includeDeleted: false });
     if (!existing) {
       throw new NotFoundError('Warehouse not found');
     }
-
     return await warehouseRepo.update(id, input);
   },
 
@@ -38,15 +42,14 @@ export const warehouseService = {
 
   async findAll(filters?: WarehouseApiQuery): Promise<WarehouseRow[]> {
     const { page, pageSize, includeDeleted = false, ...rest } = filters || {};
-    
+    const { limit, offset } = convertToLimitAndOffset(page, pageSize);
     // Convert API params to database filters
     const dbFilters: WarehouseFindAllFilters = {
       ...rest,
       includeDeleted,
-      limit: pageSize,
-      offset: page && pageSize ? (page - 1) * pageSize : undefined
+      limit,
+      offset
     };
-    
     return await warehouseRepo.findAll(dbFilters);
   },
 

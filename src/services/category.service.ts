@@ -8,7 +8,9 @@ import {
 } from '../database/types/category';
 import { CategoryApiQuery } from '../types/category.types';
 import { deleteCategoryTransaction } from '../database/transactions';
-import { NotFoundError, ConflictError } from '../utils/errors';
+import { NotFoundError, ConflictError, BadRequestError } from '../utils/errors';
+import { convertToLimitAndOffset } from '../utils/service-utils';
+import { hasUpdateFields } from '../utils/service-utils';
 
 export const categoryService = {
   async create(input: CreateCategoryInput): Promise<CategoryRow> {
@@ -22,6 +24,9 @@ export const categoryService = {
   },
 
   async update(id: string, input: UpdateCategoryInput): Promise<CategoryRow> {
+    if (!hasUpdateFields(input)) {
+      throw new BadRequestError('No fields provided to update');
+    }
     // Verify category exists (excluding deleted categories)
     const existing = await categoryRepo.exists({id, includeDeleted: false});
     if (!existing) {
@@ -37,7 +42,6 @@ export const categoryService = {
         throw new ConflictError('Another category with the same name already exists');
       }
     }
-
     return await categoryRepo.update(id, input);
   },
 
@@ -51,29 +55,28 @@ export const categoryService = {
 
   async findAll(filters?: CategoryApiQuery): Promise<CategoryRow[]> {
     const { page, pageSize, name, includeDeleted = false, ...rest } = filters || {};
-    
+    const { limit, offset } = convertToLimitAndOffset(page, pageSize);
     // Convert API params to database filters
     const dbFilters: CategoryFindAllFilters = {
       ...rest,
       ...(name && { search: name }), // Map 'name' to 'search' for repository
       includeDeleted,
-      limit: pageSize,
-      offset: page && pageSize ? (page - 1) * pageSize : undefined
+      limit,
+      offset
     };
-    
     return await categoryRepo.findAll(dbFilters);
   },
 
   async findAllDefault(params?: Pick<CategoryApiQuery, 'page' | 'pageSize'>): Promise<CategoryRow[]> {
     const { page, pageSize } = params || {};
-    
+    const { limit, offset } = convertToLimitAndOffset(page, pageSize);
     // Convert to database filters
     const dbFilters: CategoryFindAllFilters = {
       includeDeleted: false,
       sortBy: 'name',
       sortOrder: 'asc',
-      limit: pageSize,
-      offset: page && pageSize ? (page - 1) * pageSize : undefined
+      limit,
+      offset
     };
     
     return await categoryRepo.findAll(dbFilters);
