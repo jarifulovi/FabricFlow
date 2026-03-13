@@ -16,8 +16,7 @@ CREATE TABLE IF NOT EXISTS products (
   sku VARCHAR(100) NOT NULL,                         -- Stock Keeping Unit (uniqueness handled by partial index)
   name VARCHAR(255) NOT NULL,                        -- Product name
   description TEXT,
-  brand_name VARCHAR(100),
-  brand_code VARCHAR(50),
+  brand_id UUID REFERENCES brands(id),               -- FK to brands (optional)
   category_id UUID NOT NULL REFERENCES categories(id), -- FK to categories
   status product_status DEFAULT 'active' NOT NULL,   -- Lifecycle status
   unit unit_of_measure NOT NULL,                     -- Unit of measure
@@ -51,6 +50,7 @@ CREATE UNIQUE INDEX idx_products_sku_unique ON products(sku) WHERE is_deleted = 
 COMMENT ON TABLE products IS 'Stores garment product definitions. Variants, pricing, and stock are handled in other tables.';
 -- Column comments
 COMMENT ON COLUMN products.sku IS 'Product-level SKU, unique among non-deleted products only.';
+COMMENT ON COLUMN products.brand_id IS 'Optional FK to brands table.';
 COMMENT ON COLUMN products.category_id IS 'Product category such as Shirt, Pant, Jacket.';
 COMMENT ON COLUMN products.status IS 'Product availability state (active, inactive, discontinued).';
 COMMENT ON COLUMN products.unit IS 'Base unit used for this product, shared by all variants.';
