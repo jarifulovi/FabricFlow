@@ -8,6 +8,7 @@
  */
 
 import type { CreateCategoryInput } from '../../src/database/types/category';
+import type { CreateBrandInput } from '../../src/database/types/brand';
 import type { CreateWarehouseInput } from '../../src/database/types/warehouse';
 import type { CreateProductInput } from '../../src/database/types/product';
 import type { CreateProductVariantInput } from '../../src/database/types/variant';
@@ -23,6 +24,16 @@ const next = () => `${Date.now()}-${++seq}`;
 export const makeCategory = (overrides: Partial<CreateCategoryInput> = {}): CreateCategoryInput => ({
   type: 'product',
   name: `Test Category ${next()}`,
+  ...overrides,
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Brand
+// ─────────────────────────────────────────────────────────────────────────────
+
+export const makeBrand = (overrides: Partial<CreateBrandInput> = {}): CreateBrandInput => ({
+  name: `Test Brand ${next()}`,
+  code: `BR-${next()}`,
   ...overrides,
 });
 

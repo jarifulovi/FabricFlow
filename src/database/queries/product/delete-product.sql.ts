@@ -2,7 +2,8 @@
 export const bulkSoftDeleteProductSQL = `
 UPDATE products
 SET is_deleted = true,
-    deleted_at = CURRENT_TIMESTAMP
+    deleted_at = CURRENT_TIMESTAMP,
+    brand_id = NULL
 WHERE id = ANY($1::uuid[])
 RETURNING *;
 `;
