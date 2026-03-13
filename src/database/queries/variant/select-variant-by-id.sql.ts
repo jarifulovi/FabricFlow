@@ -5,8 +5,8 @@ SELECT
   p.sku AS product_sku,
   p.name AS product_name,
   p.description AS product_description,
-  p.brand_name AS product_brand_name,
-  p.brand_code AS product_brand_code,
+  p.brand_id AS product_brand_id,
+  b.name AS product_brand_name,
   p.category_id AS product_category_id,
   p.status AS product_status,
   p.unit AS product_unit,
@@ -16,6 +16,7 @@ SELECT
 FROM product_variants v
 INNER JOIN products p ON v.product_id = p.id
 LEFT JOIN categories c ON p.category_id = c.id
+LEFT JOIN brands b ON p.brand_id = b.id
 WHERE v.id = $1
 `;
 

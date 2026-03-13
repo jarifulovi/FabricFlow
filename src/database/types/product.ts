@@ -9,8 +9,7 @@ export const productSchema = z.object({
   sku: z.string({ message: 'SKU is required' }).min(1, 'SKU cannot be empty').max(500, 'SKU is too long'),
   name: z.string({ message: 'Product name is required' }).min(1, 'Product name cannot be empty').max(500, 'Product name is too long'),
   description: z.string().max(500, 'Description is too long').optional().nullable(),
-  brandName: z.string().max(500, 'Brand name is too long').optional().nullable(),
-  brandCode: z.string().max(500, 'Brand code is too long').optional().nullable(),
+  brandId: z.uuid({ message: 'Invalid brand ID' }).optional().nullable(),
   categoryId: z.uuid({ message: 'Invalid category ID' }),
   status: productStatusSchema,
   unit: productUnitSchema,
@@ -37,6 +36,7 @@ export const productRowSchema = productSchema.omit({
   deletedAt: true,
 }).extend({
   categoryName: z.string(),
+  brandName: z.string().optional().nullable(),  // from JOIN on brands
   createdAt: z.string(),
   updatedAt: z.string(),
   deletedAt: z.string().nullable(),
@@ -99,8 +99,7 @@ export const productColumnMapping: Record<string, string> = {
   sku: 'sku',
   name: 'name',
   description: 'description',
-  brandName: 'brand_name',
-  brandCode: 'brand_code',
+  brandId: 'brand_id',
   categoryId: 'category_id',
   status: 'status',
   unit: 'unit',

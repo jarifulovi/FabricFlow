@@ -3,9 +3,11 @@ import { ProductFindAllFilters, productColumnMapping } from "../../types/product
 export const baseSelectProductsSQL = `
 SELECT 
   p.*,
-  c.name AS category_name
+  c.name AS category_name,
+  b.name AS brand_name
 FROM products p
 LEFT JOIN categories c ON p.category_id = c.id
+LEFT JOIN brands b ON p.brand_id = b.id
 `;
 
 /**

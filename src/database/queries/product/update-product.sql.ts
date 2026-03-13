@@ -5,14 +5,13 @@ UPDATE products
 SET sku = $1,
     name = $2,
     description = $3,
-    brand_name = $4,
-    brand_code = $5,
-    category_id = $6,
-    status = $7,
-    unit = $8,
-    tags = $9,
+    brand_id = $4,
+    category_id = $5,
+    status = $6,
+    unit = $7,
+    tags = $8,
     updated_at = CURRENT_TIMESTAMP
-WHERE id = $10
+WHERE id = $9
 RETURNING *;
 `;
 
@@ -24,8 +23,7 @@ export const buildUpdateProductQuery = (id: string, input: UpdateProductInput) =
     sku,
     name,
     description = null,
-    brandName = null,
-    brandCode = null,
+    brandId = null,
     categoryId,
     status,
     unit,
@@ -34,6 +32,6 @@ export const buildUpdateProductQuery = (id: string, input: UpdateProductInput) =
 
   return {
     text: updateProductSQL,
-    values: [sku, name, description, brandName, brandCode, categoryId, status, unit, tags, id],
+    values: [sku, name, description, brandId, categoryId, status, unit, tags, id],
   };
 };

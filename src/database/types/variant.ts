@@ -59,8 +59,8 @@ export type ProductVariantWithProductRow = ProductVariantRow & {
     sku: string;
     name: string;
     description?: string;
+    brandId?: string;
     brandName?: string;
-    brandCode?: string;
     categoryId: string;
     categoryName: string;
     status: string;

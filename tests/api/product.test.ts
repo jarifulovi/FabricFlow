@@ -58,8 +58,6 @@ describe('Product API', () => {
     beforeAll(() => {
       productData = makeProduct(testCategoryId, {
         description: 'This is a test product',
-        brandName: 'Test Brand',
-        brandCode: 'TB001',
         tags: ['test', 'sample']
       });
       testProductSku = productData.sku;
@@ -110,7 +108,7 @@ describe('Product API', () => {
       expect(response.body.data).toHaveProperty('id');
       expect(response.body.data.sku).toBe(minimalProduct.sku);
       expect(response.body.data.description).toBeNull();
-      expect(response.body.data.brandName).toBeNull();
+      expect(response.body.data.brandId).toBeNull();
     });
 
     it('should fail to create a product without required fields', async () => {

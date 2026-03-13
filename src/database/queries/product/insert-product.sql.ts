@@ -2,9 +2,9 @@ import { CreateProductInput } from '../../types/product';
 
 export const insertProduct = `
 INSERT INTO products
-  (sku, name, description, brand_name, brand_code, category_id, status, unit, is_deleted, tags)
+  (sku, name, description, brand_id, category_id, status, unit, is_deleted, tags)
 VALUES
-  ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+  ($1, $2, $3, $4, $5, $6, $7, $8, $9)
 RETURNING *;
 `;
 
@@ -14,8 +14,7 @@ export const buildInsertProductQuery = (input: CreateProductInput) => {
     sku,
     name,
     description = null,
-    brandName = null,
-    brandCode = null,
+    brandId = null,
     categoryId,
     status = 'active',
     unit,
@@ -28,8 +27,7 @@ export const buildInsertProductQuery = (input: CreateProductInput) => {
       sku,
       name,
       description,
-      brandName,
-      brandCode,
+      brandId,
       categoryId,
       status,
       unit,
