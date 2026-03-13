@@ -1,4 +1,5 @@
 import { categoryService } from './category.service';
+import { brandService } from './brand.service';
 import { productService } from './product.service';
 import { variantService } from './variant.service';
 import { warehouseService } from './warehouse.service';
@@ -16,6 +17,14 @@ export const categoryServicePublic = {
 
 export const categoryServicePrivate = {
   hardDelete: categoryService.hardDelete,
+};
+
+export const brandServicePublic = {
+  findAll: brandService.findAll,
+  findById: brandService.findById,
+  create: brandService.create,
+  update: brandService.update,
+  delete: brandService.delete,
 };
 
 export const productServicePublic = {

@@ -56,6 +56,7 @@ export type ProductRow = z.infer<typeof productRowSchema>;
 // FindAll operation filters
 export const productFindAllFiltersSchema = z.object({
   categoryId: z.uuid().optional(),
+  brandId: z.uuid().optional(),
   search: z.string().optional(), // search by name or SKU
   status: productStatusSchema.optional(),
   tag: z.string().optional(),
@@ -70,6 +71,7 @@ export const productFindAllFiltersSchema = z.object({
 // Count operation filters
 export const productCountFiltersSchema = z.object({
   categoryId: z.uuid().optional(),
+  brandId: z.uuid().optional(),
   search: z.string().optional(),
   status: productStatusSchema.optional(),
   tag: z.string().optional(),
@@ -82,6 +84,7 @@ export const productExistsFiltersSchema = z.object({
   id: z.uuid().optional(),
   sku: z.string().optional(),
   categoryId: z.uuid().optional(),
+  brandId: z.uuid().optional(),
   status: productStatusSchema.optional(),
   tag: z.string().optional(),
   search: z.string().optional(),

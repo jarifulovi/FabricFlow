@@ -6,6 +6,14 @@ export * from './category/select-category-by-id.sql';
 export * from './category/count-categories.sql';
 export * from './category/exists-category.sql';
 
+export * from './brand/insert-brand.sql';
+export * from './brand/patch-brand.sql';
+export * from './brand/delete-brand.sql';
+export * from './brand/select-brands.sql';
+export * from './brand/select-brand-by-id.sql';
+export * from './brand/count-brands.sql';
+export * from './brand/exists-brand.sql';
+
 export * from './product/insert-product.sql';
 export * from './product/patch-product.sql';
 export * from './product/select-products.sql';

@@ -1,4 +1,5 @@
 export { categoryController } from './category.controller';
+export { brandController } from './brand.controller';
 export { productController } from './product.controller';
 export { variantController } from './variant.controller';
 export { warehouseController } from './warehouse.controller';

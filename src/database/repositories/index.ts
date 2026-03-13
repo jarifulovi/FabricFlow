@@ -1,4 +1,5 @@
 export * from './category.repo';
+export * from './brand.repo';
 export * from './warehouse.repo';
 export * from './product.repo';
 export * from './variant.repo';

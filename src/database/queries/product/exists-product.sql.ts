@@ -30,6 +30,11 @@ export const buildExistsProductQuery = (filters?: ProductExistsFilters) => {
       counter++;
       values.push(filters.categoryId);
     }
+    if (filters.brandId !== undefined) {
+      text += ` AND p.brand_id = $${counter}`;
+      counter++;
+      values.push(filters.brandId);
+    }
     if (filters.status) {
       text += ` AND p.status = $${counter}`;
       counter++;
