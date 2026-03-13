@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { AppError } from '../utils/errors';
+import logger from '../utils/logger';
 
 /**
  * Error response interface for consistent error formatting
@@ -25,32 +26,21 @@ export function errorHandler(
   const isDevelopment = process.env.NODE_ENV === 'development';
   const isTest = process.env.NODE_ENV === 'test';
 
-  let statusCode = 500;
-  let message = error.message || 'Internal Server Error';
+  const isAppError = error instanceof AppError;
+  const isZodError = error.name === 'ZodError';
+  const statusCode = isAppError ? error.statusCode : isZodError ? 400 : 500;
+  const message = error.message || 'Internal Server Error';
 
-  if (error instanceof AppError) {
-    // Custom application errors carry their own status code
-    statusCode = error.statusCode;
-  } else if (error.name === 'ZodError') {
-    // Zod validation errors are always 400 Bad Request
-    statusCode = 400;
-  } else {
-    // Fallback: detect common raw DB / library errors by message
-    const msg = message.toLowerCase();
-    if (msg.includes('duplicate key') || msg.includes('violates unique constraint')) {
-      statusCode = 409;
-    } else if (msg.includes('foreign key constraint') || msg.includes('violates foreign key')) {
-      statusCode = 400;
-    }
-    // Only log truly unexpected errors — skip in test env to keep output clean
-    if (!isTest) {
-      console.error('Unexpected error:', {
-        message: error.message,
-        stack: error.stack,
-        url: req.url,
-        method: req.method,
-      });
-    }
+  // Log error using Winston logger, except in test environment
+  if (!isTest) {
+    logger.error({
+      message: error.message,
+      stack: error.stack,
+      url: req.originalUrl,
+      method: req.method,
+      statusCode,
+      user: (req as any).user?.id || undefined,
+    });
   }
 
   const errorResponse: ErrorResponse = {

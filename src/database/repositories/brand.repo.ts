@@ -3,7 +3,7 @@ import { mapRowToCamel, mapRowsToCamel } from './../utils/row-mapper.js';
 import {
   buildInsertBrandQuery,
   buildPatchBrandQuery,
-  buildDeleteBrandQuery,
+  buildBulkDeleteBrandsQuery,
   buildSelectBrandsQuery,
   buildSelectBrandByIdQuery,
   buildCountBrandsQuery,
@@ -50,7 +50,7 @@ export const brandRepo = {
 
   async delete(id: string, executor?: Pool | PoolClient): Promise<BrandRow> {
     const db = executor || pool;
-    const { text, values } = buildDeleteBrandQuery(id);
+    const { text, values } = buildBulkDeleteBrandsQuery([id]);
     const result = await db.query(text, values);
     return mapRowToCamel<BrandRow>({ ...result.rows[0], products_count: 0 });
   },
