@@ -1,10 +1,14 @@
 import express from 'express';
-import { categoryRoutes, brandRoutes, productRoutes, variantRoutes, inventoryMovementRoutes } from './routes/index.js';
-import { errorHandler, notFoundHandler } from './middlewares/index.js';
+import { categoryRoutes, brandRoutes, productRoutes, variantRoutes, inventoryMovementRoutes } from './routes';
+import { errorHandler, notFoundHandler } from './middlewares';
+import security from './middlewares';
 
 const app = express();
 
-app.use(express.json());
+app.use(express.json({ limit: '10mb' })); // Set JSON body size limit
+
+// Apply security middleware (helmet, cors, rate limiting) conditionally based on environment
+security(app, process.env.NODE_ENV || 'development');
 
 // API Routes
 app.use('/api/categories', categoryRoutes);
