@@ -4,6 +4,10 @@
 -- command to stop  : docker-compose down
 -- command to stop and reset : docker-compose down -v
 
+# To run the migrations in database
+-- navigate to root
+-- command to start : ./src/database/migrations/run_migrations.sh
+
 # To Run the Server
 -- navigate to root
 -- command to start in dev : npm run dev

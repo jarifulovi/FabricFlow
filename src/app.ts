@@ -1,4 +1,5 @@
 import express from 'express';
+import compression from 'compression';
 import { categoryRoutes, brandRoutes, productRoutes, variantRoutes, inventoryMovementRoutes } from './routes';
 import { errorHandler, notFoundHandler } from './middlewares';
 import security from './middlewares';
@@ -6,6 +7,7 @@ import security from './middlewares';
 const app = express();
 
 app.use(express.json({ limit: '10mb' })); // Set JSON body size limit
+app.use(compression()); // Enable gzip compression for responses
 
 // Apply security middleware (helmet, cors, rate limiting) conditionally based on environment
 security(app, process.env.NODE_ENV || 'development');
