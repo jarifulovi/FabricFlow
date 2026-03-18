@@ -65,3 +65,5 @@ export * from './inventory-movement/insert-inventory-movement.sql';
 export * from './inventory-movement/delete-inventory-movement.sql';
 export * from './inventory-movement/count-inventory-movements.sql';
 export * from './inventory-movement/exists-inventory-movement.sql';
+
+export * from './auth/select-user-role.sql';

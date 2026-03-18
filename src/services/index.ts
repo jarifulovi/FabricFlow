@@ -5,6 +5,7 @@ import { variantService } from './variant.service';
 import { warehouseService } from './warehouse.service';
 import { receivingSlipService } from './receiving-slip.service';
 import { inventoryMovementService } from './inventory-movement.service';
+import { authorizationService } from './authorization.service';
 
 export const categoryServicePublic = {
   findAll: categoryService.findAll,
@@ -84,4 +85,9 @@ export const inventoryMovementServicePrivate = {
   create: inventoryMovementService.create,
   bulkCreate: inventoryMovementService.bulkCreate,
   delete: inventoryMovementService.delete,
+};
+
+export const authorizationServicePublic = {
+  resolvePermissions: authorizationService.resolvePermissions,
+  hasPermission: authorizationService.hasPermission,
 };

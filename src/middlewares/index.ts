@@ -1,4 +1,5 @@
 export { errorHandler, notFoundHandler } from './error-handler';
+export { requirePermission } from './require-permission';
 
 import { Application } from 'express';
 import { applyHelmet } from './helmet';
