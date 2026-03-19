@@ -6,7 +6,7 @@ export const userSchema = z.object({
   externalId: z.string().min(1, 'External ID is required').max(100, 'External ID is too long'),
   email: z.email({ message: 'Invalid email address' }).max(255, 'Email is too long'),
   name: z.string().max(100, 'Name is too long').optional().nullable(),
-  roleId: z.uuid({ message: 'Invalid role ID' }).optional().nullable(),
+  roleId: z.uuid({ message: 'Invalid role ID' }),
   roleName: z.string().max(100, 'Role name is too long').optional().nullable(),
   isActive: z.boolean().default(true),
   createdAt: z.date(),

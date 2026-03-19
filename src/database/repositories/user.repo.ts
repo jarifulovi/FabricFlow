@@ -6,6 +6,7 @@ import {
   buildSelectUserByIdQuery,
   buildSelectUserByExternalIdQuery,
   buildSelectUserByEmailQuery,
+  buildBulkDeleteUsersQuery,
 } from './../queries';
 import { CreateUserInput, UpdateUserInput, UserRow } from '../types/user';
 
@@ -43,5 +44,12 @@ export const userRepo = {
     const { text, values } = buildSelectUserByEmailQuery(email);
     const result = await db.query(text, values);
     return result.rows[0] ? mapRowToCamel<UserRow>(result.rows[0]) : null;
+  },
+
+  async delete(id: string, executor?: Pool | PoolClient): Promise<UserRow> {
+    const db = executor || pool;
+    const { text, values } = buildBulkDeleteUsersQuery([id]);
+    const result = await db.query(text, values);
+    return mapRowToCamel<UserRow>(result.rows[0]);
   },
 };

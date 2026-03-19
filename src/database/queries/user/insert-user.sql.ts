@@ -13,7 +13,7 @@ export const buildInsertUserQuery = (input: CreateUserInput) => {
     externalId,
     email,
     name = null,
-    roleId = null,
+    roleId,
     isActive = true,
   } = input;
 

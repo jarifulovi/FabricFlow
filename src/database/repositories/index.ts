@@ -8,3 +8,4 @@ export * from './receiving-slip-line.repo';
 export * from './inventory-movement.repo';
 export * from './auth.repo';
 export * from './user.repo';
+export * from './role.repo';

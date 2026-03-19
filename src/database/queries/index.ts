@@ -73,6 +73,7 @@ export * from './user/patch-user.sql';
 export * from './user/select-user-by-id.sql';
 export * from './user/select-user-by-external-id.sql';
 export * from './user/select-user-by-email.sql';
+export * from './user/delete-user.sql';
 
 export * from './role/insert-role.sql';
 export * from './role/patch-role.sql';
