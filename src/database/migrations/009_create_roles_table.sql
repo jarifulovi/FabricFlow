@@ -34,6 +34,7 @@ COMMENT ON COLUMN roles.is_system IS 'TRUE for system/built-in roles, FALSE for 
 
 -- Inserts for default roles
 INSERT INTO roles (name, description, is_system) VALUES
+('superadmin', 'Super Administrator with unrestricted access to all resources and permissions.', TRUE),
 ('admin', 'Administrator with full access to all resources.', TRUE),
 ('manager', 'Manager with elevated permissions but not full admin rights.', TRUE),
 ('user', 'Regular user with limited access.', TRUE)

@@ -1,6 +1,7 @@
 import { PERMISSIONS } from './permissions';
 
 export const ROLE_PERMISSIONS = {
+  superadmin: Object.values(PERMISSIONS),
   admin: Object.values(PERMISSIONS),
   manager: [
     PERMISSIONS.CATEGORY_CREATE,
@@ -21,3 +22,11 @@ export const ROLE_PERMISSIONS = {
  * Type of system roles. Note default roles are not necessarily exhaustive of all possible roles in the system, but represent the baseline for permission assignment.
  */
 export type DefaultRole = keyof typeof ROLE_PERMISSIONS;
+
+/**
+ * Checks if a role name is a default/system role.
+ * Usage: isDefaultRole('admin') => true
+ */
+export function isDefaultRole(roleName: string): boolean {
+  return roleName in ROLE_PERMISSIONS;
+}
