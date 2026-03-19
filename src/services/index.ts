@@ -6,6 +6,7 @@ import { warehouseService } from './warehouse.service';
 import { receivingSlipService } from './receiving-slip.service';
 import { inventoryMovementService } from './inventory-movement.service';
 import { authorizationService } from './authorization.service';
+import { userService } from './user.service';
 
 export const categoryServicePublic = {
   findAll: categoryService.findAll,
@@ -91,3 +92,18 @@ export const authorizationServicePublic = {
   resolvePermissions: authorizationService.resolvePermissions,
   hasPermission: authorizationService.hasPermission,
 };
+
+export const userServicePublic = {
+  create: userService.create,
+  findById: userService.findProfileForActor,
+  updateOwn: userService.updateOwnProfile,
+  updateByAdmin: userService.updateUserByAdmin,
+  deleteByAdmin: userService.deleteByAdmin,
+  deleteBySuperAdmin: userService.deleteBySuperAdmin,
+};
+
+export const userServicePrivate = {
+  findById: userService.findById,
+  findByExternalId: userService.findByExternalId,
+  findByEmail: userService.findByEmail,
+}
