@@ -1,6 +1,6 @@
 /**
  * Permissions are mostly route focused, but can also be less granular (e.g. category:read_any for all types of category reads)
- * Sometime permissions can be controller focused where single routes have different permissions (e.g. partial read vs full read of a category)
+ * Sometime permissions can be controller/service focused where single routes have different permissions (e.g. partial read vs full read of a category)
  */
 export const PERMISSIONS = {
   // Category permissions
@@ -38,7 +38,8 @@ export const PERMISSIONS = {
   INVENTORY_MOVEMENT_DELETE: 'inventory_movement:delete',
 
   // User permissions (for future use)
-  USER_READ: 'user:read',
+  USER_READ: 'user:read',         // Can only view their own profile, not other users
+  USER_READ_ALL: 'user:read_all', // Can view all user profiles, not just their own
   USER_UPDATE: 'user:update',
   USER_DELETE: 'user:delete',
   USER_CREATE: 'user:create',
