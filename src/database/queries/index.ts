@@ -81,3 +81,9 @@ export * from './role/delete-role.sql';
 export * from './role/select-role-by-id.sql';
 export * from './role/select-role-by-name.sql';
 export * from './role/select-roles.sql';
+
+export * from './invitation/insert-invitation.sql';
+export * from './invitation/patch-invitation.sql';
+export * from './invitation/select-invitation-by-email.sql';
+export * from './invitation/select-invitation-by-token-hash.sql';
+export * from './invitation/delete-invitation.sql';

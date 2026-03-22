@@ -9,3 +9,4 @@ export * from './inventory-movement.repo';
 export * from './auth.repo';
 export * from './user.repo';
 export * from './role.repo';
+export * from './invitation.repo';
