@@ -1,7 +1,7 @@
 import express from 'express';
 import compression from 'compression';
 import { categoryRoutes, brandRoutes, productRoutes, variantRoutes, inventoryMovementRoutes } from './routes';
-import { errorHandler, notFoundHandler } from './middlewares';
+import { createSessionMiddleware, errorHandler, notFoundHandler } from './middlewares';
 import security from './middlewares';
 
 const app = express();
@@ -9,6 +9,7 @@ const app = express();
 app.set('trust proxy', 1); // Trust first proxy (if behind a reverse proxy)
 app.use(express.json({ limit: '10mb' })); // Set JSON body size limit
 app.use(compression()); // Enable gzip compression for responses
+app.use(createSessionMiddleware());
 
 // Apply security middleware (helmet, cors, rate limiting) conditionally based on environment
 security(app, process.env.NODE_ENV || 'development');
