@@ -1,5 +1,5 @@
 import { z } from 'zod/v4';
-import { createInvitationSchema, updateInvitationSchema } from '../database/types/invitation';
+import { updateInvitationSchema } from '../database/types/invitation';
 
 // API/Controller params
 export const invitationParamsSchema = z.object({
@@ -14,7 +14,11 @@ export const invitationByTokenQuerySchema = z.object({
   token: z.string().min(1, 'Token is required'),
 });
 
-export const invitationCreateBodySchema = createInvitationSchema;
+export const invitationCreateBodySchema = z.object({
+  email: z.email('Invalid email address').max(255, 'Email is too long'),
+  roleId: z.uuid('Invalid role ID'),
+  expiresAt: z.coerce.date().optional(),
+});
 export const invitationUpdateBodySchema = updateInvitationSchema;
 
 export type InvitationParams = z.infer<typeof invitationParamsSchema>;

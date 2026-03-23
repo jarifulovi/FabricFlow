@@ -6,6 +6,7 @@ import security from './middlewares';
 
 const app = express();
 
+app.set('trust proxy', 1); // Trust first proxy (if behind a reverse proxy)
 app.use(express.json({ limit: '10mb' })); // Set JSON body size limit
 app.use(compression()); // Enable gzip compression for responses
 
