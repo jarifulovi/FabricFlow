@@ -1,4 +1,5 @@
 export { errorHandler, notFoundHandler } from './error-handler';
+export { requireAuth } from './require-auth';
 export { requirePermission } from './require-permission';
 export { createSessionMiddleware } from './session';
 

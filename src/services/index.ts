@@ -7,6 +7,10 @@ import { receivingSlipService } from './receiving-slip.service';
 import { inventoryMovementService } from './inventory-movement.service';
 import { authorizationService } from './authorization.service';
 import { userService } from './user.service';
+import { invitationService } from './invitation.service';
+import { authenticationService } from './authentication.service';
+import { emailService } from './email.service';
+import { sessionService } from './session.service';
 
 export const categoryServicePublic = {
   findAll: categoryService.findAll,
@@ -106,4 +110,32 @@ export const userServicePrivate = {
   findById: userService.findById,
   findByExternalId: userService.findByExternalId,
   findByEmail: userService.findByEmail,
-}
+};
+
+export const invitationServicePublic = {
+  createInvitation: invitationService.createInvitation,
+  previewInvitation: invitationService.previewInvitation,
+};
+
+export const invitationServicePrivate = {
+  findValidByRawToken: invitationService.findValidByRawToken,
+  consumeInvitation: invitationService.consumeInvitation,
+};
+
+export const authenticationServicePublic = {
+  register: authenticationService.register,
+  registerWithInvitation: authenticationService.registerWithInvitation,
+  login: authenticationService.login,
+};
+
+export const emailServicePublic = {
+  sendEmail: emailService.sendEmail,
+  isConfigured: emailService.isConfigured,
+};
+
+export const sessionServicePublic = {
+  createLoginSession: sessionService.createLoginSession,
+  getSessionUser: sessionService.getSessionUser,
+  isAuthenticated: sessionService.isAuthenticated,
+  destroySession: sessionService.destroySession,
+};
