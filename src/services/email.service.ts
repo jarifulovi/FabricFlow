@@ -1,5 +1,4 @@
 import nodemailer, { Transporter } from 'nodemailer';
-import logger from '../utils/logger';
 import { BadRequestError } from '../utils/errors';
 
 type SendEmailInput = {
@@ -53,27 +52,13 @@ export const emailService = {
 
     const transporter = this.getTransporter();
 
-    try {
-      await transporter.sendMail({
-        from: resolvedFrom,
-        to: normalizedRecipients,
-        subject: subject.trim(),
-        text,
-        html,
-      });
-
-      logger.info('Email sent successfully', {
-        to: normalizedRecipients,
-        subject: subject.trim(),
-      });
-    } catch (error) {
-      logger.error('Failed to send email', {
-        to: normalizedRecipients,
-        subject: subject.trim(),
-        error,
-      });
-      throw error;
-    }
+    await transporter.sendMail({
+      from: resolvedFrom,
+      to: normalizedRecipients,
+      subject: subject.trim(),
+      text,
+      html,
+    });
   },
 
   // helper private methods

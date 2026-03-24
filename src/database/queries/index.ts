@@ -86,4 +86,6 @@ export * from './invitation/insert-invitation.sql';
 export * from './invitation/patch-invitation.sql';
 export * from './invitation/select-invitation-by-email.sql';
 export * from './invitation/select-invitation-by-token-hash.sql';
+export * from './invitation/select-invitation-by-token-hash-for-update.sql';
+export * from './invitation/consume-invitation.sql';
 export * from './invitation/delete-invitation.sql';

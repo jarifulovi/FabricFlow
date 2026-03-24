@@ -5,6 +5,8 @@ import {
   buildPatchInvitationQuery,
   buildSelectInvitationByEmailQuery,
   buildSelectInvitationByTokenHashQuery,
+  buildSelectInvitationByTokenHashForUpdateQuery,
+  buildConsumeInvitationQuery,
   buildBulkDeleteInvitationsQuery,
 } from './../queries';
 import { CreateInvitationInput, InvitationRow, UpdateInvitationInput } from '../types/invitation';
@@ -34,6 +36,20 @@ export const invitationRepo = {
   async findByTokenHash(tokenHash: string, executor?: Pool | PoolClient): Promise<InvitationRow | null> {
     const db = executor || pool;
     const { text, values } = buildSelectInvitationByTokenHashQuery(tokenHash);
+    const result = await db.query(text, values);
+    return result.rows[0] ? mapRowToCamel<InvitationRow>(result.rows[0]) : null;
+  },
+
+  async findByTokenHashForUpdate(tokenHash: string, executor?: Pool | PoolClient): Promise<InvitationRow | null> {
+    const db = executor || pool;
+    const { text, values } = buildSelectInvitationByTokenHashForUpdateQuery(tokenHash);
+    const result = await db.query(text, values);
+    return result.rows[0] ? mapRowToCamel<InvitationRow>(result.rows[0]) : null;
+  },
+
+  async consume(tokenHash: string, oauthEmail: string, executor?: Pool | PoolClient): Promise<InvitationRow | null> {
+    const db = executor || pool;
+    const { text, values } = buildConsumeInvitationQuery(tokenHash, oauthEmail);
     const result = await db.query(text, values);
     return result.rows[0] ? mapRowToCamel<InvitationRow>(result.rows[0]) : null;
   },
