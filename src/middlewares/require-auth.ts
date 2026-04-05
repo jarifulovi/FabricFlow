@@ -24,6 +24,7 @@ export const requireAuth = () => {
         id: sessionUser.id,
         externalId: sessionUser.externalId,
         email: sessionUser.email,
+        role: sessionUser.roleName ?? undefined,
       };
 
       next();

@@ -1,7 +1,15 @@
 import express from 'express';
 import compression from 'compression';
 import type { Store } from 'express-session';
-import { categoryRoutes, brandRoutes, productRoutes, variantRoutes, inventoryMovementRoutes } from './routes';
+import {
+	categoryRoutes,
+	brandRoutes,
+	productRoutes,
+	variantRoutes,
+	inventoryMovementRoutes,
+	authRoutes,
+	invitationRoutes,
+} from './routes';
 import { createSessionMiddleware, errorHandler, notFoundHandler } from './middlewares';
 import security from './middlewares';
 
@@ -22,6 +30,8 @@ export const createApp = (sessionStore?: Store) => {
 	app.use('/api/products', productRoutes);
 	app.use('/api/variants', variantRoutes);
 	app.use('/api/inventory-movements', inventoryMovementRoutes);
+	app.use('/api/auth', authRoutes);
+	app.use('/api/invitations', invitationRoutes);
 
 	// 404 handler for unmatched routes (must be after all routes)
 	app.use(notFoundHandler);

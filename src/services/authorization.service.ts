@@ -23,7 +23,7 @@ export const authorizationService = {
    * Resolves the permissions for a user based on input.
    * If a role is provided, returns permissions for that role.
    * Otherwise, looks up the user's role from the database and returns its permissions.
-   * Throws bad request error if no user identity is provided.
+   * Throws bad request error if no user identity is provided (userId | externalId | email).
    */
   async resolvePermissions(input: PermissionLookupInput): Promise<Permission[]> {
     if (input.role) {
