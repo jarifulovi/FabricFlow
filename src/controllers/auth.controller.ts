@@ -4,6 +4,7 @@ import {
   authorizationServicePublic,
   sessionServicePublic,
 } from '../services';
+import { SESSION_COOKIE_NAME } from '../services/session.service';
 import {
   loginSchema,
   registerWithInvitationSchema,
@@ -15,7 +16,8 @@ export const authController = {
   // POST /auth/register
   register: asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const input = registerWithInvitationSchema.parse(req.body);
-    const user = await authenticationServicePublic.register(input, req);
+    const user = await authenticationServicePublic.register(input);
+    await sessionServicePublic.createLoginSession(req, user);
 
     res.status(201).json({
       success: true,
@@ -27,7 +29,8 @@ export const authController = {
   // POST /auth/login
   login: asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const input = loginSchema.parse(req.body);
-    const user = await authenticationServicePublic.login(input, req);
+    const user = await authenticationServicePublic.login(input);
+    await sessionServicePublic.createLoginSession(req, user);
 
     res.status(200).json({
       success: true,
@@ -38,7 +41,8 @@ export const authController = {
 
   // POST /auth/logout
   logout: asyncHandler(async (req: Request, res: Response): Promise<void> => {
-    await sessionServicePublic.destroySession(req, res);
+    await sessionServicePublic.destroySession(req);
+    res.clearCookie(SESSION_COOKIE_NAME);
 
     res.status(200).json({
       success: true,

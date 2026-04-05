@@ -1,4 +1,4 @@
-import { Request, Response } from 'express';
+import { Request } from 'express';
 import { UserRow } from '../database/types/user';
 
 type SessionUser = {
@@ -15,7 +15,7 @@ declare module 'express-session' {
   }
 }
 
-const SESSION_COOKIE_NAME = process.env.SESSION_COOKIE_NAME || 'fabricflow.sid';
+export const SESSION_COOKIE_NAME = process.env.SESSION_COOKIE_NAME || 'fabricflow.sid';
 
 
 
@@ -48,7 +48,7 @@ export const sessionService = {
     return Boolean(req.session.user);
   },
 
-  async destroySession(req: Request, res: Response): Promise<void> {
+  async destroySession(req: Request): Promise<void> {
     await new Promise<void>((resolve, reject) => {
       req.session.destroy((err) => {
         if (err) {
@@ -58,8 +58,6 @@ export const sessionService = {
         resolve();
       });
     });
-
-    res.clearCookie(SESSION_COOKIE_NAME);
   },
 
   mapUserToSessionUser (user: UserRow): SessionUser {
