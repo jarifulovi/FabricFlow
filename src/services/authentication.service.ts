@@ -59,6 +59,9 @@ export const authenticationService = {
 
     const byExternalId = input.externalId ? await userRepo.findByExternalId(input.externalId) : null;
     if (byExternalId) {
+      if (byExternalId.isActive === false) {
+        throw new BadRequestError('User account is inactive');
+      }
       return byExternalId;
     }
 
@@ -69,6 +72,10 @@ export const authenticationService = {
     const byEmail = await userRepo.findByEmail(authenticationService.normalizeEmail(input.email));
     if (!byEmail) {
       throw new NotFoundError('User not found');
+    }
+
+    if (byEmail.isActive === false) {
+      throw new BadRequestError('User account is inactive');
     }
 
     return byEmail;

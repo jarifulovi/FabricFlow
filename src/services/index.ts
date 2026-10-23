@@ -11,6 +11,7 @@ import { invitationService } from './invitation.service';
 import { authenticationService } from './authentication.service';
 import { emailService } from './email.service';
 import { sessionService } from './session.service';
+import { googleOAuthService } from './google-oauth.service';
 
 export const categoryServicePublic = {
   findAll: categoryService.findAll,
@@ -138,4 +139,10 @@ export const sessionServicePublic = {
   getSessionUser: sessionService.getSessionUser,
   isAuthenticated: sessionService.isAuthenticated,
   destroySession: sessionService.destroySession,
+};
+
+export const googleOAuthServicePublic = {
+  buildAuthorizationUrl: googleOAuthService.buildAuthorizationUrl,
+  exchangeCodeForTokens: googleOAuthService.exchangeCodeForTokens,
+  fetchUserProfile: googleOAuthService.fetchUserProfile,
 };

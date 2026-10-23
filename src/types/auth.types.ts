@@ -19,8 +19,28 @@ export const loginSchema = z.object({
   message: 'Either externalId or email is required',
 });
 
+export const googleAuthIntentSchema = z.enum(['login', 'register']);
+
+export const googleAuthStartQuerySchema = z.object({
+  intent: googleAuthIntentSchema.default('login'),
+  token: z.string().min(1).optional(),
+}).refine((data) => data.intent !== 'register' || Boolean(data.token), {
+  message: 'Invitation token is required for register intent',
+  path: ['token'],
+});
+
+export const googleAuthCallbackQuerySchema = z.object({
+  code: z.string().min(1).optional(),
+  state: z.string().min(1).optional(),
+  error: z.string().min(1).optional(),
+  errorDescription: z.string().min(1).optional(),
+});
+
 export type RegisterWithInvitationInput = z.infer<typeof registerWithInvitationSchema>;
 export type LoginInput = z.infer<typeof loginSchema>;
+export type GoogleAuthIntent = z.infer<typeof googleAuthIntentSchema>;
+export type GoogleAuthStartQuery = z.infer<typeof googleAuthStartQuerySchema>;
+export type GoogleAuthCallbackQuery = z.infer<typeof googleAuthCallbackQuerySchema>;
 
 export interface AuthIdentityInput {
   userId?: string;

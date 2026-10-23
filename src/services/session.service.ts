@@ -9,9 +9,17 @@ type SessionUser = {
   roleName?: string | null;
 };
 
+type PendingOAuthSession = {
+  state: string;
+  intent: 'login' | 'register';
+  invitationToken?: string;
+  createdAt: number;
+};
+
 declare module 'express-session' {
   interface SessionData {
     user?: SessionUser;
+    oauth?: PendingOAuthSession;
   }
 }
 
